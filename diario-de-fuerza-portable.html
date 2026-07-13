@@ -181,7 +181,7 @@
 </div>
 
 <div class="card"><h2>Notas de la sesión</h2><textarea id="notas" placeholder="Sensaciones, cambios de carga, gestos que molestaron..."></textarea></div>
-<button class="btn" id="guardar" style="margin:2px 0 14px">Guardar sesiÃ³n â</button>
+<button class="btn" id="guardar" style="margin:2px 0 14px">Guardar sesión ✓</button>
 
 <div class="card">
   <details id="histDetails">
@@ -296,6 +296,7 @@ function ytId(name){return YT_IDS[name]||""}
 function ytWatch(name){const id=ytId(name);return id?"https://www.youtube.com/watch?v="+id:"https://www.youtube.com/results?search_query="+encodeURIComponent(name);}
 
 let state={sesion:"A · Inferior",dia:"v",pem:"no",yogaTipo:"Hatha",exDone:{},exLog:{},wDone:{}};
+let editTs=null;
 
 const $=id=>document.getElementById(id);
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"[]")}catch(e){return[]}}
@@ -427,16 +428,56 @@ function bindWellness(){
 
 function guardar(){
   const s=SESIONES[state.sesion];
-  const entry={ts:Date.now(),fecha:$("fecha").value||todayISO(),mes:$("mes").value,semana:$("semana").value,momento:$("momento").value,
+  const entry={ts:editTs||Date.now(),fecha:$("fecha").value||todayISO(),mes:$("mes").value,semana:$("semana").value,momento:$("momento").value,
     sesion:state.sesion,dia:state.dia,dolorCadera:+$("dolorCadera").value,dolorLumbar:+$("dolorLumbar").value,dolorHombro:+$("dolorHombro").value,
     pem:state.pem,energia:+$("energia").value,peso:$("peso").value,cintura:$("cintura").value,
     yogaTipo:s.tipo==="yoga"?state.yogaTipo:"",yogaNotas:s.tipo==="yoga"?$("yogaNotas").value:"",
     cardioMedio:s.tipo==="cardio"?$("cardioMedio").value:"",cardioMin:s.tipo==="cardio"?$("cardioMin").value:"",
     notas:$("notas").value,
     ejercicios:s.tipo==="gym"?s.ejercicios.map((ex,i)=>({name:ex.name,done:!!state.exDone[i],log:state.exLog[i]||""})):[]};
-  const a=load();a.push(entry);save(a);flash("Guardado ✓");
+  const a=load();
+  if(editTs){const i=a.findIndex(x=>x.ts===editTs);if(i>=0)a[i]=entry;else a.push(entry);}
+  else a.push(entry);
+  save(a);flash(editTs?"Actualizado ✓":"Guardado ✓");
+  editTs=null;$("guardar").textContent="Guardar sesión ✓";
   state.exDone={};state.exLog={};state.wDone={};$("notas").value="";$("yogaNotas").value="";$("cardioMin").value="";
   renderSesion();renderHist();
+}
+
+function editEntry(ts){
+  const e=load().find(x=>x.ts===ts);if(!e)return;
+  editTs=ts;
+  state.sesion=e.sesion||state.sesion;
+  state.dia=e.dia||"v";
+  state.pem=e.pem||"no";
+  state.yogaTipo=e.yogaTipo||"Hatha";
+  state.exDone={};state.exLog={};state.wDone={};
+  (e.ejercicios||[]).forEach((x,i)=>{if(x.done)state.exDone[i]=true;if(x.log)state.exLog[i]=x.log;});
+  $("fecha").value=e.fecha||todayISO();
+  if(e.mes)$("mes").value=e.mes;
+  if(e.semana)$("semana").value=e.semana;
+  if(e.momento)$("momento").value=e.momento;
+  updateJulyNote();
+  const setSlider=(id,v)=>{$(id).value=v;$(id+"V").textContent=v;colorVal($(id+"V"),+v,3,5);};
+  setSlider("dolorCadera",e.dolorCadera||0);
+  setSlider("dolorLumbar",e.dolorLumbar||0);
+  setSlider("dolorHombro",e.dolorHombro||0);
+  $("energia").value=e.energia||3;$("energiaV").textContent=e.energia||3;
+  $("peso").value=e.peso||"";$("cintura").value=e.cintura||"";
+  $("yogaNotas").value=e.yogaNotas||"";
+  if(e.cardioMedio)$("cardioMedio").value=e.cardioMedio;
+  $("cardioMin").value=e.cardioMin||"";
+  $("notas").value=e.notas||"";
+  $("diaChips").querySelectorAll(".chip").forEach(c=>c.className="chip");
+  const dch=$("diaChips").querySelector('[data-d="'+state.dia+'"]');
+  if(dch)dch.className="chip "+(state.dia==="v"?"on-v":state.dia==="a"?"on-a":"on-r");
+  $("pemToggle").querySelectorAll("button").forEach(b=>b.className="");
+  const pb=$("pemToggle").querySelector('[data-v="'+state.pem+'"]');
+  if(pb)pb.className=state.pem==="si"?"on-si":(state.pem==="nose"?"on-nose":"on-no");
+  buildChips();renderSesion();updateBanner();
+  $("guardar").textContent="Actualizar sesión ✓";
+  window.scrollTo(0,0);
+  flash("Editando "+(e.fecha||""));
 }
 
 function diaTag(d){return d==="r"?'🔴':d==="a"?'🟡':'🟢'}
@@ -450,9 +491,15 @@ function renderHist(){
   if(!a.length){c.innerHTML='<div class="mini">Sin sesiones para ese filtro.</div>';return}
   a.slice(0,60).forEach(e=>{const logs=(e.ejercicios||[]).filter(x=>x.log).map(x=>x.name.split(" ")[0]+": "+x.log).join(" · ");
     const d=document.createElement("div");d.className="hist-item";
-    d.innerHTML=diaTag(e.dia)+' <b>'+e.fecha+'</b>'+(e.mes?'<span class="tag">'+e.mes+' · '+(e.semana||"")+'</span>':'')+' · '+e.sesion+' '+pill(e.dolorCadera||0)+(e.pem==="si"?'<span class="pill r">PEM</span>':'')+
-      (logs?'<div class="mini" style="margin-top:4px">'+logs+'</div>':'')+(e.notas?'<div class="mini" style="margin-top:4px">📝 '+e.notas+'</div>':'');
+    d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'+
+      '<div style="flex:1;min-width:0">'+
+      diaTag(e.dia)+' <b>'+e.fecha+'</b>'+(e.mes?'<span class="tag">'+e.mes+' · '+(e.semana||"")+'</span>':'')+' · '+e.sesion+' '+pill(e.dolorCadera||0)+(e.pem==="si"?'<span class="pill r">PEM</span>':'')+
+      (logs?'<div class="mini" style="margin-top:4px">'+logs+'</div>':'')+(e.notas?'<div class="mini" style="margin-top:4px">📝 '+e.notas+'</div>':'')+
+      '</div>'+
+      (e.ts?'<button class="btnsm" data-edit="'+e.ts+'" style="flex:0 0 auto">✏️ Editar</button>':'')+
+      '</div>';
     c.appendChild(d)});
+  c.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editEntry(+b.dataset.edit));
 }
 
 function exportClaude(){
