@@ -7,12 +7,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Alex">
-<meta name="theme-color" content="#1F3B57">
+<meta name="theme-color" content="#12212f">
 <title>Alex · Entreno &amp; Salud</title>
 <style>
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;overflow:hidden;background:#f4f1ea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-  .frame{position:fixed;top:0;left:0;width:100%;height:calc(100% - 60px);border:0;display:none;background:#fff;-webkit-overflow-scrolling:touch}
+  html,body{margin:0;height:100%;overflow:hidden;background:#12212f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+  .frame{position:fixed;top:env(safe-area-inset-top);left:0;width:100%;
+    height:calc(100% - 60px - env(safe-area-inset-top));border:0;display:none;background:#fff;-webkit-overflow-scrolling:touch}
   #loadmsg{position:fixed;top:44%;left:0;right:0;text-align:center;color:#6d7a76;font-size:14px;padding:0 24px}
   .frame.on{display:block}
   #bar{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;gap:6px;
