@@ -45,6 +45,8 @@
   input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:.9rem;font-family:inherit;background:#fff;color:var(--ink)}
   textarea{min-height:60px;resize:vertical}
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .row3>div{display:flex;flex-direction:column}
+  .row3>div>select,.row3>div>input{margin-top:auto}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   @media(max-width:520px){.row3{grid-template-columns:1fr 1fr}}
   .btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 14px;font-size:.9rem;font-weight:700;cursor:pointer;width:100%;margin-top:12px}
@@ -131,13 +133,13 @@
     <input type="date" id="d_fecha">
     <h3>Marcadores del día (1 = nada/muy poco · 5 = mucho)</h3>
     <div class="row3">
-      <div><label class="f">Molestia intestinal (5=mucha)</label><select id="d_dig"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-      <div><label class="f">Irritabilidad (5=mucha)</label><select id="d_irrita"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-      <div><label class="f">Motivación / Burnout</label><select id="d_motiv"><option value="">—</option><option>Burnout</option><option>Neutro</option><option>Motivado</option></select></div>
+      <div><label class="f">Molestia intestinal (0=nada · 3=mucho)</label><select id="d_dig"><option selected>0</option><option>1</option><option>2</option><option>3</option></select></div>
+      <div><label class="f">Irritabilidad (0=nada · 3=mucho)</label><select id="d_irrita"><option selected>0</option><option>1</option><option>2</option><option>3</option></select></div>
+      <div><label class="f">Motivación / Burnout</label><select id="d_motiv"><option>Burnout</option><option selected>Neutro</option><option>Motivado</option></select></div>
     </div>
     <div class="row3">
-      <div><label class="f">Sueño</label><select id="d_sueno"><option value="">—</option><option>Malo</option><option>Regular</option><option>Bueno</option></select></div>
-      <div><label class="f">Pranayama/meditar</label><select id="d_medita"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+      <div><label class="f">Sueño</label><select id="d_sueno"><option>Malo</option><option selected>Regular</option><option>Bueno</option></select></div>
+      <div><label class="f">Pranayama/meditar</label><select id="d_medita"><option>Sí</option><option selected>No</option></select></div>
       <div><label class="f">Vejiga hiperactiva</label><label style="display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer;padding-top:4px"><input type="checkbox" id="d_vejiga" style="width:20px;height:20px;flex:0 0 auto"> Sí, hoy la he tenido</label></div>
     </div>
     <label class="f">Heces</label>
@@ -146,11 +148,11 @@
     <label class="f">Entreno de hoy (queda fechado, para cruzar patrones)</label>
     <select id="d_ent"><option value="">—</option><option value="manana">🌅 Mañana pronto</option><option value="tarde">🌇 Tarde 15–16h</option><option value="no">😴 No entrené</option></select>
     <label class="f">Herpes (chivato del sistema inmune)</label>
-    <select id="d_herpes"><option value="">—</option><option value="no">No activo</option><option value="leve">Activo leve (lo percibo, sin pápulas)</option><option value="brote">Brote (pápulas)</option></select>
+    <select id="d_herpes"><option value="no" selected>No activo</option><option value="leve">Activo leve (lo percibo, sin pápulas)</option><option value="brote">Brote (pápulas)</option></select>
 
     <h3>😣 Emocionalidad</h3>
     <div class="row2">
-      <div><label class="f">Estado emocional</label><select id="d_evento"><option value="">—</option><option>Calmada</option><option>Neutra</option><option>Frustración</option><option>Ira</option></select></div>
+      <div><label class="f">Estado emocional</label><select id="d_evento"><option>Calmada</option><option selected>Neutra</option><option>Frustración</option><option>Ira</option></select></div>
       <div><label class="f">¿Qué pasó? (opcional)</label><input type="text" id="d_eventoNota" placeholder="discusión con pareja/madre…"></div>
     </div>
 
@@ -531,7 +533,20 @@ function preloadDay(fecha){
   const map={d_dig:'dig',d_irrita:'irrita',d_motiv:'motiv',d_sueno:'sueno',d_medita:'medita',
     d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_evento:'evento',d_eventoNota:'eventoNota',
     d_enteoSust:'enteoSust',d_enteoQ:'enteoQ',d_comidas:'comidas',d_notas:'notas'};
-  Object.keys(map).forEach(id=>{const el=document.getElementById(id);if(el)el.value=e[map[id]]||'';});
+  Object.keys(map).forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const saved=e[map[id]];
+    if(el.tagName==='SELECT'){
+      if(saved!=null&&saved!==''){el.value=saved;}
+      else{
+        const def=el.querySelector('option[selected]');
+        if(def){el.value=def.hasAttribute('value')?def.getAttribute('value'):def.textContent.trim();}
+        else{el.selectedIndex=0;}
+      }
+    }else{
+      el.value=saved||'';
+    }
+  });
   const trig=e.trig||{};
   const vj=document.getElementById('d_vejiga');if(vj)vj.checked=(e.vejiga==='Sí');
   const en=document.getElementById('d_enteo');if(en)en.checked=(e.enteo==='Sí');
@@ -556,13 +571,13 @@ function renderDays(){
   l.innerHTML=[...DB.days].reverse().slice(0,10).map((e)=>{
     const i=DB.days.indexOf(e);
     const s=[];
-    if(e.dig)s.push('intest '+e.dig);if(e.irrita)s.push('irrit '+e.irrita);if(e.motiv)s.push('ánimo: '+e.motiv);
+    if(e.dig&&e.dig!=='0')s.push('intest '+e.dig);if(e.irrita&&e.irrita!=='0')s.push('irrit '+e.irrita);if(e.motiv)s.push('ánimo: '+e.motiv);
     if(e.sueno)s.push('sueño '+e.sueno);if(e.medita)s.push('meditó: '+e.medita);
     if(e.vejiga==='Sí')s.push('🚽 vejiga');
     if(e.evento)s.push('😣 '+e.evento+(e.eventoNota?' — '+esc(e.eventoNota):''));
     if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';s.push('🍄 '+(e.enteoSust?esc(e.enteoSust):'entéogeno')+(e.enteoQ?' '+esc(e.enteoQ)+(eu?' '+eu:''):''));}
     if(e.ent)s.push('🏋️ '+({manana:'mañana',tarde:'tarde',no:'sin entreno'}[e.ent]||e.ent));
-    if(e.herpes)s.push('🦠 herpes '+({no:'no',leve:'leve',brote:'brote'}[e.herpes]||e.herpes));
+    if(e.herpes==='leve'||e.herpes==='brote')s.push('🦠 herpes '+({leve:'leve',brote:'brote'}[e.herpes]||e.herpes));
     const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
     const clean=isClean(e);
     return '<div class="entry"><span class="d">'+fmt(e.fecha)+'</span> '+
@@ -700,11 +715,11 @@ function buildReport(){
     t+='DIARIO\n';
     DB.days.forEach(e=>{const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
       t+='• '+fmt(e.fecha)+(isClean(e)?' [limpio]':'')+': ';
-      const m=[];if(e.dig)m.push('intest'+e.dig);if(e.irrita)m.push('irrit'+e.irrita);if(e.motiv)m.push('ánimo:'+e.motiv);if(e.sueno)m.push('sueño:'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
+      const m=[];if(e.dig&&e.dig!=='0')m.push('intest'+e.dig);if(e.irrita&&e.irrita!=='0')m.push('irrit'+e.irrita);if(e.motiv)m.push('ánimo:'+e.motiv);if(e.sueno)m.push('sueño:'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
       if(e.vejiga==='Sí')m.push('vejiga hiperactiva');
       if(e.evento)m.push('emocionalidad:'+e.evento+(e.eventoNota?' ('+e.eventoNota+')':''));
       if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';m.push('entéogeno:'+(e.enteoSust||'')+(e.enteoQ?' '+e.enteoQ+eu:''));}
-      if(e.ent)m.push('entreno:'+e.ent);if(e.herpes)m.push('herpes:'+e.herpes);
+      if(e.ent)m.push('entreno:'+e.ent);if(e.herpes&&e.herpes!=='no')m.push('herpes:'+e.herpes);
       if(e.heces)m.push(e.heces);
       t+=m.join(', ');if(tg.length)t+=' | disparadores: '+tg.join(',');if(e.comidas)t+=' | comió: '+e.comidas;if(e.notas)t+=' | '+e.notas;t+='\n';});
     t+='\n';
