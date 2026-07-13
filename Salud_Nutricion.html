@@ -131,12 +131,14 @@
     <p class="muted">Rápido, sin obsesión. Con marcar cómo estás y si hoy hubo algún disparador basta para que luego crucemos datos.</p>
     <label class="f">Fecha</label>
     <input type="date" id="d_fecha">
-    <h3>Marcadores del día (1 = nada/muy poco · 5 = mucho)</h3>
+    <h3>Marcadores del día</h3>
     <div class="row3">
-      <div><label class="f">Molestia intestinal (0=nada · 3=mucho)</label><select id="d_dig"><option selected>0</option><option>1</option><option>2</option><option>3</option></select></div>
+      <div><label class="f">Estado emocional</label><select id="d_evento"><option>Calmada</option><option selected>Neutra</option><option>Frustración</option><option>Ira</option></select></div>
       <div><label class="f">Irritabilidad (0=nada · 3=mucho)</label><select id="d_irrita"><option selected>0</option><option>1</option><option>2</option><option>3</option></select></div>
       <div><label class="f">Motivación / Burnout</label><select id="d_motiv"><option>Burnout</option><option selected>Neutro</option><option>Motivado</option></select></div>
     </div>
+    <label class="f">Emocionalidad — ¿qué pasó? (opcional)</label>
+    <input type="text" id="d_eventoNota" placeholder="discusión con pareja/madre…">
     <div class="row3">
       <div><label class="f">Sueño</label><select id="d_sueno"><option>Malo</option><option selected>Regular</option><option>Bueno</option></select></div>
       <div><label class="f">Pranayama/meditar</label><select id="d_medita"><option>Sí</option><option selected>No</option></select></div>
@@ -144,19 +146,18 @@
     </div>
     <label class="f">Heces</label>
     <select id="d_heces"><option value="">—</option><option>Formadas, no flotan</option><option>Formadas, flotan</option><option>Blandas/mal formadas</option><option>Duras</option></select>
+    <div class="row3">
+      <div><label class="f">Molestia intestinal (0=nada · 3=mucho)</label><select id="d_dig"><option selected>0</option><option>1</option><option>2</option><option>3</option></select></div>
+      <div><label class="f">¿Cuándo? (si hubo)</label><select id="d_digMom"><option value="">—</option><option>Mañana</option><option>Mediodía</option><option>Tarde-noche</option></select></div>
+      <div></div>
+    </div>
     <p class="muted" style="margin-top:6px">La <b>molestia intestinal</b> incluye irritación bajo el ombligo o ardor (mucosas). <i>Energía y dolor ya van en la app de Entreno.</i></p>
     <label class="f">Entreno de hoy (queda fechado, para cruzar patrones)</label>
     <select id="d_ent"><option value="">—</option><option value="manana">🌅 Mañana pronto</option><option value="tarde">🌇 Tarde 15–16h</option><option value="no">😴 No entrené</option></select>
     <label class="f">Herpes (chivato del sistema inmune)</label>
     <select id="d_herpes"><option value="no" selected>No activo</option><option value="leve">Activo leve (lo percibo, sin pápulas)</option><option value="brote">Brote (pápulas)</option></select>
 
-    <h3>😣 Emocionalidad</h3>
-    <div class="row2">
-      <div><label class="f">Estado emocional</label><select id="d_evento"><option>Calmada</option><option selected>Neutra</option><option>Frustración</option><option>Ira</option></select></div>
-      <div><label class="f">¿Qué pasó? (opcional)</label><input type="text" id="d_eventoNota" placeholder="discusión con pareja/madre…"></div>
-    </div>
-
-    <h3>🍄 Entéogeno (1 sem posterior)</h3>
+    <h3>Entéogeno (1 sem posterior)</h3>
     <label style="display:inline-flex;align-items:center;cursor:pointer;margin:6px 0"><input type="checkbox" id="d_enteo" style="width:22px;height:22px;flex:0 0 auto"></label>
     <div class="row2">
       <div><label class="f">Sustancia</label><select id="d_enteoSust" onchange="enteoUnit()"><option value="">—</option><option>LSD</option><option>Psilocibina</option><option>DMT</option></select></div>
@@ -530,7 +531,7 @@ document.getElementById('d_fecha').onchange=()=>preloadDay(document.getElementBy
 function enteoUnit(){var s=document.getElementById('d_enteoSust'),o=document.getElementById('d_enteoUnit');if(!s||!o)return;var v=s.value;o.textContent=v==='LSD'?'(µg)':v==='Psilocibina'?'(g)':v==='DMT'?'(mg)':'';}
 function preloadDay(fecha){
   const e=DB.days.find(d=>d.fecha===fecha)||{};
-  const map={d_dig:'dig',d_irrita:'irrita',d_motiv:'motiv',d_sueno:'sueno',d_medita:'medita',
+  const map={d_dig:'dig',d_digMom:'digMom',d_irrita:'irrita',d_motiv:'motiv',d_sueno:'sueno',d_medita:'medita',
     d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_evento:'evento',d_eventoNota:'eventoNota',
     d_enteoSust:'enteoSust',d_enteoQ:'enteoQ',d_comidas:'comidas',d_notas:'notas'};
   Object.keys(map).forEach(id=>{
@@ -555,7 +556,7 @@ function preloadDay(fecha){
 }
 function addDay(){
   const trig={};document.querySelectorAll('#d_trig input').forEach(c=>trig[c.value]=c.checked);
-  const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),irrita:val('d_irrita'),motiv:val('d_motiv'),
+  const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),digMom:val('d_digMom'),irrita:val('d_irrita'),motiv:val('d_motiv'),
     sueno:val('d_sueno'),medita:val('d_medita'),vejiga:(document.getElementById('d_vejiga').checked?'Sí':'No'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
     evento:val('d_evento'),eventoNota:val('d_eventoNota'),enteo:(document.getElementById('d_enteo').checked?'Sí':'No'),enteoSust:val('d_enteoSust'),enteoQ:val('d_enteoQ'),
     comidas:val('d_comidas'),notas:val('d_notas')};
@@ -571,7 +572,7 @@ function renderDays(){
   l.innerHTML=[...DB.days].reverse().slice(0,10).map((e)=>{
     const i=DB.days.indexOf(e);
     const s=[];
-    if(e.dig&&e.dig!=='0')s.push('intest '+e.dig);if(e.irrita&&e.irrita!=='0')s.push('irrit '+e.irrita);if(e.motiv)s.push('ánimo: '+e.motiv);
+    if(e.dig&&e.dig!=='0')s.push('intest '+e.dig+(e.digMom?' ('+e.digMom+')':''));if(e.irrita&&e.irrita!=='0')s.push('irrit '+e.irrita);if(e.motiv)s.push('ánimo: '+e.motiv);
     if(e.sueno)s.push('sueño '+e.sueno);if(e.medita)s.push('meditó: '+e.medita);
     if(e.vejiga==='Sí')s.push('🚽 vejiga');
     if(e.evento)s.push('😣 '+e.evento+(e.eventoNota?' — '+esc(e.eventoNota):''));
@@ -715,7 +716,7 @@ function buildReport(){
     t+='DIARIO\n';
     DB.days.forEach(e=>{const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
       t+='• '+fmt(e.fecha)+(isClean(e)?' [limpio]':'')+': ';
-      const m=[];if(e.dig&&e.dig!=='0')m.push('intest'+e.dig);if(e.irrita&&e.irrita!=='0')m.push('irrit'+e.irrita);if(e.motiv)m.push('ánimo:'+e.motiv);if(e.sueno)m.push('sueño:'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
+      const m=[];if(e.dig&&e.dig!=='0')m.push('intest'+e.dig+(e.digMom?' '+e.digMom:''));if(e.irrita&&e.irrita!=='0')m.push('irrit'+e.irrita);if(e.motiv)m.push('ánimo:'+e.motiv);if(e.sueno)m.push('sueño:'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
       if(e.vejiga==='Sí')m.push('vejiga hiperactiva');
       if(e.evento)m.push('emocionalidad:'+e.evento+(e.eventoNota?' ('+e.eventoNota+')':''));
       if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';m.push('entéogeno:'+(e.enteoSust||'')+(e.enteoQ?' '+e.enteoQ+eu:''));}
