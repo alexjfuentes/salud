@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salud">
+<meta name="theme-color" content="#2c5a4f">
+<title>Salud &amp; Nutrición · Alex</title>
+<style>
+  :root{
+    --bg:#f4f1ea; --card:#ffffff; --ink:#26302e; --muted:#6d7a76;
+    --green:#3f7d6e; --green-d:#2c5a4f; --amber:#c98a2b; --red:#b5563f;
+    --line:#e4ded2; --chip:#eef3f0; --shadow:0 2px 10px rgba(0,0,0,.06);
+    --pro:#c0603f; --veg:#3f7d6e; --carb:#c98a2b; --fat:#7a6cae;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:20;box-shadow:var(--shadow)}
+  header h1{margin:0;font-size:1.12rem}
+  header .sub{opacity:.9;font-size:.76rem;margin-top:2px}
+  nav{display:flex;gap:3px;background:var(--green-d);position:sticky;top:56px;z-index:19;padding:6px;overflow-x:auto}
+  nav button{flex:1 0 auto;background:transparent;border:0;color:#dcece7;padding:9px 12px;border-radius:9px;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap}
+  nav button.active{background:#fff;color:var(--green-d)}
+  main{max-width:780px;margin:0 auto;padding:14px 12px 70px}
+  .tab{display:none;animation:fade .25s ease}
+  .tab.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin:0 0 12px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 8px;font-size:1rem;color:var(--green-d)}
+  .card h3{margin:14px 0 6px;font-size:.9rem}
+  p{margin:6px 0}
+  .muted{color:var(--muted);font-size:.85rem}
+  .pill{display:inline-block;background:var(--chip);border-radius:20px;padding:3px 10px;font-size:.75rem;margin:2px 3px 2px 0;color:var(--green-d);font-weight:600}
+  ul{margin:6px 0;padding-left:20px}li{margin:3px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.grid2{grid-template-columns:1fr}}
+  .banner{border-left:4px solid var(--amber);background:#fbf4e7;padding:9px 12px;border-radius:8px;font-size:.86rem;margin:8px 0}
+  .banner.green{border-color:var(--green);background:#eaf3ef}
+  .banner.red{border-color:var(--red);background:#f8ece8}
+  label.f{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:8px 0 3px}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:.9rem;font-family:inherit;background:#fff;color:var(--ink)}
+  textarea{min-height:60px;resize:vertical}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.row3{grid-template-columns:1fr 1fr}}
+  .btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 14px;font-size:.9rem;font-weight:700;cursor:pointer;width:100%;margin-top:12px}
+  .btn.sec{background:#fff;color:var(--green-d);border:1.5px solid var(--green)}
+  .btn.mini{width:auto;padding:7px 12px;font-size:.8rem;margin:6px 6px 0 0}
+  .trig{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .trig label{display:flex;align-items:center;gap:5px;background:var(--chip);border:1px solid var(--line);border-radius:18px;padding:5px 11px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--ink);margin:0}
+  .trig input{width:auto;margin:0}
+  .trig label.on{background:#f8ece8;border-color:var(--red);color:var(--red)}
+  .entry{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin:8px 0;font-size:.83rem}
+  .entry .d{font-weight:700;color:var(--green-d)}
+  .entry .metrics{color:var(--muted);margin-top:2px}
+  .tg{display:inline-block;font-size:.72rem;background:#f8ece8;color:var(--red);border-radius:10px;padding:1px 7px;margin:2px 3px 0 0;font-weight:600}
+  .delta{display:inline-block;font-weight:700;font-size:.76rem;padding:1px 7px;border-radius:12px;margin-left:6px}
+  .delta.up{background:#f8ece8;color:var(--red)}.delta.down{background:#eaf3ef;color:var(--green)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:6px 0}
+  .kpi div{background:var(--chip);border-radius:10px;padding:8px 4px}
+  .kpi .n{font-size:1.02rem;font-weight:800;color:var(--green-d)}
+  .kpi .l{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+  @media(max-width:520px){.kpi{grid-template-columns:repeat(2,1fr)}}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  .cmp .box{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+  .cmp .box.clean{background:#eaf3ef;border-color:var(--green)}
+  .cmp .box.trig{background:#f8ece8;border-color:var(--red)}
+  .cmp .big{font-size:1.3rem;font-weight:800}
+  .cmp .lab{font-size:.72rem;color:var(--muted)}
+  .streak{text-align:center;font-size:2rem;font-weight:800;color:var(--green)}
+  code.small{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:.8rem}
+  details{margin:6px 0}summary{cursor:pointer;font-weight:600;color:var(--green-d);font-size:.88rem}
+  footer{text-align:center;font-size:.72rem;color:var(--muted);padding:10px}
+  .plate-wrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .legend div{display:flex;align-items:center;gap:7px;margin:5px 0;font-size:.83rem}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+  table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;margin:6px 0}
+  table.tbl th,table.tbl td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  table.tbl th{background:var(--chip);color:var(--green-d);font-weight:700}
+  table.tbl td.g{font-weight:700;color:var(--pro);white-space:nowrap}
+  .day{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
+  .day h4{margin:0 0 4px;font-size:.92rem;color:var(--green-d)}
+  .day .tag{font-size:.66rem;background:var(--chip);color:var(--green-d);border-radius:10px;padding:2px 8px;font-weight:700;margin-left:6px}
+  .day .tag.f{background:#f3e9df;color:var(--pro)}
+  .meal{font-size:.84rem;margin:4px 0;padding-left:2px}
+  .meal b{color:var(--ink)}
+  .swap{font-size:.72rem;color:var(--muted)}
+  .mvbtn{border:1px solid var(--line);background:#fff;border-radius:18px;padding:7px 13px;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--ink)}
+  .mvbtn.on{background:var(--green);color:#fff;border-color:var(--green)}
+  .ajustes{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
+  .aj{font-size:.72rem;background:#eef6f2;border:1px solid #cfe3d9;color:#2c5a4f;border-radius:10px;padding:2px 8px}
+  .aj.q{background:#fbf4e7;border-color:#e6d6ad;color:#8a6410}
+  .aj.p{background:#f1edf8;border-color:#d9cfe9;color:#5a4b86}
+  .daysel{display:flex;gap:4px;margin:2px 0 6px;flex-wrap:wrap}
+  .dtb{border:1px solid var(--line);background:#fff;border-radius:14px;padding:3px 10px;font-size:.72rem;font-weight:700;cursor:pointer;color:var(--muted)}
+  .dtb.on{background:var(--green);color:#fff;border-color:var(--green)}
+  .dayguide{font-size:.78rem;background:#eef6f2;border:1px solid #cfe3d9;border-radius:8px;padding:6px 9px;margin-bottom:6px;color:#2c5a4f}
+  .foldcard>summary{list-style:none;cursor:pointer;font-weight:700;font-size:1rem;color:var(--green-d)}
+  .foldcard>summary::-webkit-details-marker{display:none}
+  .foldcard>summary::after{content:'▾';float:right;color:var(--muted);font-weight:400}
+  .foldcard[open]>summary::after{content:'▴'}
+  .foldcard[open]>summary{margin-bottom:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌿 Salud &amp; Nutrición</h1>
+  <div class="sub">Centro de seguimiento · cruzar comida · energía · molestias · báscula · entreno</div>
+</header>
+<nav id="nav">
+  <button data-t="hoy" class="active">Hoy</button>
+  <button data-t="plan">Plan</button>
+  <button data-t="suplem">Suplem.</button>
+  <button data-t="bascula">Báscula</button>
+  <button data-t="patrones">Patrones</button>
+  <button data-t="guia">Guía</button>
+  <button data-t="export">Exportar</button>
+</nav>
+<main>
+
+<!-- ============ HOY ============ -->
+<section id="hoy" class="tab active">
+  <div class="card">
+    <h2>📝 Registro de hoy</h2>
+    <p class="muted">Rápido, sin obsesión. Con marcar cómo estás y si hoy hubo algún disparador basta para que luego crucemos datos.</p>
+    <label class="f">Fecha</label>
+    <input type="date" id="d_fecha">
+    <h3>Marcadores del día (1 = nada/muy poco · 5 = mucho)</h3>
+    <div class="row3">
+      <div><label class="f">Molestia digestiva (5=mucha)</label><select id="d_dig"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div><label class="f">Irritabilidad (5=mucha)</label><select id="d_irrita"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div><label class="f">Burnout (5=mucho)</label><select id="d_burnout"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+    </div>
+    <div class="row3">
+      <div><label class="f">Ánimo (5=muy bueno)</label><select id="d_animo"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div><label class="f">Sueño (5=genial)</label><select id="d_sueno"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div><label class="f">Pranayama/meditar</label><select id="d_medita"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+    </div>
+    <label class="f">Heces</label>
+    <select id="d_heces"><option value="">—</option><option>Formadas, no flotan</option><option>Formadas, flotan</option><option>Blandas/mal formadas</option><option>Duras</option></select>
+    <p class="muted" style="margin-top:6px">La <b>molestia digestiva</b> incluye irritación bajo el ombligo o ardor (mucosas). <i>Energía y dolor ya van en la app de Entreno.</i></p>
+    <label class="f">Entreno de hoy (queda fechado, para cruzar patrones)</label>
+    <select id="d_ent"><option value="">—</option><option value="manana">🌅 Mañana pronto</option><option value="tarde">🌇 Tarde 15–16h</option><option value="no">😴 No entrené</option></select>
+    <label class="f">Herpes (chivato del sistema inmune)</label>
+    <select id="d_herpes"><option value="">—</option><option value="no">No activo</option><option value="leve">Activo leve (lo percibo, sin pápulas)</option><option value="brote">Brote (pápulas)</option></select>
+
+    <h3>¿Hubo hoy algún disparador? (marca lo que sí)</h3>
+    <div class="trig" id="d_trig">
+      <label><input type="checkbox" value="lacteos">Lácteos</label>
+      <label><input type="checkbox" value="cerdo">Cerdo</label>
+      <label><input type="checkbox" value="gluten">Gluten</label>
+      <label><input type="checkbox" value="maiz">Maíz</label>
+      <label><input type="checkbox" value="alcohol">Alcohol</label>
+      <label><input type="checkbox" value="azucar">Azúcar</label>
+      <label><input type="checkbox" value="grasaAlta">Comida muy grasa</label>
+    </div>
+    <p class="muted" style="margin-top:6px">Tus 4 confirmados: lácteos · cerdo · gluten · maíz. Día "limpio" = ninguno de esos 4.</p>
+
+    <label class="f">Comidas de hoy (opcional, breve)</label>
+    <textarea id="d_comidas" placeholder="Ej.: desayuno huevos+sarraceno · comida pollo+arroz+verdura · cena puré+pescado · batido guisante"></textarea>
+    <p class="muted" style="margin-top:2px">El entreno de hoy se coge solo de la app de Entreno (no hay que apuntarlo aquí).</p>
+    <label class="f">Notas</label>
+    <textarea id="d_notas" placeholder="Molestias concretas (cadera, lumbar, hombro), niebla mental, brote, ánimo…"></textarea>
+    <button class="btn" onclick="addDay()">Guardar día</button>
+  </div>
+  <div class="card">
+    <h2>Últimos días</h2>
+    <div id="daylist"><p class="muted">Aún no hay días registrados.</p></div>
+  </div>
+</section>
+
+<!-- ============ BASCULA ============ -->
+<section id="bascula" class="tab">
+  <div class="card">
+    <h2>⚖️ Composición corporal</h2>
+    <p class="muted">Mismo momento siempre: mañana, en ayunas, tras defecar. La báscula de pies falla en el % absoluto — <b>mira la tendencia</b>, no el número. La <b>cintura</b> es el mejor chivato de grasa.</p>
+    <div id="kpis" class="kpi"></div>
+  </div>
+  <div class="card">
+    <h2>📷 Importar desde tu foto (lo más fácil)</h2>
+    <p class="muted">Guarda la foto de la báscula en Drive/BASCULA como ya haces y pásamela en el chat. Te devuelvo una línea; pégala aquí y se registra sola, sin teclear. Formato:</p>
+    <p><code class="small">2026-07-19 | peso 79.1 | cintura 88 | grasa 13.1 | visceral 7 | musculo 65.5 | edad 42</code></p>
+    <textarea id="bioPaste" placeholder="Pega aquí la línea que te doy…"></textarea>
+    <button class="btn sec" onclick="parseBioPaste()">Registrar desde texto</button>
+  </div>
+  <div class="card">
+    <h2>Registro manual (alternativa)</h2>
+    <label class="f">Fecha</label><input type="date" id="b_fecha">
+    <div class="row3">
+      <div><label class="f">Peso (kg)</label><input type="number" step="0.1" id="b_peso" placeholder="79.5"></div>
+      <div><label class="f">Cintura (cm)</label><input type="number" step="0.5" id="b_cintura" placeholder="ombligo"></div>
+      <div><label class="f">Grasa (%)</label><input type="number" step="0.1" id="b_grasa" placeholder="13.4"></div>
+    </div>
+    <div class="row3">
+      <div><label class="f">Grasa visceral</label><input type="number" step="1" id="b_visc" placeholder="7"></div>
+      <div><label class="f">Músculo (kg)</label><input type="number" step="0.1" id="b_musc" placeholder="65.4"></div>
+      <div><label class="f">Edad metab.</label><input type="number" step="1" id="b_edad" placeholder="43"></div>
+    </div>
+    <button class="btn" onclick="addBio()">Guardar báscula</button>
+    <button class="btn sec mini" onclick="seedBaseline()">Cargar línea base 12/07/2026</button>
+  </div>
+  <div class="card">
+    <h2>Historial báscula</h2>
+    <div id="biolist"><p class="muted">Sin registros.</p></div>
+  </div>
+</section>
+
+<!-- ============ PATRONES ============ -->
+<section id="patrones" class="tab">
+  <div class="card">
+    <h2>🔎 Patrones</h2>
+    <p class="muted">Señales, no diagnóstico. Con pocos datos son orientativas; ganan valor con las semanas. El análisis fino lo hago yo cuando me pegas el resumen (pestaña Exportar).</p>
+  </div>
+  <div class="card">
+    <h2>🍽️ Días limpios vs. días con disparador</h2>
+    <p class="muted">Media de tus sensaciones según si ese día hubo lácteos, cerdo, gluten o maíz.</p>
+    <div id="cmp"></div>
+  </div>
+  <div class="card">
+    <h2>🔥 Racha limpia</h2>
+    <div id="streak" class="streak">—</div>
+    <p class="muted" style="text-align:center">días seguidos sin lácteos, cerdo, gluten ni maíz</p>
+  </div>
+  <div class="card">
+    <h2>📉 Tendencia de peso y cintura</h2>
+    <div id="spark"></div>
+  </div>
+  <div class="card">
+    <h2>🧾 Frecuencia de disparadores</h2>
+    <div id="freq"></div>
+  </div>
+  <div class="card">
+    <h2>🏋️ Entrenos <span class="muted">(de tu Diario de Fuerza)</span></h2>
+    <div id="trainPanel"></div>
+    <p class="muted">Se leen solos si abres esto desde la app unificada (misma web que el Diario de Fuerza).</p>
+  </div>
+</section>
+
+<!-- ============ SUPLEMENTACION ============ -->
+<section id="suplem" class="tab">
+  <div class="card">
+    <h2>💊 Suplementación diaria</h2>
+    <div class="banner red">Transcrito fiel de tu hoja <b>FASE I (20/01/2025)</b> del Excel. Aviso: era una fase de 30 días de 2025 — <b>confirma con tu terapeuta si sigue vigente</b> o si ya estás en mantenimiento (mira FASE IV más abajo). Editable; son tus dosis prescritas, no consejo médico mío.</div>
+    <p class="muted">Toca cada franja para editar. Guarda al terminar.</p>
+    <label class="f">🌅 En ayunas</label><textarea id="s_ayunas"></textarea>
+    <label class="f">🍳 Desayuno (15 min antes / con la ingesta)</label><textarea id="s_desayuno"></textarea>
+    <label class="f">☕ Media mañana</label><textarea id="s_mediam"></textarea>
+    <label class="f">🍽️ Comida</label><textarea id="s_comida"></textarea>
+    <label class="f">🌇 Media tarde</label><textarea id="s_mediat"></textarea>
+    <label class="f">🌙 Cena (≥3 h antes de dormir)</label><textarea id="s_cena"></textarea>
+    <label class="f">😴 Antes de dormir</label><textarea id="s_dormir"></textarea>
+    <button class="btn" onclick="saveSupp()">Guardar suplementación</button>
+    <button class="btn sec mini" onclick="resetSupp()">Recargar borrador del Excel</button>
+  </div>
+  <div class="card">
+    <h2>🗂️ Mantenimiento por categorías <span class="muted">(referencia Excel)</span></h2>
+    <details><summary>Energía / mitocondria</summary><p class="muted">Creatina 3 g (3 meses y descanso) · Acetil-L-carnitina 1 g ayunas + 1 g comida (2 meses) · Colágeno · Ubiquinol · PQQ</p></details>
+    <details><summary>Permeabilidad intestinal</summary><p class="muted">Butirato 2 cáp comida (2 meses) · CoreBiotic 2 cáp 15 min antes (2 meses) · Enzimas · NAG 500 mg (3 meses) · Miconeo (2 meses) · Glutamina</p></details>
+    <details><summary>Disautonomía</summary><p class="muted">Aminoácidos · Tiamina · L-teanina · Glicina · Glutamina · Vit C</p></details>
+    <details><summary>Detox / hígado</summary><p class="muted">SAMe (con descansos) · NAC · Silimarina/Cardo mariano · Taurina · Molibdeno · Glicina</p></details>
+    <details><summary>Nutrición / sistema inmune</summary><p class="muted">Magnesio · Multinutriente · Bionobo con agua de mar · Omega-3 · Vit C · Vit D3+K2</p></details>
+  </div>
+  <div class="card">
+    <h2>📄 Protocolos datados <span class="muted">(referencia)</span></h2>
+    <details><summary>Fase I — Reequilibrio (20/01/2025, 30 días)</summary><p class="muted">Enzimas Npro+betaína (comida y cena) · Black Seed/Comino negro (4 sem) · Quercetina 200 mg (4 sem) · B2 100 mg · Molibdeno (6 sem) · Vit D3+K2 · Omega-3 · Ashwagandha · Magnesio · Ubiquinol · Oliovita (8 sem) · Glicina 3 g · Nasonex.</p></details>
+    <details><summary>Reactivación Epstein-Barr (28/07/2025, 6 semanas)</summary><p class="muted">Ayunas: SAMe · NAG 500 mg · Lisina 500 mg · Glutamina 5 g · Bionobo · ½ ampolla solarvital (5 días). Desayuno: CoreBiotic 2 · EBV caps · XFS (2 meses) · Silimarina · Tiamina TTFD · Zinc/cobre. Media mañana: Ubiquinona · PQQ · D-ribosa. Comida: Aminoácidos · PEA · Tiamina. Cena: Enzima · CoreBiotic 2 · NUA EPA · Myo-inositol; antes de cama: Vit C · Glicina 5 g · Magnesio · Glutamina 5 g.</p></details>
+    <details><summary>Fase IV — notas</summary><p class="muted">Retomar SAMe y vitaminas grupo B · Analítica de minerales (magnesio, B1, zinc) · L-taurina subir a 1000–1500 mg/día (2 meses más) · Lactoferrina 500 mg/día mantenimiento · Reevaluar dolor.</p></details>
+  </div>
+</section>
+
+<!-- ============ PLAN ============ -->
+<section id="plan" class="tab">
+  <div class="card">
+    <h2>🎯 Mi objetivo</h2>
+    <p><b>Perder la grasa sobrante</b> (tronco, tripa y visceral) y <b>ganar algo de músculo</b>, siempre sobre una base que <b>cuide mis patologías</b> (caderas/displasia, lumbar, fibromialgia, digestión) y mi <b>calidad de vida según me hago mayor</b>, con foco en un <b>tren inferior fuerte</b> — que es donde más debilidad siento.</p>
+    <p class="muted">El menú está alineado con esto: proteína suficiente para músculo y recuperación · déficit suave para soltar grasa · antiinflamatorio (tus 4 disparadores fuera) para articulaciones y digestión · energía para entrenar el tren inferior. La salud es la base; la grasa cae como consecuencia.</p>
+  </div>
+  <div class="card">
+    <h2>🗓️ Menú de la semana <span class="muted" id="menuUpd"></span></h2>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button id="mvAlex" class="mvbtn on" onclick="setMenuView('alex')">🌿 Yo (Alex)</button>
+      <button id="mvPareja" class="mvbtn" onclick="setMenuView('pareja')">👫 Pareja (base)</button>
+    </div>
+    <div id="menuBanner" class="banner green"></div>
+    <div id="menuDays"></div>
+  </div>
+
+  <details class="card foldcard">
+    <summary>🕐 Cómo ajustar según cuándo entrenes (la lógica)</summary>
+    <p><b>Regla simple: el hidrato va DESPUÉS de entrenar</b>, y la cantidad depende de <b>cuánto ha trabajado tu cuerpo</b> esa mañana — no de la etiqueta (hay yogas exigentes). Como entrenas de mañana, tu <b>desayuno (9:30–10h) es la comida post-entreno</b>.</p>
+    <ul>
+      <li><b>Mañana EXIGENTE</b> (fuerza fuerte <b>o yoga exigente</b>): tu <b>desayuno completo</b> — tortilla de 2 huevos con queso de coco + batido (guisante + ½ plátano) + tostada de sarraceno. Es proteico y te sacia: perfecto post-entreno.</li>
+      <li><b>Mañana SUAVE</b> (yoga suave, paseo, o día de poca energía): el mismo desayuno; si tienes menos hambre, quita la tostada o el ½ plátano. <b>Sin forzar</b>: a saciedad.</li>
+      <li><b>Día de DESCANSO</b> (sin entreno): desayuno un pelín más ligero (quita tostada o ½ plátano) e hidrato bajo el resto del día. A saciedad.</li>
+      <li><b>Entreno por la TARDE</b> (15–16h, excepcional): desayuno normal. El pre-entreno de verdad es la <b>comida de las 13h</b> con buen hidrato (2 h antes = digerida a las 15h). <b>Ajuste de la cena (es tu recuperación):</b> añade una ración de hidrato (patata/boniato/arroz ~80–120 g cocido, o al puré), mantén la proteína y que <b>no sea ultra-ligera</b>; sube algo la grasa buena solo si el mediodía fue bajo. Termínala con margen antes de dormir (mejor las mucosas y el sueño).</li>
+      <li><b>Un entreno al día.</b> Sesión exigente por la mañana + paseo/yoga suave por la tarde = cuenta como día exigente, sin comer extra.</li>
+    </ul>
+    <p class="muted"><b>Come a saciedad, no fuerces recortes.</b> La grasa no se baja recortando el desayuno que te llena, sino con el total de la semana y cenas más ligeras. Ajustamos con la báscula: si no baja en 2–3 semanas, recortamos de las cenas/cantidades, no del desayuno.</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🍴 Cómo montar cada comida</summary>
+    <p><b>1 proteína</b> (gramos abajo) + <b>1 ración de hidrato</b> (según el día) + <b>verdura libre</b> (½ plato o más, para saciarte) + <b>1 grasa buena</b> (una sola, por la bilis).</p>
+    <p class="muted">Días de fuerza → más hidrato al mediodía. Días de descanso/yoga → menos hidrato, sobre todo en la cena.</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🥩 Intercambiador de proteína</summary>
+    <p class="muted">Cada opción ≈ 40 g de proteína (tu objetivo por comida). Pesos ya cocinados / a la plancha. Elige UNA.</p>
+    <table class="tbl">
+      <tr><th>Proteína</th><th>Cantidad</th></tr>
+      <tr><td>Pollo (pechuga/contramuslo)</td><td class="g">150 g</td></tr>
+      <tr><td>Pavo</td><td class="g">150 g</td></tr>
+      <tr><td>Ternera magra</td><td class="g">150 g</td></tr>
+      <tr><td>Merluza · lubina · bacalao · gallo</td><td class="g">200 g</td></tr>
+      <tr><td>Dorada</td><td class="g">180 g</td></tr>
+      <tr><td>Salmón <span class="swap">(ese día, menos grasa extra)</span></td><td class="g">160 g</td></tr>
+      <tr><td>Boquerones / anchoa · sepia</td><td class="g">180–200 g</td></tr>
+      <tr><td>Huevos</td><td class="g">3 ud <span class="swap">(≈20 g → suma ½ cazo proteína)</span></td></tr>
+      <tr><td>Proteína de guisante (batido)</td><td class="g">1,5 cazos (≈39 g)</td></tr>
+      <tr><td>Legumbre cocida (lenteja/garbanzo)</td><td class="g">250 g <span class="swap">(≈20 g + hidrato → combina con huevo)</span></td></tr>
+    </table>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🍠 Raciones de hidrato</summary>
+    <p class="muted">Pesos cocidos. Regla: el hidrato va tras entrenar. Como entrenas por la mañana, tu desayuno es el post-entreno.</p>
+    <table class="tbl">
+      <tr><th>Momento</th><th>Ración</th></tr>
+      <tr><td>Desayuno · mañana EXIGENTE</td><td class="g">tu completo: tortilla 2 huevos + queso coco + batido + ½ plátano + 1 tostada sarraceno</td></tr>
+      <tr><td>Desayuno · mañana SUAVE</td><td class="g">el mismo; si hay menos hambre, quita la tostada o el ½ plátano</td></tr>
+      <tr><td>Comida (13h)</td><td class="g">arroz/patata/boniato/quinoa 120–150 g</td></tr>
+      <tr><td>Cena</td><td class="g">0–60 g (o solo verdura)</td></tr>
+      <tr><td>Fruta (postre, mejor de día)</td><td class="g">1 manzana o un puñado de cerezas</td></tr>
+    </table>
+    <p class="muted">💡 Truco microbiota + saciedad: arroz o patata <b>cocidos y enfriados</b> (almidón resistente).</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>📏 Gramos de referencia (para calibrar el ojo)</summary>
+    <p class="muted">No hace falta pesar siempre. Pesa 3–4 veces para hacerte una idea visual y luego ve a ojo. Pesos cocidos, salvo el pan y el plátano.</p>
+    <table class="tbl">
+      <tr><th>Alimento</th><th>1 ración</th><th>Equivale a</th></tr>
+      <tr><td>Pan de trigo sarraceno</td><td class="g">1 rebanada ≈ 30–40 g</td><td>~15–20 g hidrato</td></tr>
+      <tr><td>Plátano</td><td class="g">½ ≈ 55–65 g</td><td>~15 g hidrato</td></tr>
+      <tr><td>Arroz / quinoa (cocido)</td><td class="g">120–150 g</td><td>4–5 cucharadas colmadas</td></tr>
+      <tr><td>Patata / boniato (cocido)</td><td class="g">120–150 g</td><td>1 unidad pequeña-mediana</td></tr>
+      <tr><td>Legumbre (cocida)</td><td class="g">80–120 g</td><td>3–4 cucharadas</td></tr>
+      <tr><td>Fruta (manzana)</td><td class="g">130–150 g</td><td>1 pequeña-mediana</td></tr>
+    </table>
+    <p class="muted">Para ti (≈79,5 kg, objetivo bajar grasa): estas raciones dan el hidrato justo. Días exigentes → rango alto; suaves o sin entreno → rango bajo. La proteína (≈40 g/comida) ya está en el intercambiador de arriba.</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🫒 Verdura y grasa</summary>
+    <p><b>Verdura:</b> libre, mínimo ½ plato. Es tu comodín para saciarte sin sumar apenas. Empieza con algo amargo (rúcula, alcachofa, limón) para arrancar la bilis.</p>
+    <p><b>Grasa (1 por comida):</b> 1 c.s. AOVE · ½ aguacate · 1 c.s. tahini · puñado (20 g) frutos secos · aceitunas.</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🍳 Tu desayuno actual, revisado</summary>
+    <p class="muted">Lo que haces hoy: batido (guisante + leche arroz-coco) + ½ plátano + tortilla 2 huevos con queso vegano de coco + 1 reb. pan sarraceno. <b>Ya cumple tus disparadores</b> (sarraceno = sin gluten; coco ≠ lácteo) y va sobrado de proteína (~50 g). 👍</p>
+    <p><b>Único ajuste:</b> la leche de arroz-coco aporta bastante azúcar (~16 g). Deja el batido con leche arroz-coco los <b>días de entreno</b>; los días de descanso hazlo con <b>agua o bebida de coco sin azúcar</b>. Así bajas azúcar de mañana sin perder tu rutina cómoda.</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>ℹ️ Cómo usar el menú</summary>
+    <p class="muted">Arriba tienes el menú real de la semana con el filtro <b>Yo / Pareja</b>. Las tarjetas de referencia (intercambiador de proteína y raciones de hidrato) te ayudan a ajustar cantidades. Cuéntame qué encaja y qué no y afinamos. Sin presión: mejor sostenible que perfecto.</p>
+  </details>
+</section>
+
+<!-- ============ GUIA ============ -->
+<section id="guia" class="tab">
+  <div class="card">
+    <h2>Reglas base</h2>
+    <div class="banner red"><b>Tus disparadores confirmados:</b> lácteos · cerdo · gluten · maíz. Evitarlos baja tu inflamación de forma clara — es la primera regla del plan.</div>
+    <p class="muted">Tu objetivo y el menú alineado están en la pestaña <b>Plan</b>.</p>
+  </div>
+
+  <div class="card">
+    <h2>🍽️ Método del plato</h2>
+    <div class="plate-wrap">
+      <svg width="170" height="170" viewBox="0 0 200 200" aria-label="plato">
+        <circle cx="100" cy="100" r="95" fill="#fff" stroke="#e4ded2" stroke-width="3"/>
+        <path d="M100 100 L100 5 A95 95 0 0 1 195 100 Z" fill="#3f7d6e"/>
+        <path d="M100 100 L195 100 A95 95 0 0 1 100 195 Z" fill="#c0603f"/>
+        <path d="M100 100 L100 195 A95 95 0 0 1 20 148 Z" fill="#c98a2b"/>
+        <path d="M100 100 L20 148 A95 95 0 0 1 100 5 Z" fill="#7a6cae"/>
+        <circle cx="100" cy="100" r="30" fill="#fff"/>
+        <text x="100" y="104" text-anchor="middle" font-size="12" fill="#6d7a76">plato</text>
+      </svg>
+      <div class="legend">
+        <div><span class="dot" style="background:var(--veg)"></span> <b>½ verdura y hoja</b></div>
+        <div><span class="dot" style="background:var(--pro)"></span> <b>¼ proteína</b> (tu palma)</div>
+        <div><span class="dot" style="background:var(--carb)"></span> <b>¼ almidón</b> (más a mediodía)</div>
+        <div><span class="dot" style="background:var(--fat)"></span> <b>1 grasa buena</b> (una, no cuatro)</div>
+      </div>
+    </div>
+    <div class="banner">Cena: baja el almidón a un par de cucharadas o cámbialo por verdura. El déficit sale solo, sin hambre.</div>
+  </div>
+
+  <div class="card">
+    <h2>💧 Tu punto clave: digerir la grasa</h2>
+    <p>Heces que flotan = <b>poca bilis</b>, grasa a medias. No quitar grasa buena, ayudarla:</p>
+    <ul>
+      <li><b>Repartir</b> la grasa entre comidas (evita el plato "bomba": salmón + aguacate + tahini + AOVE + frutos secos juntos).</li>
+      <li><b>Amargos antes de comer</b>: rúcula, alcachofa, limón, un poco de vinagre.</li>
+      <li>Tus <b>enzimas Npro+betaína</b> en las comidas más grasas.</li>
+      <li>Cocciones suaves: plancha, horno, air fryer, vapor.</li>
+      <li>Si sigue semanas → valorar con tu médico bilis de buey/taurina.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🥤 Tus productos</h2>
+    <details open><summary>Proteína de guisante HSN — muy buena para ti</summary>
+      <p class="muted">Un ingrediente, sin edulcorantes, sin gluten y <b>sin lácteos</b> (por eso te encaja). ~26 g proteína/cazo. Es de guisante, algo baja en metionina → la cubres con pescado, huevo y aves. Aislado = mínimos antinutrientes, buena tolerancia. Úsala de día o post-entreno.</p></details>
+    <details><summary>Leche arroz-coco Ecocesta — limpia, pero es bebida de arroz</summary>
+      <p class="muted">Sin azúcar añadido ni polioles, pero ~6,5 g azúcar y 13 g HC/100 ml (del arroz, IG alto); coco solo 2,4%. Mantenla como placer, mejor <b>de día o post-entreno</b> y en cantidad moderada; de noche no.</p></details>
+  </div>
+
+  <div class="card">
+    <h2>🦠 Prioriza / vigila</h2>
+    <div class="grid2">
+      <div><h3 style="color:var(--green)">Prioriza</h3>
+        <ul><li>Almidón resistente (patata/arroz cocidos y enfriados, plátano poco maduro)</li><li>Verdura de colores y crucíferas</li><li>Fermentados sin lácteo tolerados (miso, chucrut, yogur de coco sin azúcar)</li><li>Omega-3: salmón, boquerones</li><li>Cúrcuma+pimienta, jengibre, AOVE</li></ul></div>
+      <div><h3 style="color:var(--red)">Vigila</h3>
+        <ul><li><b>Lácteos, cerdo, gluten, maíz</b> (tus 4)</li><li>Edulcorantes <code class="small">-ol</code>/<code class="small">-osa</code></li><li>Azúcar rápido, alcohol, ultraprocesados</li><li>Maíz oculto: maicena, maltodextrina, polenta</li><li>Arginina en brotes de herpes (chocolate, muchos frutos secos)</li></ul></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⏰ Horarios y proteína</h2>
+    <ul>
+      <li><b>Desayuno 9:30-10h</b> y <b>comida 13h</b> = fuertes (proteína + el almidón del día).</li>
+      <li><b>Cena 19-20h</b> = ligera, baja en grasa, ≥3h antes de dormir.</li>
+      <li>Proteína ~130-160 g/día, 40-50 g por comida. Ref ~40 g: 150 g pollo/pavo · 180 g pescado blanco · 150 g salmón · huevos · 1,5 cazos de guisante.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🩺 Tu cuadro (resumen)</h2>
+    <p class="muted">Hilo conductor: inflamación de bajo grado en el eje <b>intestino–hígado–mitocondria</b>.</p>
+    <p class="muted">Baja bilis (grasa a medias, heces flotan) · disbiosis/permeabilidad · artropatía inflamatoria + fibromialgia + displasia cadera/labrum/lumbar · neuroinflamación · estrés oxidativo + fatiga/EBV · hipogonadismo secundario · herpes · asma leve estacional. Detalle y suplementación en el Excel de Drive.</p>
+  </div>
+</section>
+
+<!-- ============ EXPORT ============ -->
+<section id="export" class="tab">
+  <div class="card">
+    <h2>📤 Resumen para revisar con Claude</h2>
+    <p class="muted">Cada 2-4 semanas: genera, copia y pégalo en el chat (y guárdalo en Drive/SEGUIMIENTO). Yo cruzo comida, energía, molestias, entreno y báscula, y busco patrones.</p>
+    <button class="btn sec mini" onclick="buildReport()">Generar resumen</button>
+    <button class="btn sec mini" onclick="copyReport()">Copiar</button>
+    <textarea id="report" style="min-height:180px;margin-top:8px" placeholder="Pulsa 'Generar resumen'…"></textarea>
+  </div>
+  <div class="card">
+    <h2>🏋️ Entreno (automático)</h2>
+    <p class="muted">Si abres esto desde la app unificada (misma web que tu Diario de Fuerza), tus entrenos se leen <b>solos</b> y entran en el resumen. No hay que pegar nada.</p>
+  </div>
+  <div class="card">
+    <h2>💾 Copia de seguridad</h2>
+    <p class="muted">Copia <b>completa</b>: incluye salud + entreno. Guárdala en Drive cada 1–2 semanas; con "Restaurar" recuperas todo.</p>
+    <button class="btn sec mini" onclick="backup()">Descargar copia completa (JSON)</button>
+    <label class="f">Restaurar desde archivo</label>
+    <input type="file" id="restoreFile" accept="application/json" onchange="restore(event)">
+    <button class="btn sec mini" style="border-color:var(--red);color:var(--red)" onclick="wipe()">Borrar todo</button>
+  </div>
+</section>
+
+</main>
+<footer>Herramienta personal de apoyo · no sustituye criterio médico · v2.0</footer>
+
+<script>
+const LS='alex_salud_v2';
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(LS));if(d)return d;}catch(e){}
+  // migración desde v1 (solo tenía biometría)
+  let bio=[];
+  try{const old=JSON.parse(localStorage.getItem('alex_salud_v1'));
+    if(old&&old.entries)bio=old.entries.map(e=>({fecha:e.fecha,peso:e.peso,cintura:e.cintura,grasa:e.grasa,visc:e.visc,musc:e.musc,edad:e.edad}));}catch(e){}
+  return {days:[],bio:bio,training:''};
+}
+function save(){localStorage.setItem(LS,JSON.stringify(DB))}
+let DB=load();
+if(!DB.days)DB.days=[];if(!DB.bio)DB.bio=[];if(DB.training==null)DB.training='';
+
+/* tabs */
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.t).classList.add('active');
+  if(b.dataset.t==='patrones')renderPatterns();
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* trigger chip toggle style */
+document.querySelectorAll('#d_trig input').forEach(c=>c.onchange=()=>{c.parentElement.classList.toggle('on',c.checked)});
+
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function fmt(iso){const[y,m,d]=iso.split('-');return d+'/'+m+'/'+y}
+function esc(s){return(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
+function num(id){const v=document.getElementById(id).value;return v===''?null:parseFloat(v)}
+function val(id){return document.getElementById(id).value||null}
+document.getElementById('d_fecha').value=todayISO();
+document.getElementById('b_fecha').value=todayISO();
+
+/* ---- DIA ---- */
+function addDay(){
+  const trig={};document.querySelectorAll('#d_trig input').forEach(c=>trig[c.value]=c.checked);
+  const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),irrita:val('d_irrita'),burnout:val('d_burnout'),
+    animo:val('d_animo'),sueno:val('d_sueno'),medita:val('d_medita'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
+    comidas:val('d_comidas'),notas:val('d_notas')};
+  DB.days=DB.days.filter(d=>d.fecha!==e.fecha); // un registro por día
+  DB.days.push(e);DB.days.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
+  ['d_dig','d_irrita','d_burnout','d_animo','d_sueno','d_medita','d_heces','d_ent','d_herpes','d_comidas','d_notas'].forEach(i=>document.getElementById(i).value='');
+  document.querySelectorAll('#d_trig input').forEach(c=>{c.checked=false;c.parentElement.classList.remove('on')});
+  renderDays();
+}
+function isClean(d){return !(d.trig&&(d.trig.lacteos||d.trig.cerdo||d.trig.gluten||d.trig.maiz))}
+function delDay(i){if(confirm('¿Borrar este día?')){DB.days.splice(i,1);save();renderDays();}}
+function renderDays(){
+  const l=document.getElementById('daylist');
+  if(!DB.days.length){l.innerHTML='<p class="muted">Aún no hay días registrados.</p>';return;}
+  l.innerHTML=[...DB.days].reverse().slice(0,10).map((e)=>{
+    const i=DB.days.indexOf(e);
+    const s=[];
+    if(e.dig)s.push('digest '+e.dig);if(e.irrita)s.push('irrit '+e.irrita);if(e.burnout)s.push('burnout '+e.burnout);
+    if(e.animo)s.push('ánimo '+e.animo);if(e.sueno)s.push('sueño '+e.sueno);if(e.medita)s.push('meditó: '+e.medita);
+    if(e.ent)s.push('🏋️ '+({manana:'mañana',tarde:'tarde',no:'sin entreno'}[e.ent]||e.ent));
+    if(e.herpes)s.push('🦠 herpes '+({no:'no',leve:'leve',brote:'brote'}[e.herpes]||e.herpes));
+    const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
+    const clean=isClean(e);
+    return '<div class="entry"><span class="d">'+fmt(e.fecha)+'</span> '+
+      (clean?'<span class="tg" style="background:#eaf3ef;color:var(--green)">limpio ✓</span>':'')+
+      '<span class="muted" style="float:right;cursor:pointer" onclick="delDay('+i+')">✕</span>'+
+      '<div class="metrics">'+(s.join(' · ')||'—')+(e.heces?' · '+e.heces:'')+'</div>'+
+      (tg.length?'<div>'+tg.map(t=>'<span class="tg">'+t+'</span>').join('')+'</div>':'')+
+      (e.comidas?'<div class="metrics">🍴 '+esc(e.comidas)+'</div>':'')+
+      (e.notas?'<div style="margin-top:2px">'+esc(e.notas)+'</div>':'')+'</div>';
+  }).join('');
+}
+
+/* ---- BASCULA ---- */
+function addBio(){
+  const e={fecha:val('b_fecha')||todayISO(),peso:num('b_peso'),cintura:num('b_cintura'),grasa:num('b_grasa'),visc:num('b_visc'),musc:num('b_musc'),edad:num('b_edad')};
+  DB.bio=DB.bio.filter(b=>b.fecha!==e.fecha);DB.bio.push(e);DB.bio.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
+  ['b_peso','b_cintura','b_grasa','b_visc','b_musc','b_edad'].forEach(i=>document.getElementById(i).value='');
+  renderBio();renderKPIs();
+}
+function seedBaseline(){
+  if(DB.bio.some(b=>b.fecha==='2026-07-12')){alert('La línea base del 12/07 ya está.');return;}
+  DB.bio.push({fecha:'2026-07-12',peso:79.5,cintura:null,grasa:13.4,visc:7,musc:65.4,edad:43});
+  DB.bio.sort((a,b)=>a.fecha<b.fecha?-1:1);save();renderBio();renderKPIs();
+}
+function delBio(i){if(confirm('¿Borrar registro?')){DB.bio.splice(i,1);save();renderBio();renderKPIs();}}
+function renderBio(){
+  const l=document.getElementById('biolist');
+  if(!DB.bio.length){l.innerHTML='<p class="muted">Sin registros.</p>';return;}
+  l.innerHTML=[...DB.bio].reverse().map(e=>{
+    const i=DB.bio.indexOf(e);const m=[];
+    if(e.peso!=null)m.push('Peso '+e.peso+'kg');if(e.cintura!=null)m.push('Cintura '+e.cintura+'cm');
+    if(e.grasa!=null)m.push('Grasa '+e.grasa+'%');if(e.visc!=null)m.push('Visceral '+e.visc);if(e.musc!=null)m.push('Músculo '+e.musc+'kg');
+    return '<div class="entry"><span class="d">'+fmt(e.fecha)+'</span><span class="muted" style="float:right;cursor:pointer" onclick="delBio('+i+')">✕</span><div class="metrics">'+(m.join(' · ')||'—')+'</div></div>';
+  }).join('');
+}
+function renderKPIs(){
+  const k=document.getElementById('kpis');
+  const wv=f=>DB.bio.filter(e=>e[f]!=null);
+  function block(label,f,unit,goodDown){
+    const a=wv(f);if(!a.length)return '<div><div class="n">—</div><div class="l">'+label+'</div></div>';
+    const first=a[0][f],last=a[a.length-1][f],d=+(last-first).toFixed(1);let badge='';
+    if(a.length>1&&d!==0){const cls=(goodDown?(d<0):(d>0))?'down':'up';badge=' <span class="delta '+cls+'">'+(d>0?'+':'')+d+'</span>';}
+    return '<div><div class="n">'+last+unit+badge+'</div><div class="l">'+label+'</div></div>';
+  }
+  k.innerHTML=block('Peso','peso','',true)+block('Cintura','cintura','',true)+block('Visceral','visc','',true)+block('Músculo','musc','',false);
+}
+
+/* ---- PATRONES ---- */
+function avg(arr,f){const v=arr.map(x=>parseFloat(x[f])).filter(x=>!isNaN(x));return v.length?(v.reduce((a,b)=>a+b,0)/v.length):null}
+function renderPatterns(){renderTrainingPanel();
+  const clean=DB.days.filter(isClean),dirty=DB.days.filter(d=>!isClean(d));
+  const cmp=document.getElementById('cmp');
+  function line(f,lab){
+    const c=avg(clean,f),t=avg(dirty,f);
+    return '<div class="cmp"><div class="box clean"><div class="big">'+(c!=null?c.toFixed(1):'—')+'</div><div class="lab">'+lab+' · limpios ('+clean.length+')</div></div>'+
+      '<div class="box trig"><div class="big">'+(t!=null?t.toFixed(1):'—')+'</div><div class="lab">'+lab+' · con disparador ('+dirty.length+')</div></div></div>';
+  }
+  if(!DB.days.length){cmp.innerHTML='<p class="muted">Registra algunos días en "Hoy" para ver comparativas.</p>';}
+  else{cmp.innerHTML=line('dig','Molestia digestiva')+line('irrita','Irritabilidad')+line('burnout','Burnout')+line('animo','Ánimo')+line('sueno','Sueño')+
+    '<p class="muted" style="margin-top:8px">En <b>molestia, irritabilidad y burnout</b>, más bajo es mejor (menos síntoma). En <b>ánimo y sueño</b>, más alto es mejor. Si en los días con disparador empeoran, confirma que te pasan factura.</p>';}
+
+  // streak
+  let st=0;const sorted=[...DB.days].sort((a,b)=>a.fecha<b.fecha?1:-1);
+  for(const d of sorted){if(isClean(d))st++;else break;}
+  document.getElementById('streak').textContent=DB.days.length?st:'—';
+
+  // sparkline peso + cintura
+  document.getElementById('spark').innerHTML=spark('peso','Peso (kg)','#c0603f')+spark('cintura','Cintura (cm)','#3f7d6e');
+
+  // freq
+  const keys={lacteos:'Lácteos',cerdo:'Cerdo',gluten:'Gluten',maiz:'Maíz',alcohol:'Alcohol',azucar:'Azúcar',grasaAlta:'Grasa alta'};
+  const freq=document.getElementById('freq');
+  if(!DB.days.length){freq.innerHTML='<p class="muted">Sin datos.</p>';}
+  else{freq.innerHTML=Object.keys(keys).map(k=>{
+    const n=DB.days.filter(d=>d.trig&&d.trig[k]).length;const pct=Math.round(n/DB.days.length*100);
+    return '<div style="margin:6px 0"><div style="font-size:.8rem">'+keys[k]+' — '+n+'/'+DB.days.length+' días ('+pct+'%)</div>'+
+      '<div style="background:var(--chip);border-radius:6px;height:9px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+(k==='lacteos'||k==='cerdo'||k==='gluten'||k==='maiz'?'var(--red)':'var(--amber)')+'"></div></div></div>';
+  }).join('');}
+}
+function spark(f,lab,color){
+  const pts=DB.bio.filter(e=>e[f]!=null).map(e=>({x:e.fecha,y:e[f]}));
+  if(pts.length<1)return '<p class="muted">'+lab+': sin datos.</p>';
+  if(pts.length===1)return '<p class="muted">'+lab+': '+pts[0].y+' (1 dato, aún sin tendencia)</p>';
+  const W=300,H=54,pad=6;const ys=pts.map(p=>p.y);const mn=Math.min(...ys),mx=Math.max(...ys);const rng=(mx-mn)||1;
+  const step=(W-2*pad)/(pts.length-1);
+  const d=pts.map((p,i)=>(i===0?'M':'L')+(pad+i*step).toFixed(1)+' '+(H-pad-(p.y-mn)/rng*(H-2*pad)).toFixed(1)).join(' ');
+  const first=pts[0].y,last=pts[pts.length-1].y,diff=+(last-first).toFixed(1);
+  return '<div style="margin:8px 0"><div style="font-size:.8rem;margin-bottom:2px">'+lab+': <b>'+last+'</b> '+
+    '<span class="delta '+(diff<=0?'down':'up')+'">'+(diff>0?'+':'')+diff+'</span></div>'+
+    '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="max-width:340px"><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2"/></svg></div>';
+}
+
+/* ---- ENTRENO (lectura automática, misma web/origen) ---- */
+function readTraining(){
+  const out=[];
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);
+    if(k&&k.indexOf('sesion:')===0){try{const s=JSON.parse(localStorage.getItem(k));if(s&&s.semana)out.push(s);}catch(e){}}}}catch(e){}
+  out.sort((a,b)=>(a.semana-b.semana)||String(a.dia).localeCompare(String(b.dia)));
+  return out;
+}
+function renderTrainingPanel(){
+  const el=document.getElementById('trainPanel');if(!el)return;
+  const tr=readTraining();
+  if(!tr.length){el.innerHTML='<p class="muted">Aún no veo entrenos. Aparecerán solos cuando registres sesiones en la pestaña Entreno (deben estar en la misma web).</p>';return;}
+  const last=tr[tr.length-1],m=last.meta||{};
+  const avg=f=>{const v=tr.map(s=>parseFloat((s.meta||{})[f])).filter(x=>!isNaN(x));return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'—';};
+  el.innerHTML='<div class="kpi"><div><div class="n">'+tr.length+'</div><div class="l">sesiones</div></div>'+
+    '<div><div class="n">'+avg('cadera')+'</div><div class="l">cadera media</div></div>'+
+    '<div><div class="n">'+avg('lumbar')+'</div><div class="l">lumbar media</div></div>'+
+    '<div><div class="n">'+avg('fatiga')+'</div><div class="l">fatiga media</div></div></div>'+
+    '<p class="muted">Última: Semana '+last.semana+' · Sesión '+last.dia+' · '+(m.fecha||'?')+(m.color?' ('+m.color+')':'')+'.</p>';
+}
+
+/* ---- EXPORT ---- */
+function buildReport(){
+  let t='RESUMEN SALUD & NUTRICIÓN — Alex\nGenerado: '+fmt(todayISO())+'\n'+'='.repeat(44)+'\n\n';
+  // biometría
+  if(DB.bio.length){
+    const f=DB.bio[0],l=DB.bio[DB.bio.length-1];const dd=(a,b)=>(a!=null&&b!=null)?((b-a>0?'+':'')+(+(b-a).toFixed(1))):'—';
+    t+='BÁSCULA ('+fmt(f.fecha)+' → '+fmt(l.fecha)+')\n';
+    t+='Peso '+(f.peso??'—')+'→'+(l.peso??'—')+'kg ('+dd(f.peso,l.peso)+') · Cintura '+(f.cintura??'—')+'→'+(l.cintura??'—')+' ('+dd(f.cintura,l.cintura)+') · Visceral '+(f.visc??'—')+'→'+(l.visc??'—')+' · Músculo '+(f.musc??'—')+'→'+(l.musc??'—')+'kg\n\n';
+  }
+  // patrones
+  const clean=DB.days.filter(isClean),dirty=DB.days.filter(d=>!isClean(d));
+  if(DB.days.length){
+    t+='PATRONES (media limpios vs con disparador)\n';
+    ['dig','irrita','burnout','animo','sueno'].forEach(f=>{const c=avg(clean,f),d=avg(dirty,f);t+=' '+f+': limpio '+(c!=null?c.toFixed(1):'—')+' vs disparador '+(d!=null?d.toFixed(1):'—')+'\n';});
+    let st=0;const s=[...DB.days].sort((a,b)=>a.fecha<b.fecha?1:-1);for(const d of s){if(isClean(d))st++;else break;}
+    t+=' Racha limpia actual: '+st+' días · Días limpios '+clean.length+'/'+DB.days.length+'\n\n';
+  }
+  // diario
+  if(DB.days.length){
+    t+='DIARIO\n';
+    DB.days.forEach(e=>{const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
+      t+='• '+fmt(e.fecha)+(isClean(e)?' [limpio]':'')+': ';
+      const m=[];if(e.dig)m.push('digest'+e.dig);if(e.irrita)m.push('irrit'+e.irrita);if(e.burnout)m.push('burnout'+e.burnout);if(e.animo)m.push('ánimo'+e.animo);if(e.sueno)m.push('sueño'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
+      if(e.ent)m.push('entreno:'+e.ent);if(e.herpes)m.push('herpes:'+e.herpes);
+      if(e.heces)m.push(e.heces);
+      t+=m.join(', ');if(tg.length)t+=' | disparadores: '+tg.join(',');if(e.comidas)t+=' | comió: '+e.comidas;if(e.notas)t+=' | '+e.notas;t+='\n';});
+    t+='\n';
+  }
+  const tr=readTraining();
+  if(tr.length){t+='ENTRENO (Diario de Fuerza — leído solo)\n';
+    tr.forEach(s=>{const m=s.meta||{};t+=' Sem '+s.semana+' · Sesión '+s.dia+' · '+(m.fecha||'?')+(m.color?' ['+m.color+']':'')+' · cadera '+(m.cadera||'-')+' · lumbar '+(m.lumbar||'-')+' · fatiga '+(m.fatiga||'-')+(m.notas?' · '+m.notas:'')+'\n';});
+    t+='\n';}
+  document.getElementById('report').value=t.trim();
+}
+function copyReport(){const r=document.getElementById('report');if(!r.value)buildReport();r.select();try{document.execCommand('copy');alert('Copiado. Pégalo en el chat o en Drive.');}catch(e){alert('Selecciona y copia manualmente.');}}
+function backup(){
+  const all={_meta:'copia completa Alex',fecha:todayISO(),salud:DB,ls:{}};
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);all.ls[k]=localStorage.getItem(k);}}catch(e){}
+  const blob=new Blob([JSON.stringify(all,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='alex_copia_completa_'+todayISO()+'.json';a.click();
+}
+function restore(ev){const file=ev.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);
+  if(d&&d.ls){try{Object.keys(d.ls).forEach(k=>localStorage.setItem(k,d.ls[k]));}catch(e){}DB=d.salud||load();if(!DB.days)DB.days=[];if(!DB.bio)DB.bio=[];save();initAll();alert('Copia completa restaurada (salud + entreno).');return;}
+  if(d&&(d.days||d.bio)){DB=d;if(!DB.days)DB.days=[];if(!DB.bio)DB.bio=[];save();initAll();alert('Datos restaurados.');return;}
+  alert('Archivo no válido.');
+}catch(e){alert('Error al leer.');}};rd.readAsText(file);}
+function wipe(){if(confirm('¿Borrar TODO (días y báscula)?')){DB={days:[],bio:[],training:''};save();initAll();}}
+
+/* ---- BÁSCULA: importar desde texto (foto→Drive→línea) ---- */
+function parseBioPaste(){
+  const t=(document.getElementById('bioPaste').value||'').trim();if(!t){alert('Pega la línea primero.');return;}
+  let fecha=todayISO(),m=t.match(/(\d{4}-\d{2}-\d{2})/);
+  if(m)fecha=m[1];else{m=t.match(/(\d{2})\/(\d{2})\/(\d{4})/);if(m)fecha=m[3]+'-'+m[2]+'-'+m[1];}
+  const g=re=>{const x=t.match(re);return x?parseFloat(x[1].replace(',','.')):null;};
+  const e={fecha:fecha,peso:g(/peso\D*([\d.,]+)/i),cintura:g(/cintura\D*([\d.,]+)/i),grasa:g(/grasa\D*([\d.,]+)/i),
+    visc:g(/visc\w*\D*([\d.,]+)/i),musc:g(/m[uú]sc\w*\D*([\d.,]+)/i),edad:g(/edad\D*([\d.,]+)/i)};
+  if(e.peso==null&&e.cintura==null&&e.grasa==null&&e.musc==null){alert('No pude leer datos. Revisa el formato de la línea.');return;}
+  DB.bio=DB.bio.filter(b=>b.fecha!==e.fecha);DB.bio.push(e);DB.bio.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
+  document.getElementById('bioPaste').value='';renderBio();renderKPIs();alert('Registrado: '+fmt(e.fecha));
+}
+
+/* ---- SUPLEMENTACIÓN ---- */
+const SUPP_KEYS=['ayunas','desayuno','mediam','comida','mediat','cena','dormir'];
+const SUPP_VER=2; // v2 = transcripción fiel de la hoja FASE I del Excel
+const SUPP_SEED={
+  ayunas:'Nasonex 2 pulverizaciones (30 días)',
+  desayuno:'5 gotas Vitamina D3+K2 · Colágeno/MCT Oil · Quercetina 200 mg (4 sem) · CNF Aller (4 sem) · B2 100 mg · Molibdeno (6 sem) · Oliovita (8 sem, tras analítica) · Omega 3',
+  mediam:'—',
+  comida:'Enzimas Npro+betaína 1 cáp · Black Seed Solaray (4 sem) · Ubiquinol 1 cáp',
+  mediat:'—',
+  cena:'Enzimas Npro+betaína 1 cáp · Black Seed Solaray (4 sem) · Omega 3 · Oliovita (8 sem, tras analítica)',
+  dormir:'(sin alimento, ≥1 h antes) Ashwagandha 2 cáp · Magnesium 2 cáp · Glicina 3 g · Nasonex 2 pulverizaciones'
+};
+function renderSupp(){const s=DB.supp||{};SUPP_KEYS.forEach(k=>{const el=document.getElementById('s_'+k);if(el)el.value=s[k]||'';});}
+function saveSupp(){DB.supp={};SUPP_KEYS.forEach(k=>DB.supp[k]=document.getElementById('s_'+k).value);DB.suppVer=SUPP_VER;save();alert('Suplementación guardada.');}
+function resetSupp(){if(confirm('¿Recargar la pauta FASE I desde tu Excel? Perderás tus cambios.')){DB.supp=Object.assign({},SUPP_SEED);DB.suppVer=SUPP_VER;save();renderSupp();}}
+
+/* ---- MENÚ SEMANAL (Plan) — base pareja + adaptaciones Alex ---- */
+const MENU={updated:'13 jul 2026',days:[
+ {d:'Lunes',
+  des:{base:'2 reb. pan integral + 4 lonchas pavo + mantequilla de cacahuete',alex:['🔁 Pan integral → 1 reb. pan de trigo sarraceno (~35 g)','✔ Pavo mejor fresco que fiambre','⬇ Mantequilla de cacahuete: 1 cda'],note:''},
+  com:{base:'Ensalada de lentejas + patata + lubina + fruta',alex:['Lentejas 80–120 g bien lavadas','⬇ Patata: porción menor (~100 g)'],note:'Evita cebolla cruda y vinagre si hay ardor/histamina; mejor AOVE y sal.'},
+  cen:{base:'Puré hepático: lombarda, manzana, zanahoria y bacalao (+ glutamina + colágeno)',alex:['✔ Mantén glutamina 3–5 g + colágeno 10 g (mucosas)','Hígado 15 g, microdosis, bien cocinado'],note:'Si la lombarda da gas, menos cantidad y más zanahoria/calabaza.'}},
+ {d:'Martes',
+  des:{base:'2 huevos revueltos + ½ aguacate + frutos rojos',alex:['✔ Ya te encaja (sin gluten/lácteo/cerdo)'],note:''},
+  com:{base:'Quinoa con zanahorias horneadas, col y kalamata + boquerones + yogur',alex:['❌ Quita el yogur (lácteo) o cámbialo por yogur de coco','⬇ Quinoa: 120 g cocida','Col bien cocinada'],note:'Si hay brote digestivo, cambia col por calabacín o zanahoria.'},
+  cen:{base:'Puré hepático de brócoli, calabacín, patata y pollo (+ glutamina + colágeno)',alex:['✔ Mantén glutamina + colágeno','⬇ Patata: la justa'],note:'Cuece el brócoli hasta muy blando.'}},
+ {d:'Miércoles',
+  des:{base:'2 reb. pan integral + ½ aguacate + ½ tomate + 4 lonchas jamón',alex:['🔁 Pan integral → 1 reb. sarraceno (~35 g)','❌ Quita el jamón (cerdo) → pavo fresco, anchoa o huevo','🍹 Opción gusto: cámbialo por tu batido (guisante + leche coco-arroz + ½ plátano (~60 g))'],note:''},
+  com:{base:'Ensalada templada de brócoli y boniato + dorada + fruta',alex:['⬇ Boniato: porción menor (~100 g)','Brócoli bien cocido / al vapor'],note:'Templada, no fría (mejor tolerancia).'},
+  cen:{base:'Puré hepático de kale, boniato, calabacín y pavo (+ glutamina + colágeno)',alex:['✔ Glutamina + colágeno','⬇ Boniato: la justa'],note:'Buena opción en días de más gasto.'}},
+ {d:'Jueves',
+  des:{base:'2 reb. pan integral + anchoas + tomate + rúcula + AOVE + frutos rojos',alex:['🔁 Pan integral → 1 reb. sarraceno (~35 g)','✔ Anchoas y rúcula te van bien (omega-3 + amargo pro-bilis)'],note:''},
+  com:{base:'Ensalada templada de espinacas, tomate, berenjena, garbanzos + arroz + mozzarella + pollo',alex:['❌ Quita la mozzarella (lácteo)','⬇ Arroz: 120–130 g','Garbanzos bien lavados, porción moderada'],note:'Quesos/tahini densos en grasa: poca cantidad (bilis).'},
+  cen:{base:'Puré hepático de coliflor, calabaza, zanahoria y huevo (+ glutamina + colágeno)',alex:['✔ Glutamina + colágeno'],note:'Si la coliflor distiende, menos coliflor y más calabaza/patata.'}},
+ {d:'Viernes',
+  des:{base:'2 reb. pan integral + 1 huevo revuelto + queso fresco + ½ aguacate + fruta',alex:['🔁 Pan integral → 1 reb. sarraceno (~35 g)','❌ Quita el queso fresco (lácteo) → +½ aguacate o queso de coco'],note:''},
+  com:{base:'Ensalada templada de patatas salteadas, kale y salmón + yogur',alex:['❌ Quita el yogur (lácteo)','⬇ Patata: porción menor (~100 g)','✔ Salmón: no añadas más grasa ese plato (bilis)'],note:''},
+  cen:{base:'Crema hepática de calabacín, manzana y miso',alex:['✔ Añade glutamina + colágeno al templar','Miso al final, sin hervir'],note:'Vigila el miso si hay histamina.'}},
+ {d:'Sábado',
+  des:{base:'Libre (desayuno de finde)',alex:['🍹 Tu gusto: batido de proteína de guisante + leche arroz-coco + ½ plátano (~60 g)','o huevos + ½ aguacate + 1 reb. sarraceno (~35 g)'],note:'El azúcar del arroz es poco en el total; mejor de día. Gusto permitido — la adherencia también es salud.'},
+  com:{base:'Ensalada de judías',alex:['Judías bien cocidas; suma proteína (pescado/huevo) si te quedas corto','⬇ Sin exceso de pan/hidrato'],note:''},
+  cen:{base:'Tortilla francesa con crema de calabaza y brócoli',alex:['✔ Cena ligera, sin lácteo','Sin hígado ese día (descanso digestivo)'],note:''}},
+ {d:'Domingo',
+  des:{base:'Libre',alex:['Mantén tus reglas: sin gluten/lácteo/cerdo; desayuno proteico'],note:''},
+  com:{base:'Libre',alex:['Elige del intercambiador; hidrato moderado'],note:''},
+  cen:{base:'Libre / ligera',alex:['Pescado blanco + verdura + caldo; ligera y temprana'],note:''}}
+]};
+let MENU_VIEW='alex';
+try{const _mv=localStorage.getItem('alex_menu_view');if(_mv)MENU_VIEW=_mv;}catch(e){}
+function setMenuView(v){MENU_VIEW=v;try{localStorage.setItem('alex_menu_view',v);}catch(e){}renderMenu();}
+function meal(label,m){
+  if(!m)return '';
+  let h='<div class="meal"><b>'+label+':</b> '+esc(m.base);
+  if(MENU_VIEW==='alex'&&m.alex&&m.alex.length){
+    h+='<div class="ajustes">'+m.alex.map(a=>{const q=/^(⬇|❌)/.test(a);const p=/^🍹/.test(a);return '<span class="aj'+(q?' q':(p?' p':''))+'">'+esc(a)+'</span>';}).join('')+'</div>';
+  }
+  if(m.note)h+='<div class="swap">📋 '+esc(m.note)+'</div>';
+  return h+'</div>';
+}
+function renderMenu(){
+  const wrap=document.getElementById('menuDays');if(!wrap)return;
+  const upd=document.getElementById('menuUpd');if(upd)upd.textContent='· '+MENU.updated;
+  const bA=document.getElementById('mvAlex'),bP=document.getElementById('mvPareja');
+  if(bA)bA.classList.toggle('on',MENU_VIEW==='alex');if(bP)bP.classList.toggle('on',MENU_VIEW==='pareja');
+  const bn=document.getElementById('menuBanner');
+  if(bn)bn.innerHTML=MENU_VIEW==='alex'
+    ? '<b>Vista adaptada a ti:</b> sin gluten/lácteos/cerdo, porciones para regular grasa y tus apoyos de mucosa. Chips 🔁/❌/⬇ = cambios; 🍹 = gustos permitidos (tu batido 2–3 días/sem, mejor de día).'
+    : '<b>Vista base (pareja):</b> el menú común que cocinas igual (Montse). Sin ajustes por entreno ni sustituciones — esos van solo en tu vista "Yo".';
+  wrap.innerHTML=MENU.days.map(function(day){
+    let sel='',guide='';
+    if(MENU_VIEW==='alex'){
+      const dt=DAY_PLAN[day.d]||'';
+      sel='<div class="daysel">'+['manana','tarde','no'].map(function(k){return '<button class="dtb'+(dt===k?' on':'')+'" onclick="setDayPlan(\''+day.d+'\',\''+k+'\')">'+DT_LABEL[k]+'</button>';}).join('')+'</div>';
+      guide=dt?'<div class="dayguide">'+DT_SHORT[dt]+'</div>':'';
+    }
+    return '<div class="day"><h4>'+day.d+'</h4>'+sel+guide+meal('🍳 Desayuno',day.des)+meal('🍽️ Comida',day.com)+meal('🌙 Cena',day.cen)+'</div>';
+  }).join('');
+}
+
+/* ---- AJUSTE POR DÍA (dentro del menú) ---- */
+let DAY_PLAN={};
+try{DAY_PLAN=JSON.parse(localStorage.getItem('alex_dayplan'))||{};}catch(e){DAY_PLAN={};}
+const DT_LABEL={manana:'🌅 Mañana',tarde:'🌇 Tarde',no:'😴 No'};
+const DT_SHORT={
+ manana:'<b>Mañana:</b> desayuno completo (post-entreno) · comida normal · cena ligera.',
+ tarde:'<b>Tarde 15–16h:</b> desayuno normal · comida con hidrato (pre) · <b>cena de recuperación</b> (+hidrato 80–120 g).',
+ no:'<b>Sin entreno:</b> hidrato bajo todo el día · a saciedad.'
+};
+function setDayPlan(day,k){DAY_PLAN[day]=(DAY_PLAN[day]===k?'':k);try{localStorage.setItem('alex_dayplan',JSON.stringify(DAY_PLAN));}catch(e){}renderMenu();}
+
+function initAll(){if(!DB.supp||DB.suppVer!==SUPP_VER){DB.supp=Object.assign({},SUPP_SEED);DB.suppVer=SUPP_VER;save();}renderDays();renderBio();renderKPIs();renderSupp();renderMenu();}
+initAll();
+</script>
+</body>
+</html>
