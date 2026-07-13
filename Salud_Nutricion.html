@@ -19,10 +19,10 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
-  header{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;padding:16px 16px 12px;box-shadow:var(--shadow)}
+  header{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:20;box-shadow:var(--shadow)}
   header h1{margin:0;font-size:1.12rem}
   header .sub{opacity:.9;font-size:.76rem;margin-top:2px}
-  nav{display:flex;gap:3px;background:var(--green-d);position:sticky;top:0;z-index:30;padding:6px;overflow-x:auto}
+  nav{display:flex;gap:3px;background:var(--green-d);position:sticky;top:56px;z-index:19;padding:6px;overflow-x:auto}
   nav button{flex:1 0 auto;background:transparent;border:0;color:#dcece7;padding:9px 12px;border-radius:9px;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap}
   nav button.active{background:#fff;color:var(--green-d)}
   main{max-width:780px;margin:0 auto;padding:14px 12px 70px}
@@ -131,22 +131,34 @@
     <input type="date" id="d_fecha">
     <h3>Marcadores del día (1 = nada/muy poco · 5 = mucho)</h3>
     <div class="row3">
-      <div><label class="f">Molestia digestiva (5=mucha)</label><select id="d_dig"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div><label class="f">Molestia intestinal (5=mucha)</label><select id="d_dig"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
       <div><label class="f">Irritabilidad (5=mucha)</label><select id="d_irrita"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-      <div><label class="f">Burnout (5=mucho)</label><select id="d_burnout"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div><label class="f">Motivación / Burnout</label><select id="d_motiv"><option value="">—</option><option>Burnout</option><option>Neutro</option><option>Motivado</option></select></div>
     </div>
     <div class="row3">
-      <div><label class="f">Ánimo (5=muy bueno)</label><select id="d_animo"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-      <div><label class="f">Sueño (5=genial)</label><select id="d_sueno"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div><label class="f">Sueño</label><select id="d_sueno"><option value="">—</option><option>Malo</option><option>Regular</option><option>Bueno</option></select></div>
       <div><label class="f">Pranayama/meditar</label><select id="d_medita"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+      <div><label class="f">Vejiga hiperactiva</label><label style="display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer;padding-top:4px"><input type="checkbox" id="d_vejiga" style="width:20px;height:20px;flex:0 0 auto"> Sí, hoy la he tenido</label></div>
     </div>
     <label class="f">Heces</label>
     <select id="d_heces"><option value="">—</option><option>Formadas, no flotan</option><option>Formadas, flotan</option><option>Blandas/mal formadas</option><option>Duras</option></select>
-    <p class="muted" style="margin-top:6px">La <b>molestia digestiva</b> incluye irritación bajo el ombligo o ardor (mucosas). <i>Energía y dolor ya van en la app de Entreno.</i></p>
+    <p class="muted" style="margin-top:6px">La <b>molestia intestinal</b> incluye irritación bajo el ombligo o ardor (mucosas). <i>Energía y dolor ya van en la app de Entreno.</i></p>
     <label class="f">Entreno de hoy (queda fechado, para cruzar patrones)</label>
     <select id="d_ent"><option value="">—</option><option value="manana">🌅 Mañana pronto</option><option value="tarde">🌇 Tarde 15–16h</option><option value="no">😴 No entrené</option></select>
     <label class="f">Herpes (chivato del sistema inmune)</label>
     <select id="d_herpes"><option value="">—</option><option value="no">No activo</option><option value="leve">Activo leve (lo percibo, sin pápulas)</option><option value="brote">Brote (pápulas)</option></select>
+
+    <h3>😣 Emocionalidad</h3>
+    <div class="row2">
+      <div><label class="f">Estado emocional</label><select id="d_evento"><option value="">—</option><option>Calmada</option><option>Neutra</option><option>Frustración</option><option>Ira</option></select></div>
+      <div><label class="f">¿Qué pasó? (opcional)</label><input type="text" id="d_eventoNota" placeholder="discusión con pareja/madre…"></div>
+    </div>
+
+    <h3>🍄 Entéogeno (esporádico)</h3>
+    <div class="row2">
+      <div><label class="f">¿Toma de entéogeno?</label><select id="d_enteo"><option value="">—</option><option>No</option><option>Sí</option></select></div>
+      <div><label class="f">Cuál y cantidad</label><input type="text" id="d_enteoQ" placeholder="sustancia + dosis"></div>
+    </div>
 
     <h3>¿Hubo hoy algún disparador? (marca lo que sí)</h3>
     <div class="trig" id="d_trig">
@@ -508,36 +520,43 @@ function num(id){const v=document.getElementById(id).value;return v===''?null:pa
 function val(id){return document.getElementById(id).value||null}
 document.getElementById('d_fecha').value=todayISO();
 document.getElementById('b_fecha').value=todayISO();
-document.getElementById('d_fecha').onchange=function(){preloadDay(document.getElementById('d_fecha').value);};
 preloadDay(todayISO());
+document.getElementById('d_fecha').onchange=()=>preloadDay(document.getElementById('d_fecha').value);
 
 /* ---- DIA ---- */
+function preloadDay(fecha){
+  const e=DB.days.find(d=>d.fecha===fecha)||{};
+  const map={d_dig:'dig',d_irrita:'irrita',d_motiv:'motiv',d_sueno:'sueno',d_medita:'medita',
+    d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_evento:'evento',d_eventoNota:'eventoNota',
+    d_enteo:'enteo',d_enteoQ:'enteoQ',d_comidas:'comidas',d_notas:'notas'};
+  Object.keys(map).forEach(id=>{const el=document.getElementById(id);if(el)el.value=e[map[id]]||'';});
+  const trig=e.trig||{};
+  const vj=document.getElementById('d_vejiga');if(vj)vj.checked=(e.vejiga==='Sí');
+  document.querySelectorAll('#d_trig input').forEach(c=>{c.checked=!!trig[c.value];c.parentElement.classList.toggle('on',c.checked);});
+}
 function addDay(){
   const trig={};document.querySelectorAll('#d_trig input').forEach(c=>trig[c.value]=c.checked);
-  const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),irrita:val('d_irrita'),burnout:val('d_burnout'),
-    animo:val('d_animo'),sueno:val('d_sueno'),medita:val('d_medita'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
+  const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),irrita:val('d_irrita'),motiv:val('d_motiv'),
+    sueno:val('d_sueno'),medita:val('d_medita'),vejiga:(document.getElementById('d_vejiga').checked?'Sí':'No'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
+    evento:val('d_evento'),eventoNota:val('d_eventoNota'),enteo:val('d_enteo'),enteoQ:val('d_enteoQ'),
     comidas:val('d_comidas'),notas:val('d_notas')};
   DB.days=DB.days.filter(d=>d.fecha!==e.fecha); // un registro por día
   DB.days.push(e);DB.days.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
-  preloadDay(e.fecha); // deja el formulario con lo ya guardado (no se pierde lo de la maÃ±ana al volver por la tarde)
-  renderDays();
+  renderDays();preloadDay(e.fecha);
 }
 function isClean(d){return !(d.trig&&(d.trig.lacteos||d.trig.cerdo||d.trig.gluten||d.trig.maiz))}
 function delDay(i){if(confirm('¿Borrar este día?')){DB.days.splice(i,1);save();renderDays();}}
-function preloadDay(fecha){
-  const e=DB.days.find(d=>d.fecha===fecha);
-  const map={d_dig:'dig',d_irrita:'irrita',d_burnout:'burnout',d_animo:'animo',d_sueno:'sueno',d_medita:'medita',d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_comidas:'comidas',d_notas:'notas'};
-  Object.keys(map).forEach(id=>{const el=document.getElementById(id);if(el)el.value=e?(e[map[id]]||''):'';});
-  document.querySelectorAll('#d_trig input').forEach(c=>{const on=!!(e&&e.trig&&e.trig[c.value]);c.checked=on;c.parentElement.classList.toggle('on',on);});
-}
 function renderDays(){
   const l=document.getElementById('daylist');
   if(!DB.days.length){l.innerHTML='<p class="muted">Aún no hay días registrados.</p>';return;}
   l.innerHTML=[...DB.days].reverse().slice(0,10).map((e)=>{
     const i=DB.days.indexOf(e);
     const s=[];
-    if(e.dig)s.push('digest '+e.dig);if(e.irrita)s.push('irrit '+e.irrita);if(e.burnout)s.push('burnout '+e.burnout);
-    if(e.animo)s.push('ánimo '+e.animo);if(e.sueno)s.push('sueño '+e.sueno);if(e.medita)s.push('meditó: '+e.medita);
+    if(e.dig)s.push('intest '+e.dig);if(e.irrita)s.push('irrit '+e.irrita);if(e.motiv)s.push('ánimo: '+e.motiv);
+    if(e.sueno)s.push('sueño '+e.sueno);if(e.medita)s.push('meditó: '+e.medita);
+    if(e.vejiga==='Sí')s.push('🚽 vejiga');
+    if(e.evento)s.push('😣 '+e.evento+(e.eventoNota?' — '+esc(e.eventoNota):''));
+    if(e.enteo==='Sí')s.push('🍄 '+(e.enteoQ?esc(e.enteoQ):'entéogeno'));
     if(e.ent)s.push('🏋️ '+({manana:'mañana',tarde:'tarde',no:'sin entreno'}[e.ent]||e.ent));
     if(e.herpes)s.push('🦠 herpes '+({no:'no',leve:'leve',brote:'brote'}[e.herpes]||e.herpes));
     const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
@@ -598,8 +617,8 @@ function renderPatterns(){renderTrainingPanel();
       '<div class="box trig"><div class="big">'+(t!=null?t.toFixed(1):'—')+'</div><div class="lab">'+lab+' · con disparador ('+dirty.length+')</div></div></div>';
   }
   if(!DB.days.length){cmp.innerHTML='<p class="muted">Registra algunos días en "Hoy" para ver comparativas.</p>';}
-  else{cmp.innerHTML=line('dig','Molestia digestiva')+line('irrita','Irritabilidad')+line('burnout','Burnout')+line('animo','Ánimo')+line('sueno','Sueño')+
-    '<p class="muted" style="margin-top:8px">En <b>molestia, irritabilidad y burnout</b>, más bajo es mejor (menos síntoma). En <b>ánimo y sueño</b>, más alto es mejor. Si en los días con disparador empeoran, confirma que te pasan factura.</p>';}
+  else{cmp.innerHTML=line('dig','Molestia intestinal')+line('irrita','Irritabilidad')+
+    '<p class="muted" style="margin-top:8px">En <b>molestia intestinal e irritabilidad</b>, más bajo es mejor. La <b>motivación/burnout</b>, el <b>sueño</b>, la <b>emocionalidad</b>, la vejiga y demás marcadores cualitativos los reviso en el resumen. Si en los días con disparador empeoran, confirma que te pasan factura.</p>';}
 
   // streak
   let st=0;const sorted=[...DB.days].sort((a,b)=>a.fecha<b.fecha?1:-1);
@@ -667,7 +686,8 @@ function buildReport(){
   const clean=DB.days.filter(isClean),dirty=DB.days.filter(d=>!isClean(d));
   if(DB.days.length){
     t+='PATRONES (media limpios vs con disparador)\n';
-    ['dig','irrita','burnout','animo','sueno'].forEach(f=>{const c=avg(clean,f),d=avg(dirty,f);t+=' '+f+': limpio '+(c!=null?c.toFixed(1):'—')+' vs disparador '+(d!=null?d.toFixed(1):'—')+'\n';});
+    const plab={dig:'molestia intestinal',irrita:'irritabilidad'};
+    ['dig','irrita'].forEach(f=>{const c=avg(clean,f),d=avg(dirty,f);t+=' '+plab[f]+': limpio '+(c!=null?c.toFixed(1):'—')+' vs disparador '+(d!=null?d.toFixed(1):'—')+'\n';});
     let st=0;const s=[...DB.days].sort((a,b)=>a.fecha<b.fecha?1:-1);for(const d of s){if(isClean(d))st++;else break;}
     t+=' Racha limpia actual: '+st+' días · Días limpios '+clean.length+'/'+DB.days.length+'\n\n';
   }
@@ -676,7 +696,10 @@ function buildReport(){
     t+='DIARIO\n';
     DB.days.forEach(e=>{const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
       t+='• '+fmt(e.fecha)+(isClean(e)?' [limpio]':'')+': ';
-      const m=[];if(e.dig)m.push('digest'+e.dig);if(e.irrita)m.push('irrit'+e.irrita);if(e.burnout)m.push('burnout'+e.burnout);if(e.animo)m.push('ánimo'+e.animo);if(e.sueno)m.push('sueño'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
+      const m=[];if(e.dig)m.push('intest'+e.dig);if(e.irrita)m.push('irrit'+e.irrita);if(e.motiv)m.push('ánimo:'+e.motiv);if(e.sueno)m.push('sueño:'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
+      if(e.vejiga==='Sí')m.push('vejiga hiperactiva');
+      if(e.evento)m.push('emocionalidad:'+e.evento+(e.eventoNota?' ('+e.eventoNota+')':''));
+      if(e.enteo==='Sí')m.push('entéogeno:'+(e.enteoQ||'sí'));
       if(e.ent)m.push('entreno:'+e.ent);if(e.herpes)m.push('herpes:'+e.herpes);
       if(e.heces)m.push(e.heces);
       t+=m.join(', ');if(tg.length)t+=' | disparadores: '+tg.join(',');if(e.comidas)t+=' | comió: '+e.comidas;if(e.notas)t+=' | '+e.notas;t+='\n';});
