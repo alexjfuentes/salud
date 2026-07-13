@@ -19,10 +19,10 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
-  header{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:20;box-shadow:var(--shadow)}
+  header{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;padding:16px 16px 12px;box-shadow:var(--shadow)}
   header h1{margin:0;font-size:1.12rem}
   header .sub{opacity:.9;font-size:.76rem;margin-top:2px}
-  nav{display:flex;gap:3px;background:var(--green-d);position:sticky;top:56px;z-index:19;padding:6px;overflow-x:auto}
+  nav{display:flex;gap:3px;background:var(--green-d);position:sticky;top:0;z-index:30;padding:6px;overflow-x:auto}
   nav button{flex:1 0 auto;background:transparent;border:0;color:#dcece7;padding:9px 12px;border-radius:9px;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap}
   nav button.active{background:#fff;color:var(--green-d)}
   main{max-width:780px;margin:0 auto;padding:14px 12px 70px}
@@ -508,7 +508,7 @@ function num(id){const v=document.getElementById(id).value;return v===''?null:pa
 function val(id){return document.getElementById(id).value||null}
 document.getElementById('d_fecha').value=todayISO();
 document.getElementById('b_fecha').value=todayISO();
-document.getElementById('d_fecha').onchange=()=>preloadDay(document.getElementById('d_fecha').value);
+document.getElementById('d_fecha').onchange=function(){preloadDay(document.getElementById('d_fecha').value);};
 preloadDay(todayISO());
 
 /* ---- DIA ---- */
@@ -517,20 +517,19 @@ function addDay(){
   const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),irrita:val('d_irrita'),burnout:val('d_burnout'),
     animo:val('d_animo'),sueno:val('d_sueno'),medita:val('d_medita'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
     comidas:val('d_comidas'),notas:val('d_notas')};
-  DB.days=DB.days.filter(d=>d.fecha!==e.fecha); // un registro por día (upsert por fecha)
+  DB.days=DB.days.filter(d=>d.fecha!==e.fecha); // un registro por día
   DB.days.push(e);DB.days.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
-  preloadDay(e.fecha); // deja el formulario con lo ya guardado (no se pierde lo de la mañana al volver por la tarde)
+  preloadDay(e.fecha); // deja el formulario con lo ya guardado (no se pierde lo de la maÃ±ana al volver por la tarde)
   renderDays();
-}
-/* Precarga: rellena el formulario con el día ya guardado para esa fecha (o lo deja en blanco si no existe) */
-function preloadDay(fecha){
-  const e=DB.days.find(d=>d.fecha===fecha);
-  const map={d_dig:'dig',d_irrita:'irrita',d_burnout:'burnout',d_animo:'animo',d_sueno:'sueno',d_medita:'medita',d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_comidas:'comidas',d_notas:'notas'};
-  Object.keys(map).forEach(id=>{document.getElementById(id).value=e?(e[map[id]]||''):'';});
-  document.querySelectorAll('#d_trig input').forEach(c=>{const on=!!(e&&e.trig&&e.trig[c.value]);c.checked=on;c.parentElement.classList.toggle('on',on);});
 }
 function isClean(d){return !(d.trig&&(d.trig.lacteos||d.trig.cerdo||d.trig.gluten||d.trig.maiz))}
 function delDay(i){if(confirm('¿Borrar este día?')){DB.days.splice(i,1);save();renderDays();}}
+function preloadDay(fecha){
+  const e=DB.days.find(d=>d.fecha===fecha);
+  const map={d_dig:'dig',d_irrita:'irrita',d_burnout:'burnout',d_animo:'animo',d_sueno:'sueno',d_medita:'medita',d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_comidas:'comidas',d_notas:'notas'};
+  Object.keys(map).forEach(id=>{const el=document.getElementById(id);if(el)el.value=e?(e[map[id]]||''):'';});
+  document.querySelectorAll('#d_trig input').forEach(c=>{const on=!!(e&&e.trig&&e.trig[c.value]);c.checked=on;c.parentElement.classList.toggle('on',on);});
+}
 function renderDays(){
   const l=document.getElementById('daylist');
   if(!DB.days.length){l.innerHTML='<p class="muted">Aún no hay días registrados.</p>';return;}

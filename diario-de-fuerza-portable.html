@@ -31,7 +31,7 @@
   .chip{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:9px 13px;border-radius:999px;font-size:14px;cursor:pointer;user-select:none}
   .chip.active{background:var(--accent);color:#04263a;border-color:var(--accent);font-weight:700}
   .diachips{display:flex;gap:8px}
-  .diachips .chip{flex:1;text-align:center;font-size:18px}
+  .diachips .chip{flex:1;text-align:center;font-size:14.5px;white-space:nowrap;padding:12px 6px;display:flex;align-items:center;justify-content:center;gap:5px;line-height:1.1}
   .diachips .chip.on-v{background:var(--ok);border-color:var(--ok)}
   .diachips .chip.on-a{background:var(--warn);border-color:var(--warn)}
   .diachips .chip.on-r{background:var(--bad);border-color:var(--bad)}
@@ -181,7 +181,7 @@
 </div>
 
 <div class="card"><h2>Notas de la sesión</h2><textarea id="notas" placeholder="Sensaciones, cambios de carga, gestos que molestaron..."></textarea></div>
-<button class="btn" id="guardar" style="margin:2px 0 14px">Guardar sesión ✓</button>
+<button class="btn" id="guardar" style="margin:2px 0 14px">Guardar sesiÃ³n â</button>
 
 <div class="card">
   <details id="histDetails">
@@ -202,6 +202,7 @@
     <div class="mini" style="margin-top:8px">Los datos se guardan solo en este móvil. «Copiar para Claude» copia un resumen para pegar en el chat y ajustar el plan.</div>
   </details>
 </div>
+
 
 <div class="flash" id="flash">Guardado ✓</div>
 
