@@ -627,23 +627,24 @@ function spark(f,lab,color){
 
 /* ---- ENTRENO (lectura automática, misma web/origen) ---- */
 function readTraining(){
-  const out=[];
-  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);
-    if(k&&k.indexOf('sesion:')===0){try{const s=JSON.parse(localStorage.getItem(k));if(s&&s.semana)out.push(s);}catch(e){}}}}catch(e){}
-  out.sort((a,b)=>(a.semana-b.semana)||String(a.dia).localeCompare(String(b.dia)));
-  return out;
+  let arr=[];
+  try{arr=JSON.parse(localStorage.getItem('diarioFuerzaAlex_v2')||'[]');}catch(e){}
+  if(!Array.isArray(arr))arr=[];
+  arr.sort((a,b)=>(a.fecha<b.fecha?-1:(a.fecha>b.fecha?1:((a.ts||0)-(b.ts||0)))));
+  return arr;
 }
 function renderTrainingPanel(){
   const el=document.getElementById('trainPanel');if(!el)return;
   const tr=readTraining();
   if(!tr.length){el.innerHTML='<p class="muted">Aún no veo entrenos. Aparecerán solos cuando registres sesiones en la pestaña Entreno (deben estar en la misma web).</p>';return;}
-  const last=tr[tr.length-1],m=last.meta||{};
-  const avg=f=>{const v=tr.map(s=>parseFloat((s.meta||{})[f])).filter(x=>!isNaN(x));return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'—';};
+  const last=tr[tr.length-1];
+  const sem={v:'🟢',a:'🟡',r:'🔴'};
+  const avg=f=>{const v=tr.map(s=>parseFloat(s[f])).filter(x=>!isNaN(x));return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'—';};
   el.innerHTML='<div class="kpi"><div><div class="n">'+tr.length+'</div><div class="l">sesiones</div></div>'+
-    '<div><div class="n">'+avg('cadera')+'</div><div class="l">cadera media</div></div>'+
-    '<div><div class="n">'+avg('lumbar')+'</div><div class="l">lumbar media</div></div>'+
-    '<div><div class="n">'+avg('fatiga')+'</div><div class="l">fatiga media</div></div></div>'+
-    '<p class="muted">Última: Semana '+last.semana+' · Sesión '+last.dia+' · '+(m.fecha||'?')+(m.color?' ('+m.color+')':'')+'.</p>';
+    '<div><div class="n">'+avg('dolorCadera')+'</div><div class="l">cadera media</div></div>'+
+    '<div><div class="n">'+avg('dolorLumbar')+'</div><div class="l">lumbar media</div></div>'+
+    '<div><div class="n">'+avg('energia')+'</div><div class="l">energía media</div></div></div>'+
+    '<p class="muted">Última: '+(last.fecha||'?')+' · '+(last.sesion||'')+' '+(sem[last.dia]||'')+'.</p>';
 }
 
 /* ---- EXPORT ---- */
@@ -676,7 +677,8 @@ function buildReport(){
   }
   const tr=readTraining();
   if(tr.length){t+='ENTRENO (Diario de Fuerza — leído solo)\n';
-    tr.forEach(s=>{const m=s.meta||{};t+=' Sem '+s.semana+' · Sesión '+s.dia+' · '+(m.fecha||'?')+(m.color?' ['+m.color+']':'')+' · cadera '+(m.cadera||'-')+' · lumbar '+(m.lumbar||'-')+' · fatiga '+(m.fatiga||'-')+(m.notas?' · '+m.notas:'')+'\n';});
+    const semT={v:'🟢',a:'🟡',r:'🔴'};
+    tr.forEach(s=>{t+=' '+(s.fecha||'?')+' '+(semT[s.dia]||'')+' '+(s.sesion||'')+' · '+(s.momento||'')+' · cadera '+(s.dolorCadera??'-')+' lumbar '+(s.dolorLumbar??'-')+' hombro '+(s.dolorHombro??'-')+' · PEM '+(s.pem||'-')+' · energía '+(s.energia??'-')+(s.peso?' · '+s.peso+'kg':'')+(s.notas?' · '+s.notas:'')+'\n';});
     t+='\n';}
   document.getElementById('report').value=t.trim();
 }

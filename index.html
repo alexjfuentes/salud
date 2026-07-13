@@ -11,8 +11,8 @@
 <title>Alex · Entreno &amp; Salud</title>
 <style>
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;background:#f4f1ea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-  .frame{position:fixed;top:0;left:0;right:0;bottom:60px;width:100%;height:auto;border:0;display:none;background:#fff}
+  html,body{margin:0;height:100%;overflow:hidden;background:#f4f1ea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+  .frame{position:fixed;top:0;left:0;width:100%;height:calc(100% - 60px);border:0;display:none;background:#fff;-webkit-overflow-scrolling:touch}
   #loadmsg{position:fixed;top:44%;left:0;right:0;text-align:center;color:#6d7a76;font-size:14px;padding:0 24px}
   .frame.on{display:block}
   #bar{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;gap:6px;
