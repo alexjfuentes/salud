@@ -15,7 +15,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
   body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    padding:calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 92px) 12px;line-height:1.4;font-size:16px;transition:padding-top .2s}
+    padding:calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 24px) 12px;line-height:1.4;font-size:16px;transition:padding-top .2s}
   body.bar-on{padding-top:calc(env(safe-area-inset-top) + 60px)}
   h1{font-size:19px;margin:2px 0 2px}
   .sub{color:var(--mut);font-size:12.5px;margin-bottom:12px}
@@ -181,6 +181,7 @@
 </div>
 
 <div class="card"><h2>Notas de la sesión</h2><textarea id="notas" placeholder="Sensaciones, cambios de carga, gestos que molestaron..."></textarea></div>
+<button class="btn" id="guardar" style="margin:2px 0 14px">Guardar sesión ✓</button>
 
 <div class="card">
   <details id="histDetails">
@@ -202,7 +203,6 @@
   </details>
 </div>
 
-<div class="footwrap"><button class="btn" id="guardar">Guardar sesión ✓</button></div>
 <div class="flash" id="flash">Guardado ✓</div>
 
 <script>
