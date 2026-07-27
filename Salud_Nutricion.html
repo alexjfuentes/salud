@@ -176,9 +176,16 @@
     </div>
     <p class="muted" style="margin-top:6px">Tus 4 confirmados: lácteos · cerdo · gluten · maíz. Día "limpio" = ninguno de esos 4.</p>
 
-    <label class="f">Comidas de hoy (opcional, breve)</label>
-    <textarea id="d_comidas" placeholder="Ej.: desayuno huevos+sarraceno · comida pollo+arroz+verdura · cena puré+pescado · batido guisante"></textarea>
-    <p class="muted" style="margin-top:2px">El entreno de hoy se coge solo de la app de Entreno (no hay que apuntarlo aquí).</p>
+    <label class="f">🍳 Desayuno</label>
+    <textarea id="d_des" placeholder="Lo que has desayunado de verdad"></textarea>
+    <p class="muted" style="margin-top:2px">💡 Grasa buena moderada, <b>una sola fuente</b>. Si es proteico (huevos/batido), perfecto post-entreno.</p>
+    <label class="f">🍽️ Comida</label>
+    <textarea id="d_com" placeholder="Lo que has comido de verdad"></textarea>
+    <p class="muted" style="margin-top:2px">💡 Bilis: <b>amargo antes</b> (chupito de vinagre de manzana en poca agua, o rúcula/endivia/alcachofa/limón) · <b>una sola grasa</b> en el plato · <b>enzimas Npro+betaína</b> · mastica sin prisa.</p>
+    <label class="f">🌙 Cena</label>
+    <textarea id="d_cen" placeholder="Lo que has cenado de verdad"></textarea>
+    <p class="muted" style="margin-top:2px">💡 <b>Ligera y temprana</b> (≥3 h antes de dormir) · poca grasa · amargo antes si hay grasa · un paseo corto después ayuda al vaciado.</p>
+    <p class="muted" style="margin-top:2px">Escribe lo que comes de verdad, sin presión — desde aquí afinamos tu versión real. El entreno se coge solo de la app de Entreno.</p>
     <label class="f">Notas</label>
     <textarea id="d_notas" placeholder="Molestias concretas (cadera, lumbar, hombro), niebla mental, brote, ánimo…"></textarea>
     <button class="btn" onclick="addDay()">Guardar día</button>
@@ -533,7 +540,7 @@ function preloadDay(fecha){
   const e=DB.days.find(d=>d.fecha===fecha)||{};
   const map={d_dig:'dig',d_digMom:'digMom',d_irrita:'irrita',d_motiv:'motiv',d_sueno:'sueno',d_medita:'medita',
     d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_evento:'evento',d_eventoNota:'eventoNota',
-    d_enteoSust:'enteoSust',d_enteoQ:'enteoQ',d_comidas:'comidas',d_notas:'notas'};
+    d_enteoSust:'enteoSust',d_enteoQ:'enteoQ',d_des:'desayuno',d_com:'comida',d_cen:'cena',d_notas:'notas'};
   Object.keys(map).forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     const saved=e[map[id]];
@@ -559,7 +566,7 @@ function addDay(){
   const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),digMom:val('d_digMom'),irrita:val('d_irrita'),motiv:val('d_motiv'),
     sueno:val('d_sueno'),medita:val('d_medita'),vejiga:(document.getElementById('d_vejiga').checked?'Sí':'No'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
     evento:val('d_evento'),eventoNota:val('d_eventoNota'),enteo:(document.getElementById('d_enteo').checked?'Sí':'No'),enteoSust:val('d_enteoSust'),enteoQ:val('d_enteoQ'),
-    comidas:val('d_comidas'),notas:val('d_notas')};
+    desayuno:val('d_des'),comida:val('d_com'),cena:val('d_cen'),notas:val('d_notas')};
   DB.days=DB.days.filter(d=>d.fecha!==e.fecha); // un registro por día
   DB.days.push(e);DB.days.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
   renderDays();preloadDay(e.fecha);
@@ -581,12 +588,14 @@ function renderDays(){
     if(e.herpes==='leve'||e.herpes==='brote')s.push('🦠 herpes '+({leve:'leve',brote:'brote'}[e.herpes]||e.herpes));
     const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
     const clean=isClean(e);
+    var mealParts=[e.desayuno&&'🍳 '+esc(e.desayuno),e.comida&&'🍽️ '+esc(e.comida),e.cena&&'🌙 '+esc(e.cena)].filter(Boolean);
+    if(!mealParts.length&&e.comidas)mealParts=['🍴 '+esc(e.comidas)];
     return '<div class="entry"><span class="d">'+fmt(e.fecha)+'</span> '+
       (clean?'<span class="tg" style="background:#eaf3ef;color:var(--green)">limpio ✓</span>':'')+
       '<span class="muted" style="float:right;cursor:pointer" onclick="delDay('+i+')">✕</span>'+
       '<div class="metrics">'+(s.join(' · ')||'—')+(e.heces?' · '+e.heces:'')+'</div>'+
       (tg.length?'<div>'+tg.map(t=>'<span class="tg">'+t+'</span>').join('')+'</div>':'')+
-      (e.comidas?'<div class="metrics">🍴 '+esc(e.comidas)+'</div>':'')+
+      (mealParts.length?'<div class="metrics">'+mealParts.join(' · ')+'</div>':'')+
       (e.notas?'<div style="margin-top:2px">'+esc(e.notas)+'</div>':'')+'</div>';
   }).join('');
 }
@@ -722,7 +731,9 @@ function buildReport(){
       if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';m.push('entéogeno:'+(e.enteoSust||'')+(e.enteoQ?' '+e.enteoQ+eu:''));}
       if(e.ent)m.push('entreno:'+e.ent);if(e.herpes&&e.herpes!=='no')m.push('herpes:'+e.herpes);
       if(e.heces)m.push(e.heces);
-      t+=m.join(', ');if(tg.length)t+=' | disparadores: '+tg.join(',');if(e.comidas)t+=' | comió: '+e.comidas;if(e.notas)t+=' | '+e.notas;t+='\n';});
+      t+=m.join(', ');if(tg.length)t+=' | disparadores: '+tg.join(',');
+      if(e.desayuno||e.comida||e.cena){var mm=[];if(e.desayuno)mm.push('desayuno '+e.desayuno);if(e.comida)mm.push('comida '+e.comida);if(e.cena)mm.push('cena '+e.cena);t+=' | comió: '+mm.join(' · ');}else if(e.comidas)t+=' | comió: '+e.comidas;
+      if(e.notas)t+=' | '+e.notas;t+='\n';});
     t+='\n';
   }
   const tr=readTraining();
@@ -776,31 +787,31 @@ function saveSupp(){DB.supp={};SUPP_KEYS.forEach(k=>DB.supp[k]=document.getEleme
 function resetSupp(){if(confirm('¿Recargar la pauta FASE I desde tu Excel? Perderás tus cambios.')){DB.supp=Object.assign({},SUPP_SEED);DB.suppVer=SUPP_VER;save();renderSupp();}}
 
 /* ---- MENÚ SEMANAL (Plan) — base pareja + adaptaciones Alex ---- */
-const MENU={updated:'13 jul 2026',days:[
+const MENU={updated:'27 jul 2026',days:[
  {d:'Lunes',
   des:{base:'2 reb. pan integral + 4 lonchas pavo + mantequilla de cacahuete',alex:['🔁 Pan integral → 1 reb. pan de trigo sarraceno (~35 g)','✔ Pavo mejor fresco que fiambre','⬇ Mantequilla de cacahuete: 1 cda'],note:''},
-  com:{base:'Ensalada de lentejas + patata + lubina + fruta',alex:['Lentejas 80–120 g bien lavadas','⬇ Patata: porción menor (~100 g)'],note:'Evita cebolla cruda y vinagre si hay ardor/histamina; mejor AOVE y sal.'},
-  cen:{base:'Puré hepático: lombarda, manzana, zanahoria y bacalao (+ glutamina + colágeno)',alex:['✔ Mantén glutamina 3–5 g + colágeno 10 g (mucosas)','Hígado 15 g, microdosis, bien cocinado'],note:'Si la lombarda da gas, menos cantidad y más zanahoria/calabaza.'}},
+  com:{base:'Ensalada templada de patata + verdura + lubina + fruta',alex:['✔ Sin lentejas (te sueltan la tripa) — la proteína la da la lubina','⬇ Patata: porción menor (~100 g)'],note:'Evita cebolla cruda y vinagre si hay ardor/histamina; mejor AOVE y sal.'},
+  cen:{base:'Verdura o caldo (o puré de bote de calabaza/zanahoria) + bacalao',alex:['✔ Fácil: el puré de bote vale, sin cocinar','Opcional: glutamina 3–5 g + colágeno 10 g al templar (mucosas)'],note:'Ligera y temprana. Lombarda/hígado solo si te apetece cocinar.'}},
  {d:'Martes',
   des:{base:'2 huevos revueltos + ½ aguacate + frutos rojos',alex:['✔ Ya te encaja (sin gluten/lácteo/cerdo)'],note:''},
   com:{base:'Quinoa con zanahorias horneadas, col y kalamata + boquerones + yogur',alex:['❌ Quita el yogur (lácteo) o cámbialo por yogur de coco','⬇ Quinoa: 120 g cocida','Col bien cocinada'],note:'Si hay brote digestivo, cambia col por calabacín o zanahoria.'},
-  cen:{base:'Puré hepático de brócoli, calabacín, patata y pollo (+ glutamina + colágeno)',alex:['✔ Mantén glutamina + colágeno','⬇ Patata: la justa'],note:'Cuece el brócoli hasta muy blando.'}},
+  cen:{base:'Caldo o verdura al vapor (o puré de bote) + pollo',alex:['✔ Puré de bote de zanahoria/calabaza si no apetece cocinar','Opcional: glutamina + colágeno'],note:'Proteína ligera; cena temprana.'}},
  {d:'Miércoles',
   des:{base:'2 reb. pan integral + ½ aguacate + ½ tomate + 4 lonchas jamón',alex:['🔁 Pan integral → 1 reb. sarraceno (~35 g)','❌ Quita el jamón (cerdo) → pavo fresco, anchoa o huevo','🍹 Opción gusto: cámbialo por tu batido (guisante + leche coco-arroz + ½ plátano (~60 g))'],note:''},
   com:{base:'Ensalada templada de brócoli y boniato + dorada + fruta',alex:['⬇ Boniato: porción menor (~100 g)','Brócoli bien cocido / al vapor'],note:'Templada, no fría (mejor tolerancia).'},
-  cen:{base:'Puré hepático de kale, boniato, calabacín y pavo (+ glutamina + colágeno)',alex:['✔ Glutamina + colágeno','⬇ Boniato: la justa'],note:'Buena opción en días de más gasto.'}},
+  cen:{base:'Puré de bote (calabaza/zanahoria) + pavo o huevo',alex:['✔ Sin cocinar puré: el de bote vale','Opcional: glutamina + colágeno'],note:'Fácil y ligera.'}},
  {d:'Jueves',
   des:{base:'2 reb. pan integral + anchoas + tomate + rúcula + AOVE + frutos rojos',alex:['🔁 Pan integral → 1 reb. sarraceno (~35 g)','✔ Anchoas y rúcula te van bien (omega-3 + amargo pro-bilis)'],note:''},
-  com:{base:'Ensalada templada de espinacas, tomate, berenjena, garbanzos + arroz + mozzarella + pollo',alex:['❌ Quita la mozzarella (lácteo)','⬇ Arroz: 120–130 g','Garbanzos bien lavados, porción moderada'],note:'Quesos/tahini densos en grasa: poca cantidad (bilis).'},
-  cen:{base:'Puré hepático de coliflor, calabaza, zanahoria y huevo (+ glutamina + colágeno)',alex:['✔ Glutamina + colágeno'],note:'Si la coliflor distiende, menos coliflor y más calabaza/patata.'}},
+  com:{base:'Ensalada templada de espinacas, tomate, berenjena + arroz + pollo',alex:['❌ Quita la mozzarella (lácteo)','⬇ Arroz: 120–130 g','Garbanzos opcionales: si te sueltan como las lentejas, cámbialos por más pollo/huevo'],note:'Quesos/tahini densos en grasa: poca cantidad (bilis).'},
+  cen:{base:'Verdura o crema de calabaza (de bote vale) + huevo o pescado',alex:['✔ Fácil, sin cocinar puré','Opcional: glutamina + colágeno'],note:'Si la coliflor distiende, evítala; mejor calabaza/zanahoria.'}},
  {d:'Viernes',
   des:{base:'2 reb. pan integral + 1 huevo revuelto + queso fresco + ½ aguacate + fruta',alex:['🔁 Pan integral → 1 reb. sarraceno (~35 g)','❌ Quita el queso fresco (lácteo) → +½ aguacate o queso de coco'],note:''},
   com:{base:'Ensalada templada de patatas salteadas, kale y salmón + yogur',alex:['❌ Quita el yogur (lácteo)','⬇ Patata: porción menor (~100 g)','✔ Salmón: no añadas más grasa ese plato (bilis)'],note:''},
-  cen:{base:'Crema hepática de calabacín, manzana y miso',alex:['✔ Añade glutamina + colágeno al templar','Miso al final, sin hervir'],note:'Vigila el miso si hay histamina.'}},
+  cen:{base:'Caldo o crema de calabacín/calabaza (de bote vale) + pescado blanco',alex:['✔ Sin cocinar: crema/puré de bote','Opcional: glutamina + colágeno; miso al final si apetece'],note:'Ligera; vigila el miso si hay histamina.'}},
  {d:'Sábado',
   des:{base:'Libre (desayuno de finde)',alex:['🍹 Tu gusto: batido de proteína de guisante + leche arroz-coco + ½ plátano (~60 g)','o huevos + ½ aguacate + 1 reb. sarraceno (~35 g)'],note:'El azúcar del arroz es poco en el total; mejor de día. Gusto permitido — la adherencia también es salud.'},
-  com:{base:'Ensalada de judías',alex:['Judías bien cocidas; suma proteína (pescado/huevo) si te quedas corto','⬇ Sin exceso de pan/hidrato'],note:''},
-  cen:{base:'Tortilla francesa con crema de calabaza y brócoli',alex:['✔ Cena ligera, sin lácteo','Sin hígado ese día (descanso digestivo)'],note:''}},
+  com:{base:'Ensalada con pescado o huevo (+ patata/arroz si toca)',alex:['Judías opcionales: si te sueltan como las lentejas, mejor pescado/huevo','⬇ Sin exceso de pan/hidrato'],note:''},
+  cen:{base:'Tortilla francesa + verdura o crema de calabaza (de bote vale)',alex:['✔ Cena ligera, sin lácteo','Sin hígado ese día (descanso digestivo)'],note:''}},
  {d:'Domingo',
   des:{base:'Libre',alex:['Mantén tus reglas: sin gluten/lácteo/cerdo; desayuno proteico'],note:''},
   com:{base:'Libre',alex:['Elige del intercambiador; hidrato moderado'],note:''},
