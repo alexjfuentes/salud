@@ -78,6 +78,24 @@
   .mitrab{margin-top:9px}
   .mitrab .lbl{font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.02em}
   .mitrab textarea{min-height:70px;margin-top:5px}
+  /* temas colapsables (potencialidad / a trabajar) */
+  .grpttl{font-size:1rem;font-weight:800;margin:20px 0 6px}
+  .grpttl.pot{color:var(--accent2)}
+  .grpttl.trab{color:var(--accent)}
+  .tema-det{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:12px;margin:9px 0;background:#20172b;overflow:hidden}
+  .tema-det.pot{border-left-color:var(--accent2)}
+  .tema-det.trab{border-left-color:var(--accent)}
+  .tema-det>summary{cursor:pointer;list-style:none;padding:12px 13px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .tema-det>summary::-webkit-details-marker{display:none}
+  .tema-det>summary .tt{font-weight:700;font-size:.94rem;color:var(--text)}
+  .tema-det .pesoTag{font-size:.74rem;font-weight:700;background:var(--chip);border-radius:10px;padding:2px 8px}
+  .tema-det.pot .pesoTag{color:var(--accent2)}
+  .tema-det.trab .pesoTag{color:var(--accent)}
+  .tema-det .terTag{font-size:.82rem}
+  .tema-det .det-body{padding:0 13px 13px}
+  .tema-det .qvt{margin-top:2px}
+  .tema-det .qvt .lbl{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.02em}
+  .tema-det .qvt .txt{font-size:.85rem;color:var(--text);margin-top:4px;line-height:1.5}
   /* tabla índice */
   .idxwrap{overflow-x:auto;margin:0 0 12px}
   table.idx{width:100%;border-collapse:collapse;font-size:.82rem}
@@ -238,8 +256,9 @@
    DB = { tomas:[ tomaObj ], temas:[ temaObj ] }
    tomaObj = { id, fecha, sustancia, dosis, proposito, horaIni, horaFin,
                lugar, compania, relato, notas }
-   temaObj = { id, titulo, recurrencia, consulta(bool), categoria('trabajar'|'aprendizaje'),
-               nota, estado('activo'|'archivado'), creado }
+   temaObj = { id, titulo, recurrencia, consulta(bool),
+               categoria('potencialidad'|'trabajar'|'aprendizaje'),
+               nota, interpretacion, miTrabajo, estado('activo'|'archivado'), creado }
    Persist a localStorage clave 'psicoAlex_v1'.
    ============================ */
 
@@ -256,49 +275,68 @@ function trunc(s,n){s=s||'';return s.length>n?s.slice(0,n-1)+'…':s}
 
 /* ---- seed (temas iniciales) ---- */
 const SEED=[
- {titulo:"Control y soltar / rendición", recurrencia:"≈45%", consulta:false, categoria:"trabajar",
-  nota:"De 'miedo a perder el control' → mantra ('ábrete', 'me entrego') → ancla somática en el pecho (anahata, la 'silla del corazón') → un protocolo que sabes explicar. Pregunta abierta: ¿dónde está esa silla del corazón cuando quien te descoloca es una conversación, un email o una discusión, y no una sustancia?"},
+ /* ===== POTENCIALIDADES ===== */
+ {titulo:"Control y soltar / rendición", recurrencia:"≈45%", consulta:false, categoria:"potencialidad",
+  nota:"Tu recurso más sólido. «coges el billete, te subes al tren y fluyes, dejas que te atraviese, no pasa nada»; «mi silla del corazón, en anahata… relajar, dejar ir, confiar»."},
+ {titulo:"Método: cuerpo, respiración y música", recurrencia:"≈40%", consulta:false, categoria:"potencialidad",
+  nota:"«la respiración es mi volante»; «la música es un ancla para saber que no has perdido la cabeza»; y llegaste a generar tú el ritmo por dentro."},
+ {titulo:"Ver tu luz — el amor por Montse", recurrencia:"≈30%", consulta:false, categoria:"potencialidad",
+  nota:"«soy capaz de ver tu luz y por eso te amo»; «gracias a Montse voy a jugar el segundo round»."},
+ {titulo:"El faro de tu padre — gratitud y valores", recurrencia:"≈30%", consulta:false, categoria:"potencialidad",
+  nota:"«un faro con unos valores que en el fondo me sirven de guía»; «mi corazón fue capaz de con amor»."},
+ {titulo:"Vivir queriendo — paz con la impermanencia", recurrencia:"≈30%", consulta:false, categoria:"potencialidad",
+  nota:"«dejarlo todo en orden y vivir queriendo»; «creo que hay algo después»."},
+ {titulo:"El duende — tu alegría viva", recurrencia:"≈25%", consulta:false, categoria:"potencialidad",
+  nota:"«brota un ser curioso y divertido, río mucho, bromeo, soy travieso»; «una dicha atemporal casi con vida propia»."},
+ {titulo:"Tu método propio — yoga, dosis baja, set como actitud", recurrencia:"≈25%", consulta:false, categoria:"potencialidad",
+  nota:"«0,35 g + hatha yoga da más profundidad que 1,6 g sin práctica» (lo dices tres veces); «el set es una actitud, no una preparación… sin juicio, con aceptación y honestidad»."},
+ {titulo:"Ver la estructura de la existencia — el asombro", recurrencia:"≈20%", consulta:false, categoria:"potencialidad",
+  nota:"«el final y el principio del todo, como un bucle, un circuito»; «yo creía que hay algo después»; «la impermanencia… la tragicomedia de la vida»."},
+ {titulo:"La observadora serena — tu Yo que mira", recurrencia:"≈20%", consulta:false, categoria:"potencialidad",
+  nota:"«una conversación clarísima entre varias partes de mí… una más serena le comentaba entre risas que eso del ego era infantil y no se sostenía»."},
+ {titulo:"Creer en ti — no necesitar aparentar", recurrencia:"≈20%", consulta:false, categoria:"potencialidad",
+  nota:"«siento la no necesidad de aparentar ante nadie»; «debo creer en mí, hay una rebeldía sana en ser como soy»."},
+ {titulo:"La naturaleza como espejo — integrar", recurrencia:"≈20%", consulta:false, categoria:"potencialidad",
+  nota:"«la naturaleza me había hecho un espejo de mi psique y ahora lo podía ver»; «la integración es entender cómo se suceden esos espejos en mi vida cotidiana»."},
+ {titulo:"Saber cerrar etapas — marcar los finales", recurrencia:"≈15%", consulta:false, categoria:"potencialidad",
+  nota:"«necesitas marcar los finales, y cuando los marcas bien, los digieres. Es una capacidad, no un problema» (el loft; la casa de tu padre)."},
+ /* ===== A TRABAJAR ===== */
  {titulo:"La sombra que se aplaza", recurrencia:"≈29%", consulta:true, categoria:"trabajar",
-  nota:"Patrón muy consistente: te acercas a lo oscuro y algo te desvía sin violencia (un pitido, el sueño que te vence, un amigo que entra a por frutos secos). Tú mismo lo viste: 'hubiera sido interesante… y no lo pensé más'. Tarea posible sin sustancia: recorrer la casa en meditación, habitación por habitación, y terminar lo que se interrumpió."},
+  nota:"Se repite: te acercas a lo oscuro y algo te desvía sin violencia. «un pitido me sacaba de ahí… lo oscuro llega solo»; y en 2026 tú mismo: «hubiera sido interesante seguir… y no lo pensé más» (entró Iván a por frutos secos)."},
  {titulo:"Montse — capas que no se juntan", recurrencia:"≈29%", consulta:true, categoria:"trabajar",
-  nota:"Gratitud, propósito, miedo a perderla, amor sin condición… y una capa de queja aislada (dic 2023: 'no soy libre en mi propia casa') que nunca vuelve a aparecer en el archivo. ¿Qué pasó con eso?"},
+  nota:"Tres capas luminosas y una de queja que nunca vuelve: «no soy libre en mi propia casa… en mi libre determinación» (dic 2023). No se resuelve ni se retoma: desaparece."},
  {titulo:"Tu padre — 'el aguante'", recurrencia:"≈21%", consulta:true, categoria:"trabajar",
-  nota:"Dos padres: el faro con valores y el 'hombre capaz, duro y criticón' — del segundo no hay ni una línea escrita. Dos puertas concretas: la frase a medias 'mi corazón fue capaz de con amor…' (¿capaz de qué?) y la casa (paredes fuertes que él construyó vs. el cuarto de la tele 'demacrado por la energía que había ahí')."},
- {titulo:"El duende", recurrencia:"≈21%", consulta:false, categoria:"trabajar",
-  nota:"Una parte tuya con nombre propio, juguetona y libre, que solo aparece dentro de estos estados. ¿Qué le impide salir el resto del tiempo? Idea: darle espacio deliberado —baile, música, juego— sin sustancia, a ver si aparece."},
- {titulo:"Muerte, tiempo y 'dejarlo en orden'", recurrencia:"≈21%", consulta:false, categoria:"trabajar",
-  nota:"De un hecho aceptado a una experiencia con lágrimas ('la tragicomedia de la vida'). Lo accionable no es la fecha intuida, sino dos decisiones: 'dejarlo todo en orden' y 'vivir queriendo'. Usas la misma palabra —'faro'— para tu padre y para lo que quieres ser con Montse."},
- {titulo:"Creer en mí / miedo al rechazo", recurrencia:"≈21%", consulta:false, categoria:"trabajar",
-  nota:"Tensión entre 'quiero autorizarme yo' y 'necesito que me validen', que asoma cuando la experiencia toca a otras personas (pareja, amigos, quien pueda juzgar). Dos veces nombrado y dos veces a medias — una quedó solo en el título de una carpeta ('miedo a rechazo')."},
- {titulo:"Cerrar etapas / despedidas", recurrencia:"≈14%", consulta:false, categoria:"trabajar",
-  nota:"Dos de tus experiencias más potentes fueron despedidas de una casa (el loft tras 16 años; la casa de tu padre). Es una capacidad, no un problema: necesitas marcar los finales para digerirlos. ¿Qué otros finales no has marcado? (uno se llama tu padre)."},
+  nota:"Dos padres: «un faro con valores… mi corazón fue capaz de con amor…» (la frase se corta) y «el hombre capaz y duro y criticón», del que no hay ni una línea. La palabra que eliges: «el aguante». Y una casa con un cuarto «demacrado por la energía que había ahí»."},
+ {titulo:"Creer en mí / miedo al rechazo", recurrencia:"≈21%", consulta:true, categoria:"trabajar",
+  nota:"Tensión entre «quiero autorizarme yo» y «necesito que me validen»; aparece cuando la práctica toca a otros. «miedo a rechazo» se quedó en el título de una carpeta cuyo texto no lo menciona."},
  {titulo:"Madre — culpa que se activa con gestos y tonos", recurrencia:"≈7%", consulta:true, categoria:"trabajar",
-  nota:"No es un recuerdo, es un disparador: una culpa que se activa por gestos, tonos o 'energías/vibraciones similares', no por temas ni conversaciones. Falta identificar en qué situaciones actuales de tu vida se dispara."},
+  nota:"La frase más precisa del material: «un trauma enmascarado en culpa que se activa con gestos, tonos, energías o vibraciones similares»."},
  {titulo:"Bloqueos y el poder de decidir", recurrencia:"≈7%", consulta:false, categoria:"trabajar",
-  nota:"Patrón y antídoto en el mismo párrafo (Roquetas): el bloqueo del otro te secuestra en cascada; el antídoto = 'decides tú e invitas a la persona, sin condicionar tu movimiento a que ella se mueva'. Ensayable en meditación: recrear la escena, notar dónde empieza la cascada, practicar el desenganche."},
- {titulo:"Método: cuerpo, respiración y música", recurrencia:"", consulta:false, categoria:"aprendizaje",
-  nota:"El cuerpo dirige y 'la respiración es mi volante'. La música es un ancla ('para saber que no has perdido la cabeza'), no decoración."},
- {titulo:"Método: yoga + dosis baja + set como actitud", recurrencia:"", consulta:false, categoria:"aprendizaje",
-  nota:"Tu hallazgo más repetido: 0,35 g + hatha yoga da más profundidad que 1,6 g sin práctica. Y el set es una actitud (sin juicio, aceptación, honestidad), no una preparación."},
- {titulo:"Integración y partes internas (IFS)", recurrencia:"", consulta:true, categoria:"aprendizaje",
-  nota:"Integrar = ver cómo se repiten estos 'espejos' en tu vida cotidiana. Describiste una conversación entre al menos 3 partes tuyas (ego / una observadora serena / una infantil): es justo el terreno de IFS y el trabajo con voces internas — buen punto de entrada con tu psicólogo."}
+  nota:"Tu patrón y tu antídoto en el mismo párrafo (Roquetas): «la cascada de automatismos… querían aparecer» y «decides tú qué hacer como si estuvieses solo, e invitas sin miedo». «EL PODER DE LA DECISIÓN… ES CLAVE»."}
 ];
 
-/* ---- interpretaciones ampliadas (psicología · desarrollo) ---- */
+/* ---- interpretaciones (explicación clara y práctica) ---- */
 const SEED_INTERP={
-"Control y soltar / rendición":"Psicológicamente, aquí entrenas la tolerancia a la incertidumbre y la regulación del sistema nervioso ante lo que no controlas. Que hayas encontrado un ancla corporal (el pecho, anahata) no es casual: la sensación de seguridad se construye en el cuerpo antes que en la cabeza. El trabajo de desarrollo sería trasladar ese recurso —‘me entrego, confío’— del contexto protegido del viaje a los momentos cotidianos de activación: una discusión, un email, una espera. En terapia conecta con el trabajo de tolerancia al descontrol y con técnicas de regulación (respiración, foco somático). La pregunta guía: ¿puedo quedarme, sentir y no huir, también estando despierto?",
-"La sombra que se aplaza":"En términos junguianos, la ‘sombra’ son las partes de ti que has apartado por dolorosas o inaceptables; acercarse a ellas activa evitaciones sutiles (distracción, sueño, cambiar de tema) que no se sienten como huida. Lo valioso es que tú ya las observas sin juzgarte. El trabajo no es forzar la puerta, sino frenar justo cuando notas que ‘algo te aparta’ y quedarte un poco más de lo cómodo, preferiblemente acompañado. En terapia se crea la seguridad suficiente para sostener lo que evitabas. Recorrer la casa de tu padre en imaginación, sin exigirte resultados, es un ejercicio concreto en esa dirección.",
-"Montse — capas que no se juntan":"Que gratitud, miedo a perderla, amor y una queja de falta de libertad convivan sin integrarse es normal en los vínculos importantes: son verdades simultáneas. El desarrollo pasa por permitir que coexistan sin que una anule a las otras, y por mirar la capa incómoda (‘no soy libre en mi propia casa’) que desapareció del relato sin resolverse. En pareja y en terapia esto suele traducirse en aprender a nombrar la necesidad propia sin culpa y sin romper el vínculo. La pregunta útil: ¿qué pasó con aquello: se resolvió o se calló?",
-"Tu padre — 'el aguante'":"Elegir la palabra ‘aguante’ para alguien a quien quieres, y que del padre ‘duro y criticón’ no haya ni una línea, sugiere un duelo aún abierto y una parte del vínculo sin narrar. En desarrollo personal, honrar a un padre no exige idealizarlo: puedes agradecer al faro y, a la vez, mirar lo que dolió, sin traicionarlo. La imagen de la casa —paredes fuertes que él construyó junto a un cuarto ‘demacrado por la energía’— es una metáfora tuya muy precisa de eso. El trabajo terapéutico sería darte permiso para completar la frase ‘mi corazón fue capaz de con amor…’ y sostener las dos verdades a la vez.",
-"El duende":"Ese ‘yo’ juguetón y libre que solo aparece en estos estados es, en lenguaje de partes internas, un aspecto vital y espontáneo que en el día a día queda inhibido, casi siempre por autoexigencia, roles o miedo al juicio. No lo trae la sustancia: estaba y se resguarda. El desarrollo es darle permiso y espacios seguros en sobrio —juego, música, movimiento, humor— para que no dependa de un viaje para existir. La pregunta: ¿qué normas internas le pido cumplir que le hacen callarse?",
-"Muerte, tiempo y 'dejarlo en orden'":"La consciencia de la impermanencia, bien integrada, no es morbo: es una brújula de prioridades. Lo importante no es la fecha intuida —una intuición en un estado alterado es una intuición, no un pronóstico— sino lo que despierta: ‘dejarlo todo en orden’ y ‘vivir queriendo’. En desarrollo personal esto se trabaja convirtiéndolo en decisiones concretas (relaciones, asuntos pendientes, cómo quieres estar presente) en vez de en una emoción bonita. La muerte como maestra de la vida, no como amenaza.",
-"Creer en mí / miedo al rechazo":"La tensión entre ‘me autorizo yo’ y ‘necesito que me validen’ es un tema nuclear de autoestima e individuación: cuánto de tu valor pones fuera. Que se dispare cuando la experiencia toca a otros (pareja, amigos, quien juzgue) señala dónde aún necesitas aprobación externa para sostener tu criterio. El trabajo es fortalecer la validación interna sin caer en el aislamiento reactivo (‘no pido que me aplaudan’). En terapia se mira de dónde viene esa herida de rechazo y cómo se sostiene hoy tu propio ‘sí’.",
-"Cerrar etapas / despedidas":"Tu necesidad de ritualizar los finales es una fortaleza: los ritos de cierre ayudan al cerebro a procesar transiciones y a elaborar duelos. Reconocerla te permite usarla a propósito. El desarrollo es doble: honrar esta capacidad y preguntarte qué finales importantes no has marcado todavía —el más evidente, tu padre—. Un cierre consciente (una carta, una visita, un ritual) puede hacer con intención lo que el viaje hizo por sorpresa.",
-"Madre — culpa que se activa con gestos y tonos":"Describiste con precisión un disparador implícito: una culpa que no responde al contenido sino a gestos, tonos o ‘energías’, probablemente aprendida muy temprano. Es material central para terapia porque explica reacciones actuales desproporcionadas al estímulo presente: algo pequeño te lleva a un lugar antiguo. El trabajo es identificar las situaciones concretas de hoy donde se activa y aprender a distinguir ‘esto es de ahora’ de ‘esto es de entonces’. Reconocer el mecanismo, como ya haces, es el primer paso del cambio.",
-"Bloqueos y el poder de decidir":"Aquí tienes descritos, juntos, tu patrón (el bloqueo del otro te ‘secuestra’ en cascada automática) y tu antídoto (decides tú, actúas e invitas sin condicionar tu movimiento). En términos de regulación, es pasar de la reactividad a la respuesta elegida. El desarrollo es entrenarlo en frío: reconocer la primera señal de la cascada y practicar el desenganche, primero en imaginación y luego en la vida. Es, de todo el archivo, lo más directamente aplicable al día a día.",
-"Método: cuerpo, respiración y música":"Traducción a la vida: la respiración como ‘volante’ y el cuerpo como brújula son herramientas de autorregulación disponibles siempre, no solo en el viaje. Practicarlas en sobrio (respiración consciente, escucha corporal) construye el mismo recurso sin depender de nada.",
-"Método: yoga + dosis baja + set como actitud":"Tu hallazgo —más práctica y menos dosis— es, en el fondo, un principio de vida: la actitud (set) importa más que la intensidad del estímulo. Tener ‘actitud de meditador’ ante lo bueno y lo malo es entrenable y transferible a cualquier momento difícil.",
-"Integración y partes internas (IFS)":"Que percibieras varias ‘partes’ dialogando (el ego, una observadora serena, una infantil) es la puerta natural a modelos como IFS: no eres una sola voz, y la observadora serena puede liderar. En terapia, dar espacio y voz a cada parte, sin expulsar ninguna, es el trabajo."
+/* --- potencialidades --- */
+"Control y soltar / rendición":"En tres años pasaste de temer perder el control a tener un método propio: un ancla en el pecho y un «me entrego». Recuérdalo como lo que eres capaz de hacer: soltar sin que pase nada malo. Práctica: cuando algo te tense (dentro o fuera del viaje), lleva la atención al centro del pecho, respira largo y di por dentro «me entrego»; deja que la ola te atraviese.",
+"Método: cuerpo, respiración y música":"Tienes un timón fiable: la respiración lenta te devuelve la calma y la música (o tu ritmo interior) te sostiene; ya no dependes de nada externo. Práctica: en un momento difícil del día, alarga la exhalación y pon una música-ancla; recuerda que esa estabilidad la generas tú.",
+"Ver tu luz — el amor por Montse":"En tus estados más abiertos, el amor por Montse aparece como faro y propósito, más allá de las fricciones del día. Es un ancla de sentido. Práctica: cuando la convivencia se enrede, recuerda esta mirada —«veo tu luz»— y deja que guíe un gesto concreto de cuidado.",
+"El faro de tu padre — gratitud y valores":"Junto al dolor (que trabajas en otro sitio), hay una herencia luminosa: valores que te guían y una gratitud honda. Recordar al padre-faro te da raíces. Práctica: cuando dudes de tu rumbo, pregúntate qué valor suyo te sirve hoy de brújula.",
+"Vivir queriendo — paz con la impermanencia":"Tu relación con la muerte y el tiempo es serena y madura, y de ella salen dos decisiones que no dependen de ninguna fecha: dejar las cosas en orden y vivir queriendo. Práctica: elige hoy una cosa pequeña «por ordenar» y un gesto de querer; convierte la intuición en acción.",
+"El duende — tu alegría viva":"Hay una parte tuya juguetona, traviesa y dichosa que aparece cuando te sientes a salvo; no es efecto de la sustancia, estaba antes y se guarda. Recordarla es recordar tu capacidad de gozo y humor espontáneo. Práctica: dale espacio deliberado —baile, música, juego, tontear— sin ningún motivo; a ver si el duende asoma en lo cotidiano.",
+"Tu método propio — yoga, dosis baja, set como actitud":"Has destilado un método sobrio y sabio: menos es más, el yoga encauza, y lo que decide la experiencia es la actitud. Sirve para la vida entera, no solo para el viaje. Práctica: lleva «la actitud del meditador» a un momento normal del día —observar sin identificarte, saber que pasa—.",
+"Ver la estructura de la existencia — el asombro":"Has tenido visiones de la estructura de la vida —ciclos, principio y fin, algo que trasciende— que dejan una sensación de pertenencia y sentido. Recordarlas ensancha tu mirada cuando lo cotidiano aprieta. Práctica: cuando te pierdas en lo pequeño, recuerda un momento esa perspectiva amplia; no para evadirte, sino para relativizar y volver más entero.",
+"La observadora serena — tu Yo que mira":"Tienes acceso a un testigo interior calmado, que observa sin engancharse y hasta con humor; en terapia es «el Yo» que puede liderar tus partes. Recordarlo te recuerda que no eres tus tormentas. Práctica: en un momento reactivo, ponte en «la serena»: mira la escena desde fuera, con amabilidad.",
+"Creer en ti — no necesitar aparentar":"Las experiencias sacan a la luz una autenticidad y una autoconfianza tuyas: no necesitas el aplauso para ser tú. Recordarlo te sostiene frente al miedo al juicio (que trabajas aparte). Práctica: en una situación donde busques validación, prueba a autorizarte tú primero.",
+"La naturaleza como espejo — integrar":"Sabes leer lo que vives como un espejo que enseña, y tienes clara tu regla de oro: integrar es traducirlo al día a día. Es una capacidad poco común. Práctica: tras una vivencia intensa, anota «¿qué me está mostrando esto de mi vida despierta?».",
+"Saber cerrar etapas — marcar los finales":"Tienes un don para ritualizar despedidas y, al hacerlo, digerirlas. Es una fortaleza. Práctica: ante un final pendiente (un lugar, una etapa), márcalo a conciencia —un gesto, un rato, unas palabras— y notarás cómo se ordena.",
+/* --- a trabajar --- */
+"La sombra que se aplaza":"No es huida dramática, es una interrupción elegante que te convence en el momento. Sería lo primero que llevaría a terapia —no como acusación, sino como «esto se repite, ayúdame a verlo». Práctica sin sustancia: recorrer en meditación «la casa» habitación por habitación y terminar lo que se interrumpió, sin prisa ni exigencia.",
+"Montse — capas que no se juntan":"La pregunta más útil del archivo: ¿qué pasó con eso? Puede que se arreglara o que dejaras de escribirlo. Material directo de terapia y de conversación honesta. Práctica: nombrar, en frío y con cariño, dónde sí y dónde no te sientes libre en la convivencia hoy.",
+"Tu padre — 'el aguante'":"Es el hueco más grande, y ahora tienes una puerta concreta: la casa, con habitaciones, y una que se ve distinta. Y una frase a medias: «capaz de con amor…» ¿capaz de qué? Ahí empezaría. Terapia/práctica: completar esa frase y, si puedes, escribir cuatro líneas de la sesión que dejaste en blanco («honor a papá»).",
+"Creer en mí / miedo al rechazo":"El hilo con más carga y el que menos has escrito: dos veces lo nombras y las dos se queda a medias. Tu contrapeso es la potencialidad «Creer en ti». Terapia/práctica: identificar situaciones concretas donde buscas validación y ensayar autorizarte tú primero.",
+"Madre — culpa que se activa con gestos y tonos":"No es un recuerdo, es un disparador: alguien pone cierta cara o tono y te vas a un sitio que no tiene que ver con esa persona. Concreto y trabajable. Práctica: cuando notes la reacción desmedida, pregúntate «¿esto es de ahora o de entonces?»; llévalo a terapia con ejemplos.",
+"Bloqueos y el poder de decidir":"Ya tienes la regla; falta entrenarla en frío. Práctica: recrea la escena del chiringuito, localiza dónde empieza el secuestro y ensaya el «decido yo e invito» sin condicionar tu paso a que el otro se mueva."
 };
 
 /* ---- load / save / seed injection ---- */
@@ -326,6 +364,50 @@ if(!Array.isArray(DB.temas)||!DB.temas.length){
     if(typeof tm.miTrabajo==='undefined'){tm.miTrabajo='';changed=true;}
   });
   if(changed)saveInit();
+})();
+/* ---- migración v2: resync de seeds por TÍTULO sin destruir datos del usuario ---- */
+(function migrateTemasV2(){
+  var VERKEY='temas_seed_ver', VER='v2';
+  var RENAMES={
+    "Muerte, tiempo y 'dejarlo en orden'":"Vivir queriendo — paz con la impermanencia",
+    "Cerrar etapas / despedidas":"Saber cerrar etapas — marcar los finales",
+    "El duende":"El duende — tu alegría viva",
+    "Integración y partes internas (IFS)":"La observadora serena — tu Yo que mira",
+    "Método: yoga + dosis baja + set como actitud":"Tu método propio — yoga, dosis baja, set como actitud"
+  };
+  var changed=false;
+  var t=todayISO();
+  function idx(titulo){return DB.temas.findIndex(function(x){return x.titulo===titulo;});}
+  /* 1) renombres seguros: solo si miTrabajo vacío y el título nuevo aún no existe */
+  Object.keys(RENAMES).forEach(function(oldT){
+    var oi=idx(oldT); if(oi<0)return;
+    var tm=DB.temas[oi];
+    var mine=(tm.miTrabajo||'').trim();
+    var newT=RENAMES[oldT];
+    if(!mine && idx(newT)<0){ tm.titulo=newT; changed=true; }
+    /* si tiene notas propias, se deja intacto (no se pierde nada; puede quedar un pequeño duplicado) */
+  });
+  /* 2) resync por título contra el SEED nuevo (conserva id, miTrabajo, estado, creado) */
+  SEED.forEach(function(s){
+    var i=idx(s.titulo);
+    if(i>=0){
+      var tm=DB.temas[i];
+      if(tm.recurrencia!==s.recurrencia){tm.recurrencia=s.recurrencia;changed=true;}
+      if(tm.consulta!==s.consulta){tm.consulta=s.consulta;changed=true;}
+      if(tm.categoria!==s.categoria){tm.categoria=s.categoria;changed=true;}
+      if(tm.nota!==s.nota){tm.nota=s.nota;changed=true;}
+      var interp=SEED_INTERP[s.titulo]||'';
+      if(tm.interpretacion!==interp){tm.interpretacion=interp;changed=true;}
+      if(typeof tm.miTrabajo==='undefined'){tm.miTrabajo='';changed=true;}
+    }else{
+      DB.temas.push({id:uid(),titulo:s.titulo,recurrencia:s.recurrencia,consulta:s.consulta,
+        categoria:s.categoria,nota:s.nota,interpretacion:SEED_INTERP[s.titulo]||'',
+        miTrabajo:'',estado:'activo',creado:t});
+      changed=true;
+    }
+  });
+  if(changed)saveInit();
+  try{localStorage.setItem(VERKEY,VER);}catch(e){}
 })();
 function saveInit(){try{localStorage.setItem(LS,JSON.stringify(DB));}catch(e){}}
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
@@ -610,28 +692,92 @@ function toggleMirada(btn){var c=document.getElementById('miradaClamp');if(!c)re
 
 /* ===== Una mirada (guía viva) ===== */
 const MIRADA_KEY='mirada_psico';
-const MIRADA_SEED=MIRADA_TXT;
+const MIRADA_SEED=[
+"UNA MIRADA — clara y práctica",
+"",
+"Dentro del viaje ya sabes hacer algo difícil: soltar el control y confiar. Tienes un ancla en el pecho —tu «silla del corazón»— y un «me entrego» que funciona. Eso es tuyo y es sólido.",
+"",
+"El trabajo de verdad es llevar esa misma calma a la vida despierta: al momento en que quien te descoloca no es una sustancia, sino un tono, una discusión o un recuerdo.",
+"",
+"Hay dos puertas que rozas y aplazas: tu padre, y eso oscuro que se acerca y siempre te desvía. No hay que forzarlas; basta con acercarse un poco cada vez, y mejor acompañado (tu terapia es el mejor sitio).",
+"",
+"Tres cosas para el día a día:",
+"1) Cuando notes que algo te «secuestra», para, respira largo y lleva la atención al pecho antes de responder.",
+"2) Ante alguien bloqueado o un tono que te dispara, decides tú y le invitas, sin quedarte enganchado; y pregúntate: «¿esto es de ahora o de entonces?».",
+"3) Lo que aplazas, acércate un poquito y vuelve a tu calma; repite. Sin prisa.",
+"",
+"Y recuerda lo que YA eres: justo debajo tienes tus «Potencialidades» para recordar quién eres cuando lo necesites."
+].join("\n");
 function getMirada(){try{var v=localStorage.getItem(MIRADA_KEY);return (v&&v.trim())?v:MIRADA_SEED;}catch(e){return MIRADA_SEED;}}
 function renderMirada(){var el=document.getElementById('miradaTexto');if(el)el.innerHTML=esc(getMirada()).replace(/\n/g,'<br>');}
 function editMirada(){var t=document.getElementById('miradaEdit');t.value=getMirada();t.style.display='block';document.getElementById('miradaEditBtn').style.display='none';document.getElementById('miradaSaveBtn').style.display='inline-block';t.focus();}
 function guardarMirada(){var t=document.getElementById('miradaEdit');try{localStorage.setItem(MIRADA_KEY,t.value);}catch(e){}t.style.display='none';document.getElementById('miradaSaveBtn').style.display='none';document.getElementById('miradaEditBtn').style.display='inline-block';renderMirada();}
 function speakMirada(){speak(getMirada());}
+/* tarjeta de tema como <details> colapsable (potencialidad / a trabajar) */
+function temaDetails(t){
+  var pot=t.categoria==='potencialidad';
+  var w=recNum(t.recurrencia);
+  var peso=t.recurrencia?('≈'+w+'%'):'';
+  var icon=pot?'🌱':'🔧';
+  var cls=pot?'tema-det pot':'tema-det trab';
+  var h='<details class="'+cls+'" id="tema-'+t.id+'">';
+  h+='<summary><span class="tt">'+icon+' '+esc(t.titulo)+'</span>';
+  if(peso)h+=' <span class="pesoTag">'+peso+'</span>';
+  if(!pot&&t.consulta)h+=' <span class="terTag">🩺</span>';
+  h+='</summary><div class="det-body">';
+  /* qué vives tú */
+  if(t.nota)h+='<div class="qvt"><div class="lbl">Qué vives tú</div><div class="txt">'+esc(t.nota)+'</div></div>';
+  /* visión / cómo usarlo */
+  if(t.interpretacion){
+    h+='<div class="ampl"><div class="lbl">'+(pot?'Cómo usarlo':'Visión / cómo usarlo')+'</div>'+
+       '<div class="txt">'+esc(t.interpretacion)+'</div></div>';
+  }
+  /* escuchar */
+  h+='<div style="margin-top:9px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
+     '<button class="icobtn" onclick="speakTema(\''+t.id+'\')">▶ Escuchar</button>'+
+     '<button class="icobtn" onclick="stopSpeak()">⏹</button>';
+  if(!pot&&t.consulta)h+='<span class="badge ter">🩺 para terapia</span>';
+  h+='</div>';
+  /* mi trabajo (editable, se conserva) */
+  h+='<div class="mitrab"><div class="lbl">Mi trabajo — lo que he descubierto</div>'+
+     '<textarea id="mt-'+t.id+'" oninput="setMiTrabajo(\''+t.id+'\',this.value)" '+
+       'placeholder="Anota aquí lo que vas descubriendo y trabajando en este tema…">'+esc(t.miTrabajo||'')+'</textarea>'+
+     '<div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">'+
+       '<button class="icobtn" onclick="dictarMiTrabajo(\''+t.id+'\')">🎤 Dictar</button>'+
+       '<button class="icobtn" onclick="speakMiTrabajo(\''+t.id+'\')">▶ Escuchar</button>'+
+       '<span class="muted" style="font-size:.74rem">usa el micro del teclado</span>'+
+     '</div></div>';
+  /* acciones */
+  h+='<div class="acts">'+
+     '<button class="icobtn" onclick="marcarTrabajado(\''+t.id+'\')">✓ Marcar trabajado</button>'+
+     '<button class="icobtn" onclick="editNota(\''+t.id+'\')">✏️ Editar nota</button>'+
+     '<button class="icobtn" onclick="borrarTema(\''+t.id+'\')">🗑</button>'+
+     '</div>';
+  h+='</div></details>';
+  return h;
+}
+
 function renderTemas(){
-  const activos=DB.temas.filter(t=>t.estado==='activo')
-    .sort((a,b)=>recNum(b.recurrencia)-recNum(a.recurrencia));
-  const arch=DB.temas.filter(t=>t.estado==='archivado');
-  /* índice (encima de «Una mirada») */
-  $('temasIndex').innerHTML=temasIndexTable(activos);
-  /* tarjetas */
-  const body=$('temasBody');
-  let h='';
-  h+='<div class="secttl">🔴 Activos — a trabajar</div>';
-  if(!activos.length)h+='<p class="muted">No hay temas activos ahora mismo.</p>';
-  else activos.forEach(t=>h+=temaCard(t));
-  h+='<div class="secttl arch">✅ Archivados — trabajados</div>';
-  if(!arch.length)h+='<p class="muted">Todavía no has archivado ningún tema.</p>';
-  else arch.forEach(t=>h+=temaCardArch(t));
-  body.innerHTML=h;
+  var activos=DB.temas.filter(function(t){return t.estado==='activo';});
+  var pot=activos.filter(function(t){return t.categoria==='potencialidad';})
+    .sort(function(a,b){return recNum(b.recurrencia)-recNum(a.recurrencia);});
+  var trab=activos.filter(function(t){return t.categoria!=='potencialidad';})
+    .sort(function(a,b){return recNum(b.recurrencia)-recNum(a.recurrencia);});
+  var arch=DB.temas.filter(function(t){return t.estado==='archivado';});
+  /* grupos colapsables (van encima del botón «Añadir tema») */
+  var h='';
+  h+='<div class="grpttl pot">🌱 Potencialidades — para recordar quién eres</div>';
+  if(!pot.length)h+='<p class="muted">—</p>';
+  else pot.forEach(function(t){h+=temaDetails(t);});
+  h+='<div class="grpttl trab">🔧 A trabajar — para mirarte y llevar a terapia</div>';
+  if(!trab.length)h+='<p class="muted">—</p>';
+  else trab.forEach(function(t){h+=temaDetails(t);});
+  $('temasIndex').innerHTML=h;
+  /* archivados (debajo del botón «Añadir tema») */
+  var b='<div class="secttl arch">✅ Archivados — trabajados</div>';
+  if(!arch.length)b+='<p class="muted">Todavía no has archivado ningún tema.</p>';
+  else arch.forEach(function(t){b+=temaCardArch(t);});
+  $('temasBody').innerHTML=b;
 }
 
 /* ================= EXPORT ================= */
@@ -710,7 +856,8 @@ function restore(){
 $('f_fecha').value=todayISO();
 renderTomas();
 renderTemas();
-try{if(!localStorage.getItem(MIRADA_KEY))localStorage.setItem(MIRADA_KEY,MIRADA_SEED);}catch(e){}
+var MIRADA_VER='psico-v2';
+try{if(localStorage.getItem('mirada_psico_ver')!==MIRADA_VER){localStorage.setItem('mirada_psico',MIRADA_SEED);localStorage.setItem('mirada_psico_ver',MIRADA_VER);}}catch(e){}
 renderMirada();
 </script>
 </body>
