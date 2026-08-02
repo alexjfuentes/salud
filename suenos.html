@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sueños">
+<meta name="theme-color" content="#17132b">
+<title>Sueños lúcidos · Alex</title>
+<style>
+  :root{
+    --bg:#17132b; --card:#221c3d; --accent:#a78bfa; --accent2:#7dd3fc;
+    --ok:#34d399; --text:#e7e3f5; --muted:#9d95c0;
+    --line:#352c58; --chip:#2b2450; --shadow:0 2px 14px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{background:linear-gradient(135deg,#2a2150,#3a2c66);color:#fff;
+    padding:calc(env(safe-area-inset-top) + 8px) 16px 12px;box-shadow:var(--shadow)}
+  header h1{margin:0;font-size:1.12rem}
+  header .sub{opacity:.85;font-size:.76rem;margin-top:2px}
+  nav{display:flex;gap:3px;background:#1c1636;position:sticky;top:0;z-index:30;padding:6px;overflow-x:auto}
+  nav button{flex:1 0 auto;background:transparent;border:0;color:var(--muted);padding:9px 12px;border-radius:9px;font-size:.84rem;font-weight:600;cursor:pointer;white-space:nowrap}
+  nav button.active{background:var(--accent);color:#1a1330}
+  main{max-width:780px;margin:0 auto;padding:14px 12px calc(90px + env(safe-area-inset-bottom))}
+  .tab{display:none;animation:fade .25s ease}
+  .tab.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin:0 0 12px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+  .card h3{margin:14px 0 6px;font-size:.9rem;color:var(--accent2)}
+  p{margin:6px 0}
+  .muted{color:var(--muted);font-size:.85rem}
+  ul{margin:6px 0;padding-left:20px}li{margin:3px 0}
+  .banner{border-left:4px solid var(--accent);background:#271f47;padding:9px 12px;border-radius:8px;font-size:.86rem;margin:8px 0}
+  .banner.ok{border-color:var(--ok);background:#1e3330}
+  .banner.blue{border-color:var(--accent2);background:#1e2b3a}
+  label.f{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:8px 0 3px}
+  input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;font-size:.92rem;font-family:inherit;background:#1b1536;color:var(--text)}
+  input[type=range]{padding:0}
+  textarea{min-height:60px;resize:vertical}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.row3{grid-template-columns:1fr 1fr}}
+  .btn{background:var(--accent);color:#1a1330;border:0;border-radius:10px;padding:12px 14px;font-size:.92rem;font-weight:700;cursor:pointer;width:100%;margin-top:12px}
+  .btn.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+  .btn.mini{width:auto;padding:8px 13px;font-size:.82rem;margin:6px 6px 0 0}
+  .btn.ok{background:var(--ok);color:#0b241d}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:18px;padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--text);user-select:none}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#1a1330}
+  .chip.pers{border-style:dashed}
+  .chipgroup{margin:8px 0}
+  .chipgroup .gl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+  .sueno{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#1d1738}
+  .sueno .sh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .sueno .sh b{color:var(--accent2);font-size:.85rem}
+  .icobtn{background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);padding:6px 9px;font-size:.85rem;cursor:pointer;width:auto;margin:0}
+  .entry{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin:8px 0;font-size:.84rem;background:#1d1738}
+  .entry .d{font-weight:700;color:var(--accent2)}
+  .entry .metrics{color:var(--muted);margin-top:2px}
+  .tg{display:inline-block;font-size:.72rem;background:var(--chip);color:var(--accent);border-radius:10px;padding:1px 8px;margin:2px 3px 0 0;font-weight:600}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:6px 0}
+  .kpi div{background:var(--chip);border-radius:10px;padding:9px 4px}
+  .kpi .n{font-size:1.05rem;font-weight:800;color:var(--accent)}
+  .kpi .l{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+  @media(max-width:520px){.kpi{grid-template-columns:repeat(2,1fr)}}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  .cmp .box{border:1px solid var(--line);border-radius:12px;padding:11px;text-align:center;background:#1d1738}
+  .cmp .box.a{border-color:var(--ok)}
+  .cmp .box.b{border-color:var(--muted)}
+  .cmp .big{font-size:1.3rem;font-weight:800;color:var(--text)}
+  .cmp .lab{font-size:.72rem;color:var(--muted)}
+  .streak{text-align:center;font-size:2rem;font-weight:800;color:var(--accent2)}
+  .bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:.84rem}
+  .bar .track{flex:1;height:12px;background:var(--chip);border-radius:6px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--accent);border-radius:6px}
+  .bar .lab{min-width:120px}
+  .bar .val{min-width:34px;text-align:right;color:var(--muted);font-weight:700}
+  code.small{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:.8rem;color:var(--accent2)}
+  footer{text-align:center;font-size:.72rem;color:var(--muted);padding:10px}
+  .foldcard>summary{list-style:none;cursor:pointer;font-weight:700;font-size:1rem;color:var(--accent)}
+  .foldcard>summary::-webkit-details-marker{display:none}
+  .foldcard>summary::after{content:'▾';float:right;color:var(--muted);font-weight:400}
+  .foldcard[open]>summary::after{content:'▴'}
+  .foldcard[open]>summary{margin-bottom:8px}
+  .foldcard p,.foldcard ul{font-size:.88rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌙 Sueños lúcidos</h1>
+  <div class="sub">Diario onírico · señales · reality checks · lucidez suave (método Campayo)</div>
+</header>
+<nav id="nav">
+  <button data-t="hoy" class="active">Hoy</button>
+  <button data-t="analisis">📊 Análisis</button>
+  <button data-t="guia">Guía</button>
+  <button data-t="export">Exportar</button>
+</nav>
+<main>
+
+<!-- ============ HOY ============ -->
+<section id="hoy" class="tab active">
+  <div class="card">
+    <h2>📝 Registro de hoy</h2>
+    <label class="f">Fecha</label>
+    <input type="date" id="d_fecha" onchange="preload()">
+    <div class="row2">
+      <div>
+        <label class="f">¿Recordé sueños?</label>
+        <select id="d_recuerdo">
+          <option value="">—</option>
+          <option>Nada</option>
+          <option>Vago</option>
+          <option>Claro</option>
+        </select>
+      </div>
+      <div>
+        <label class="f">Nº de sueños recordados</label>
+        <input type="number" min="0" step="1" id="d_nSuenos" placeholder="opcional">
+      </div>
+    </div>
+    <p class="muted" id="nadaHint" style="display:none">👍 No recordar nada esta noche es totalmente normal. Sin presión — la constancia hace el trabajo.</p>
+  </div>
+
+  <div class="card">
+    <h2>🌙 Sueños de esta noche</h2>
+    <div id="suenos"></div>
+    <button class="btn sec" onclick="addSueno()">➕ Añadir sueño</button>
+  </div>
+
+  <div class="card">
+    <h2>✅ Prácticas de hoy <span class="muted">(suaves, de día)</span></h2>
+    <label class="f">Reality checks hechos</label>
+    <input type="number" min="0" step="1" id="d_rc" placeholder="0">
+    <p class="muted">Meta 5–10/día, 1 cada hora. Pregúntate «¿estoy soñando?» + prueba física: lee algo dos veces, mírate las manos, tápate la nariz e intenta respirar.</p>
+    <div class="row2">
+      <div>
+        <label class="f">Intención al dormir</label>
+        <select id="d_intencion"><option>No</option><option>Sí</option></select>
+      </div>
+      <div>
+        <label class="f">Visualización / MILD suave</label>
+        <select id="d_visualizacion"><option>No</option><option>Sí</option></select>
+      </div>
+    </div>
+    <p class="muted">Intención: repite tu frase ~21 veces; que sea tu último pensamiento. Visualización: al dormirte, imagínate dándote cuenta de que sueñas — SIN despertarte a media noche.</p>
+    <div class="row2">
+      <div>
+        <label class="f">Meditación (minutos)</label>
+        <input type="number" min="0" step="1" id="d_medita" placeholder="0">
+      </div>
+      <div>
+        <label class="f">Leí mi diario / señales</label>
+        <select id="d_leiDiario"><option>No</option><option>Sí</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div>
+        <label class="f">Tótem / ancla mirada</label>
+        <select id="d_totem"><option>No</option><option>Sí</option></select>
+      </div>
+      <div>
+        <label class="f">Memoria prospectiva</label>
+        <select id="d_memProsp"><option>No</option><option>Sí</option></select>
+      </div>
+    </div>
+    <p class="muted">Memoria prospectiva: fíjate 3-4 momentos del día para chequear (al cruzar una puerta, al comer…). Tótem: mira un objeto ancla con atención plena.</p>
+    <p class="muted" style="margin-top:10px">🌙 Los despertares nocturnos (WBTB) para inducir lucidez quedan para MÁS ADELANTE — hoy la prioridad con tu fibromialgia es dormir bien y sin interrupciones.</p>
+  </div>
+
+  <div class="card">
+    <h2>🗒️ Notas del día</h2>
+    <textarea id="d_notas" placeholder="Sensación al despertar, contexto, ideas para incubar mañana…"></textarea>
+    <button class="btn ok" onclick="guardar()">Guardar día ✓</button>
+  </div>
+
+  <div class="card">
+    <h2>📆 Últimos días</h2>
+    <div id="daylist"><p class="muted">Aún no hay días registrados.</p></div>
+  </div>
+</section>
+
+<!-- ============ ANALISIS ============ -->
+<section id="analisis" class="tab">
+  <div class="banner">⚖️ <b>Señales, no causas.</b> El progreso en sueños lúcidos es ondulante — celebra lo pequeño.</div>
+  <div id="analisisBody"></div>
+  <button class="btn sec" onclick="copyAnalisis()">📋 Copiar análisis para Claude</button>
+</section>
+
+<!-- ============ GUIA ============ -->
+<section id="guia" class="tab">
+  <div class="banner blue">Método de Ramón Campayo + trucos de Robert Moss. Da 2–4 semanas a cada práctica, sin saltar fases. El progreso es ondulante.</div>
+
+  <details class="card foldcard" open>
+    <summary>🧭 Tu ruta (Campayo), 3 fases</summary>
+    <p><b>Fase 1 — Cimientos (AQUÍ EMPIEZAS):</b> diario de sueños + reality checks + higiene del sueño. Todo lo demás depende de esto.</p>
+    <p><b>Fase 2 — Inducción:</b> MILD (intención/visualización) y trabajo con tus señales oníricas ya identificadas.</p>
+    <p><b>Fase 3 — Estabilizar y explorar:</b> alargar y controlar el sueño lúcido, reentrada, incubación.</p>
+    <p class="muted">Da 2–4 semanas a cada práctica, no saltes. El progreso es ondulante: manía → desencanto → madurez. Es normal.</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🌙 Cómo registrar el sueño</summary>
+    <ul>
+      <li>Al despertar <b>no te muevas ni abras los ojos</b>; pregúntate «¿qué soñaba?».</li>
+      <li>Apúntalo <b>YA</b>: a los 10 minutos se pierde el 90%.</li>
+      <li>Escribe en <b>presente</b>, con palabras clave.</li>
+      <li>Si no recuerdas nada, apunta al menos la <b>emoción</b> con la que despertaste.</li>
+    </ul>
+  </details>
+
+  <details class="card foldcard">
+    <summary>👁 Señales oníricas</summary>
+    <p>Son <b>incongruencias recurrentes</b> que aparecen en tus sueños. Cuando aprendes a detectarlas, te avisan de que estás soñando.</p>
+    <p><b>Las 4 categorías:</b></p>
+    <ul>
+      <li><b>Consciencia:</b> pensamientos raros, emociones absurdas, sensaciones imposibles.</li>
+      <li><b>Acciones imposibles:</b> volar, que un objeto hable, que un animal haga algo imposible.</li>
+      <li><b>Formas que cambian:</b> tú eres otro, personas/animales deformados, objetos gigantes.</li>
+      <li><b>Contexto imposible:</b> lugar/época equivocada, personaje o cosa fuera de sitio.</li>
+    </ul>
+    <p class="muted">Necesitas <b>≥12 sueños analizados</b> antes de fiarte de tus señales. Úsalas con la frase: «la próxima vez que aparezca X, sabré que sueño».</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🔁 Reality checks</summary>
+    <ul>
+      <li><b>5–10 al día</b>, uno cada hora.</li>
+      <li>Pregunta + <b>PRUEBA FÍSICA</b>: leer algo dos veces, mirarte las manos, taparte la nariz e intentar respirar, «¿cómo he llegado aquí?».</li>
+      <li>Hazlo <b>siempre que veas algo raro</b>.</li>
+      <li>A los personajes del sueño no les preguntes si sueñas: <b>mienten</b>.</li>
+    </ul>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🎯 Intención</summary>
+    <ul>
+      <li>Una <b>frase corta y afirmativa</b>, repetida ~21 veces.</li>
+      <li><b>Siéntela</b> al dormir, no la recites sin más.</li>
+      <li>Sin esfuerzo ni apego al resultado: «demasiado deseo es un obstáculo».</li>
+    </ul>
+  </details>
+
+  <details class="card foldcard">
+    <summary>☀️ Lucidez de día = lucidez de noche (Onironáutica)</summary>
+    <p>Sé consciente de ti durante el día. Antes de dormir, repítete: «mi cuerpo descansa, yo soy consciente; si es un sueño, me doy cuenta».</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🛌 Higiene del sueño (lo primero)</summary>
+    <ul>
+      <li>Dormir <b>suficientes horas y con calidad</b>. Sin buen sueño NO hay lucidez.</li>
+      <li>Cafeína <b>no después del mediodía</b>.</li>
+      <li>Alcohol suprime el REM.</li>
+      <li>Cena ligera <b>&gt;2h antes</b> de dormir.</li>
+      <li>Pantallas fuera <b>2–3h antes</b>.</li>
+      <li>Siesta solo <b>20–30 min</b>.</li>
+      <li>Horario regular; cuarto <b>oscuro y fresco</b>.</li>
+    </ul>
+  </details>
+
+  <details class="card foldcard">
+    <summary>⏳ Para más adelante (NO ahora)</summary>
+    <p>Los <b>despertares nocturnos (WBTB)</b> aumentan la lucidez pero fragmentan el sueño. Con fibromialgia hoy priorizamos el descanso. Lo dejamos anotado para valorarlo en el futuro si el descanso está sólido.</p>
+  </details>
+
+  <details class="card foldcard">
+    <summary>🌀 Trucos (Robert Moss)</summary>
+    <ul>
+      <li>Ponle un <b>TÍTULO</b> a cada sueño.</li>
+      <li>Relee los títulos para ver <b>temas recurrentes</b>.</li>
+      <li><b>Reentrada:</b> vuelve con los ojos cerrados a un sueño para continuarlo.</li>
+      <li><b>Incubación:</b> antes de dormir, plantéate una pregunta clara.</li>
+      <li>Marca <b>correspondencias</b> sueño ↔ vida.</li>
+      <li>Y sobre todo, <b>diviértete</b>.</li>
+    </ul>
+  </details>
+</section>
+
+<!-- ============ EXPORT ============ -->
+<section id="export" class="tab">
+  <div class="card">
+    <h2>📋 Copiar para Claude</h2>
+    <p class="muted">Vuelca tus últimos días (incluidos los relatos) para que Claude analice patrones y contenido de tus sueños.</p>
+    <button class="btn sec mini" onclick="buildReport()">Generar resumen</button>
+    <button class="btn sec mini" onclick="copyReport()">Copiar</button>
+    <textarea id="report" style="min-height:180px;margin-top:8px" placeholder="Pulsa 'Generar resumen'…"></textarea>
+  </div>
+  <div class="card">
+    <h2>💾 Backup (JSON)</h2>
+    <p class="muted">Copia completa de todos tus datos. Guárdala de vez en cuando.</p>
+    <button class="btn sec mini" onclick="backup()">Copiar backup (JSON)</button>
+    <button class="btn sec mini" onclick="restore()">Restaurar (pegar JSON)</button>
+    <textarea id="backupBox" style="min-height:120px;margin-top:8px" placeholder="Aquí aparece el backup; o pega aquí un JSON y pulsa Restaurar."></textarea>
+    <p class="muted" style="margin-top:8px">🔒 Los datos se guardan solo en este móvil. Haz Backup de vez en cuando.</p>
+  </div>
+</section>
+
+</main>
+<footer>Herramienta personal de apoyo · no sustituye criterio médico · sueños v1</footer>
+
+<script>
+/* ===== MODELO DE DATOS =====
+   DB = { days:[ dayObj ], signs:[ "etiqueta personalizada" ] }
+   dayObj = {
+     fecha, recuerdo('' / 'Nada' / 'Vago' / 'Claro'), nSuenos(number-as-string),
+     suenos:[ suenoObj ],
+     rc(number of reality checks), intencion('Sí'/'No'), visualizacion('Sí'/'No'),
+     medita(minutes number-as-string), leiDiario('Sí'/'No'), totem('Sí'/'No'),
+     memProsp('Sí'/'No'), notas
+   }
+   suenoObj = {
+     titulo, relato, emocion,
+     lucido('No'/'Semi'/'Sí'), grado(0-10 number-as-string),
+     senal, control, tags:[ "..." ]
+   }
+   Upsert por fecha (una entrada por día). save()=localStorage.setItem. load() con try/catch.
+   ============================ */
+
+const LS='suenosAlex_v1';
+const SALUD_LS='alex_salud_v2';
+
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.days)return d;}catch(e){}
+  return {days:[],signs:[]};
+}
+function save(){localStorage.setItem(LS,JSON.stringify(DB))}
+let DB=load();
+if(!DB.days)DB.days=[];
+if(!DB.signs)DB.signs=[];
+
+/* ---- helpers ---- */
+function todayISO(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
+function fmt(iso){if(!iso)return'';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function esc(s){return(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
+function pct(n,d){return d>0?Math.round(100*n/d)+'%':'—'}
+function $(id){return document.getElementById(id)}
+
+/* ---- default suggested chips (Campayo's 4 categories) ---- */
+const CHIP_GROUPS=[
+  {g:'Consciencia',tags:['pensamiento raro','emoción intensa/absurda','sensación imposible']},
+  {g:'Acciones imposibles',tags:['yo hago algo imposible (volar…)','otro/animal hace algo imposible','objeto actúa/habla']},
+  {g:'Formas que cambian',tags:['yo cambio de forma/soy otro','persona/animal deformado','objeto deforme/gigante']},
+  {g:'Contexto imposible',tags:['lugar/época equivocada','personaje fuera de sitio','objeto fuera de sitio']}
+];
+
+/* ---- tabs ---- */
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  $(b.dataset.t).classList.add('active');
+  if(b.dataset.t==='analisis')renderAnalisis();
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ---- recuerdo hint ---- */
+$('d_recuerdo').onchange=()=>{$('nadaHint').style.display=$('d_recuerdo').value==='Nada'?'block':'none'};
+
+/* ================= SUEÑOS (dynamic list) ================= */
+function chipsHtml(selected){
+  selected=selected||[];
+  let h='';
+  CHIP_GROUPS.forEach(grp=>{
+    h+='<div class="chipgroup"><div class="gl">'+esc(grp.g)+'</div><div class="chips">';
+    grp.tags.forEach(t=>{
+      const on=selected.indexOf(t)>=0?' on':'';
+      h+='<span class="chip'+on+'" data-tag="'+esc(t)+'" onclick="toggleChip(this)">'+esc(t)+'</span>';
+    });
+    h+='</div></div>';
+  });
+  // personal tags
+  h+='<div class="chipgroup"><div class="gl">Mis etiquetas</div><div class="chips">';
+  DB.signs.forEach(t=>{
+    const on=selected.indexOf(t)>=0?' on':'';
+    h+='<span class="chip pers'+on+'" data-tag="'+esc(t)+'" onclick="toggleChip(this)">'+esc(t)+'</span>';
+  });
+  // also render any selected tag that isn't a default or personal (from loaded data)
+  const known=DB.signs.slice();
+  CHIP_GROUPS.forEach(g=>g.tags.forEach(t=>known.push(t)));
+  selected.forEach(t=>{
+    if(known.indexOf(t)<0){
+      h+='<span class="chip pers on" data-tag="'+esc(t)+'" onclick="toggleChip(this)">'+esc(t)+'</span>';
+    }
+  });
+  h+='</div>';
+  h+='<div style="display:flex;gap:6px;margin-top:6px"><input type="text" class="newtag" placeholder="➕ nueva señal/etiqueta"><button class="icobtn" onclick="addTag(this)">Añadir</button></div>';
+  h+='</div>';
+  return h;
+}
+
+function suenoCard(s){
+  s=s||{};
+  const lucido=s.lucido||'No';
+  const card=document.createElement('div');
+  card.className='sueno';
+  card.innerHTML=
+    '<div class="sh"><b>🌙 Sueño</b><button class="icobtn" onclick="this.closest(\'.sueno\').remove()">🗑</button></div>'+
+    '<label class="f">Título</label><input type="text" class="s_titulo" value="'+esc(s.titulo)+'" placeholder="pon un título al sueño">'+
+    '<label class="f">Relato</label>'+
+    '<textarea class="s_relato" placeholder="En presente, palabras clave…">'+esc(s.relato)+'</textarea>'+
+    '<div style="display:flex;gap:6px;margin-top:6px;align-items:center">'+
+      '<button class="icobtn s_dictar" onclick="dictar(this)">🎤 Dictar</button>'+
+      '<span class="muted" style="font-size:.76rem">Tip: usa el micrófono del teclado del móvil para dictar.</span>'+
+    '</div>'+
+    '<div class="row2">'+
+      '<div><label class="f">Emoción</label><input type="text" class="s_emocion" value="'+esc(s.emocion)+'" placeholder="miedo, calma…"></div>'+
+      '<div><label class="f">¿Lúcido?</label><select class="s_lucido" onchange="lucidToggle(this)">'+
+        '<option'+(lucido==='No'?' selected':'')+'>No</option>'+
+        '<option'+(lucido==='Semi'?' selected':'')+'>Semi</option>'+
+        '<option'+(lucido==='Sí'?' selected':'')+'>Sí</option>'+
+      '</select></div>'+
+    '</div>'+
+    '<div class="lucidbox">'+
+      '<label class="f">Grado de lucidez: <span class="gradeval">'+(s.grado||'0')+'</span>/10</label>'+
+      '<input type="range" min="0" max="10" step="1" class="s_grado" value="'+(s.grado||'0')+'" oninput="this.closest(\'.lucidbox\').querySelector(\'.gradeval\').textContent=this.value">'+
+      '<label class="f">¿Qué señal me hizo darme cuenta?</label><input type="text" class="s_senal" value="'+esc(s.senal)+'" placeholder="lo que te delató el sueño">'+
+      '<label class="f">¿Controlé / hice algo?</label><input type="text" class="s_control" value="'+esc(s.control)+'" placeholder="volar, cambiar la escena…">'+
+    '</div>'+
+    '<label class="f">Señales oníricas (etiquetas)</label>'+
+    '<div class="tagbox">'+chipsHtml(s.tags)+'</div>';
+  return card;
+}
+
+function addSueno(s){
+  $('suenos').appendChild(suenoCard(s));
+}
+function toggleChip(el){el.classList.toggle('on')}
+function lucidToggle(sel){/* keep controls always visible (kept simple) */}
+function addTag(btn){
+  const inp=btn.previousElementSibling;
+  const v=(inp.value||'').trim();
+  if(!v)return;
+  if(DB.signs.indexOf(v)<0){DB.signs.push(v);save();}
+  // add chip right here as selected
+  const chips=btn.closest('.chipgroup').querySelector('.chips');
+  const exists=chips.querySelector('[data-tag="'+CSS.escape(v)+'"]');
+  if(exists){exists.classList.add('on');}
+  else{
+    const c=document.createElement('span');
+    c.className='chip pers on';c.setAttribute('data-tag',v);c.textContent=v;
+    c.onclick=function(){toggleChip(c)};
+    chips.appendChild(c);
+  }
+  inp.value='';
+}
+
+/* ---- Web Speech dictation (append if available) ---- */
+function dictar(btn){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const ta=btn.closest('.sueno').querySelector('.s_relato');
+  if(!SR){btn.textContent='🎤 (usa el teclado)';return;}
+  try{
+    const rec=new SR();
+    rec.lang='es-ES';rec.interimResults=false;rec.continuous=false;
+    btn.textContent='🎤 escuchando…';
+    rec.onresult=e=>{
+      let txt='';
+      for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;
+      ta.value=(ta.value?ta.value+' ':'')+txt;
+    };
+    rec.onerror=()=>{btn.textContent='🎤 Dictar';};
+    rec.onend=()=>{btn.textContent='🎤 Dictar';};
+    rec.start();
+  }catch(err){btn.textContent='🎤 Dictar';}
+}
+
+function collectSuenos(){
+  const arr=[];
+  document.querySelectorAll('#suenos .sueno').forEach(c=>{
+    const tags=[];
+    c.querySelectorAll('.chip.on').forEach(ch=>tags.push(ch.getAttribute('data-tag')));
+    const o={
+      titulo:c.querySelector('.s_titulo').value.trim(),
+      relato:c.querySelector('.s_relato').value.trim(),
+      emocion:c.querySelector('.s_emocion').value.trim(),
+      lucido:c.querySelector('.s_lucido').value,
+      grado:c.querySelector('.s_grado').value,
+      senal:c.querySelector('.s_senal').value.trim(),
+      control:c.querySelector('.s_control').value.trim(),
+      tags:tags
+    };
+    // skip fully empty cards
+    if(o.titulo||o.relato||o.emocion||o.senal||o.control||tags.length||o.lucido!=='No')arr.push(o);
+  });
+  return arr;
+}
+
+/* ================= GUARDAR (upsert by fecha) ================= */
+function guardar(){
+  const fecha=$('d_fecha').value||todayISO();
+  const day={
+    fecha:fecha,
+    recuerdo:$('d_recuerdo').value,
+    nSuenos:$('d_nSuenos').value,
+    suenos:collectSuenos(),
+    rc:$('d_rc').value,
+    intencion:$('d_intencion').value,
+    visualizacion:$('d_visualizacion').value,
+    medita:$('d_medita').value,
+    leiDiario:$('d_leiDiario').value,
+    totem:$('d_totem').value,
+    memProsp:$('d_memProsp').value,
+    notas:$('d_notas').value.trim()
+  };
+  const i=DB.days.findIndex(d=>d.fecha===fecha);
+  if(i>=0)DB.days[i]=day; else DB.days.push(day);
+  DB.days.sort((a,b)=>a.fecha<b.fecha?1:-1);
+  save();
+  preload();          // refill this date (don't wipe)
+  renderDayList();
+  alert('Día guardado ✓');
+}
+
+/* ================= PRELOAD (refill form for the selected fecha) ================= */
+function preload(){
+  const fecha=$('d_fecha').value||todayISO();
+  const day=DB.days.find(d=>d.fecha===fecha);
+  $('suenos').innerHTML='';
+  if(!day){
+    // reset to defaults
+    $('d_recuerdo').value='';
+    $('d_nSuenos').value='';
+    $('d_rc').value='';
+    $('d_intencion').value='No';
+    $('d_visualizacion').value='No';
+    $('d_medita').value='';
+    $('d_leiDiario').value='No';
+    $('d_totem').value='No';
+    $('d_memProsp').value='No';
+    $('d_notas').value='';
+    $('nadaHint').style.display='none';
+    return;
+  }
+  $('d_recuerdo').value=day.recuerdo||'';
+  $('d_nSuenos').value=day.nSuenos||'';
+  $('d_rc').value=day.rc||'';
+  $('d_intencion').value=day.intencion||'No';
+  $('d_visualizacion').value=day.visualizacion||'No';
+  $('d_medita').value=day.medita||'';
+  $('d_leiDiario').value=day.leiDiario||'No';
+  $('d_totem').value=day.totem||'No';
+  $('d_memProsp').value=day.memProsp||'No';
+  $('d_notas').value=day.notas||'';
+  $('nadaHint').style.display=(day.recuerdo==='Nada')?'block':'none';
+  (day.suenos||[]).forEach(s=>addSueno(s));
+}
+
+/* ---- edit a day from the list ---- */
+function editDay(fecha){
+  $('d_fecha').value=fecha;
+  preload();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ================= LISTA "ÚLTIMOS DÍAS" ================= */
+function renderDayList(){
+  const el=$('daylist');
+  if(!DB.days.length){el.innerHTML='<p class="muted">Aún no hay días registrados.</p>';return;}
+  let h='';
+  DB.days.slice(0,14).forEach(d=>{
+    const suenos=d.suenos||[];
+    const lucidos=suenos.filter(s=>s.lucido==='Sí'||s.lucido==='Semi').length;
+    const tags=[];
+    suenos.forEach(s=>(s.tags||[]).forEach(t=>{if(tags.indexOf(t)<0)tags.push(t)}));
+    h+='<div class="entry"><div class="d">'+fmt(d.fecha)+'</div>';
+    h+='<div class="metrics">'+esc(d.recuerdo||'—')+' · '+suenos.length+' sueño(s) · '+lucidos+' lúcido(s)</div>';
+    if(tags.length){h+='<div>';tags.slice(0,6).forEach(t=>h+='<span class="tg">'+esc(t)+'</span>');h+='</div>';}
+    h+='<button class="icobtn" style="margin-top:6px" onclick="editDay(\''+d.fecha+'\')">✏️ Editar</button>';
+    h+='</div>';
+  });
+  el.innerHTML=h;
+}
+
+/* ================= SALUD cross-reference ================= */
+function loadSalud(){
+  try{const d=JSON.parse(localStorage.getItem(SALUD_LS));if(d&&d.days)return d;}catch(e){}
+  return null;
+}
+
+/* ================= ANÁLISIS ================= */
+function renderAnalisis(){
+  const body=$('analisisBody');
+  const days=DB.days;
+  if(!days.length){
+    body.innerHTML='<div class="card"><p class="muted">Aún no hay datos. Registra unas cuantas noches en la pestaña <b>Hoy</b> y aquí verás tus patrones.</p></div>';
+    return;
+  }
+  // gather all suenos
+  const allSuenos=[];
+  days.forEach(d=>(d.suenos||[]).forEach(s=>allSuenos.push(s)));
+  const recordadas=days.filter(d=>d.recuerdo==='Vago'||d.recuerdo==='Claro').length;
+  const lucidNights=days.filter(d=>(d.suenos||[]).some(s=>s.lucido==='Sí'||s.lucido==='Semi'));
+  const lucidCount=lucidNights.length;
+
+  // current recall streak (consecutive recent days with recall)
+  let streak=0;
+  for(let i=0;i<days.length;i++){
+    if(days[i].recuerdo==='Vago'||days[i].recuerdo==='Claro')streak++;else break;
+  }
+
+  let h='';
+  // KPIs
+  h+='<div class="card"><h2>📈 Resumen</h2><div class="kpi">'+
+    '<div><div class="n">'+pct(recordadas,days.length)+'</div><div class="l">Noches con recuerdo</div></div>'+
+    '<div><div class="n">'+allSuenos.length+'</div><div class="l">Sueños totales</div></div>'+
+    '<div><div class="n">'+pct(lucidCount,days.length)+'</div><div class="l">Noches con lucidez</div></div>'+
+    '<div><div class="n">'+streak+'</div><div class="l">Racha recuerdo</div></div>'+
+    '</div><p class="muted">Sobre '+days.length+' noche(s) registrada(s).</p></div>';
+
+  // top señales
+  const freq={};
+  allSuenos.forEach(s=>(s.tags||[]).forEach(t=>{freq[t]=(freq[t]||0)+1}));
+  const sorted=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]);
+  h+='<div class="card"><h2>👁 Tus señales oníricas más repetidas</h2>';
+  if(!sorted.length){h+='<p class="muted">Aún no has etiquetado señales en tus sueños.</p>';}
+  else{
+    const max=freq[sorted[0]];
+    sorted.slice(0,8).forEach(t=>{
+      const w=Math.round(100*freq[t]/max);
+      h+='<div class="bar"><span class="lab">'+esc(t)+'</span><span class="track"><span class="fill" style="width:'+w+'%"></span></span><span class="val">'+freq[t]+'</span></div>';
+    });
+    h+='<p class="muted">Estas son las que conviene cargar en tu <b>memoria prospectiva</b>: «la próxima vez que aparezca esto, sabré que sueño».</p>';
+  }
+  h+='</div>';
+
+  // técnicas y lucidez
+  const withL=days.filter(d=>(d.suenos||[]).some(s=>s.lucido==='Sí'||s.lucido==='Semi'));
+  const withoutL=days.filter(d=>!(d.suenos||[]).some(s=>s.lucido==='Sí'||s.lucido==='Semi'));
+  function avgRC(arr){if(!arr.length)return null;const v=arr.map(d=>parseFloat(d.rc)||0);return(v.reduce((a,b)=>a+b,0)/arr.length)}
+  function pctSi(arr,f){if(!arr.length)return null;const n=arr.filter(f).length;return Math.round(100*n/arr.length)}
+  h+='<div class="card"><h2>🔧 Técnicas y lucidez</h2>';
+  if(!withL.length){h+='<p class="muted">Todavía no hay noches lúcidas registradas. Cuando las haya, aquí compararé qué prácticas las acompañaron.</p>';}
+  else{
+    const rcL=avgRC(withL),rcN=avgRC(withoutL);
+    h+='<div class="cmp"><div class="box a"><div class="big">'+(rcL!=null?rcL.toFixed(1):'—')+'</div><div class="lab">RC media · noches lúcidas</div></div>'+
+       '<div class="box b"><div class="big">'+(rcN!=null?rcN.toFixed(1):'—')+'</div><div class="lab">RC media · resto</div></div></div>';
+    const iL=pctSi(withL,d=>d.intencion==='Sí'),iN=pctSi(withoutL,d=>d.intencion==='Sí');
+    const mL=pctSi(withL,d=>(parseFloat(d.medita)||0)>0),mN=pctSi(withoutL,d=>(parseFloat(d.medita)||0)>0);
+    h+='<div class="cmp" style="margin-top:8px"><div class="box a"><div class="big">'+(iL!=null?iL+'%':'—')+'</div><div class="lab">con intención · lúcidas</div></div>'+
+       '<div class="box b"><div class="big">'+(iN!=null?iN+'%':'—')+'</div><div class="lab">con intención · resto</div></div></div>';
+    h+='<div class="cmp" style="margin-top:8px"><div class="box a"><div class="big">'+(mL!=null?mL+'%':'—')+'</div><div class="lab">meditó · lúcidas</div></div>'+
+       '<div class="box b"><div class="big">'+(mN!=null?mN+'%':'—')+'</div><div class="lab">meditó · resto</div></div></div>';
+    h+='<p class="muted">⚠️ Son <b>asociaciones, no causas</b>. Con pocos datos, orientativas; ganan valor con las semanas.</p>';
+  }
+  h+='</div>';
+
+  // cruce con Salud
+  const salud=loadSalud();
+  if(salud&&salud.days&&salud.days.length){
+    const smap={};
+    salud.days.forEach(sd=>{smap[sd.fecha]=sd});
+    const paired=days.filter(d=>smap[d.fecha]);
+    if(paired.length){
+      const buenas=paired.filter(d=>smap[d.fecha].sueno==='Bueno');
+      const malreg=paired.filter(d=>{const s=smap[d.fecha].sueno;return s==='Malo'||s==='Regular'});
+      function recallPct(arr){if(!arr.length)return null;const n=arr.filter(d=>d.recuerdo==='Vago'||d.recuerdo==='Claro').length;return Math.round(100*n/arr.length)}
+      function lucidPct(arr){if(!arr.length)return null;const n=arr.filter(d=>(d.suenos||[]).some(s=>s.lucido==='Sí'||s.lucido==='Semi')).length;return Math.round(100*n/arr.length)}
+      h+='<div class="card"><h2>🛏️ Cruce con tu descanso (Salud)</h2>';
+      h+='<p class="muted">Cruzando '+paired.length+' noche(s) que tienen dato de sueño en la app de Salud.</p>';
+      const rB=recallPct(buenas),rM=recallPct(malreg);
+      h+='<h3>Recuerdo según calidad del sueño</h3>';
+      h+='<div class="cmp"><div class="box a"><div class="big">'+(rB!=null?rB+'%':'—')+'</div><div class="lab">recuerdo · sueño Bueno</div></div>'+
+         '<div class="box b"><div class="big">'+(rM!=null?rM+'%':'—')+'</div><div class="lab">recuerdo · Malo/Regular</div></div></div>';
+      const lB=lucidPct(buenas),lM=lucidPct(malreg);
+      h+='<h3>Lucidez según calidad del sueño</h3>';
+      h+='<div class="cmp"><div class="box a"><div class="big">'+(lB!=null?lB+'%':'—')+'</div><div class="lab">lucidez · sueño Bueno</div></div>'+
+         '<div class="box b"><div class="big">'+(lM!=null?lM+'%':'—')+'</div><div class="lab">lucidez · Malo/Regular</div></div></div>';
+      // meditó (from Salud) vs lucidez
+      const medY=paired.filter(d=>smap[d.fecha].medita==='Sí');
+      const medN=paired.filter(d=>smap[d.fecha].medita!=='Sí');
+      const lMedY=lucidPct(medY),lMedN=lucidPct(medN);
+      h+='<h3>Lucidez y meditación (Salud)</h3>';
+      h+='<div class="cmp"><div class="box a"><div class="big">'+(lMedY!=null?lMedY+'%':'—')+'</div><div class="lab">lucidez · días que meditó</div></div>'+
+         '<div class="box b"><div class="big">'+(lMedN!=null?lMedN+'%':'—')+'</div><div class="lab">lucidez · sin meditar</div></div></div>';
+      // alcohol vs recall
+      const alcDays=paired.filter(d=>smap[d.fecha].trig&&smap[d.fecha].trig.alcohol);
+      const noAlc=paired.filter(d=>!(smap[d.fecha].trig&&smap[d.fecha].trig.alcohol));
+      if(alcDays.length){
+        const rA=recallPct(alcDays),rNo=recallPct(noAlc);
+        h+='<h3>Alcohol y recuerdo</h3>';
+        h+='<div class="cmp"><div class="box b"><div class="big">'+(rA!=null?rA+'%':'—')+'</div><div class="lab">recuerdo · días con alcohol</div></div>'+
+           '<div class="box a"><div class="big">'+(rNo!=null?rNo+'%':'—')+'</div><div class="lab">recuerdo · sin alcohol</div></div></div>';
+        if(rA!=null&&rNo!=null&&rA<rNo)h+='<p class="muted">📉 En tus datos, los días con alcohol tuvieron peor recuerdo (el alcohol suprime el REM).</p>';
+      }
+      h+='<p class="muted">⚠️ Señales, no causas.</p></div>';
+    }
+  }else{
+    h+='<div class="card"><h2>🛏️ Cruce con tu descanso (Salud)</h2><p class="muted">No encuentro datos de la app de Salud en este dispositivo. Cuando registres sueño allí, aquí cruzaré recuerdo y lucidez con la calidad de tu descanso.</p></div>';
+  }
+
+  body.innerHTML=h;
+}
+
+/* ================= COPIAR / EXPORT ================= */
+function buildAnalisisText(){
+  const days=DB.days;
+  if(!days.length)return'Sin datos todavía.';
+  const allSuenos=[];days.forEach(d=>(d.suenos||[]).forEach(s=>allSuenos.push(s)));
+  const recordadas=days.filter(d=>d.recuerdo==='Vago'||d.recuerdo==='Claro').length;
+  const lucidCount=days.filter(d=>(d.suenos||[]).some(s=>s.lucido==='Sí'||s.lucido==='Semi')).length;
+  let streak=0;for(let i=0;i<days.length;i++){if(days[i].recuerdo==='Vago'||days[i].recuerdo==='Claro')streak++;else break;}
+  const freq={};allSuenos.forEach(s=>(s.tags||[]).forEach(t=>{freq[t]=(freq[t]||0)+1}));
+  const sorted=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]);
+  let t='=== ANÁLISIS DE SUEÑOS LÚCIDOS (Alex) ===\n';
+  t+='Noches registradas: '+days.length+'\n';
+  t+='Noches con recuerdo (Vago/Claro): '+recordadas+' ('+pct(recordadas,days.length)+')\n';
+  t+='Sueños totales: '+allSuenos.length+'\n';
+  t+='Noches con algún sueño lúcido (Semi/Sí): '+lucidCount+' ('+pct(lucidCount,days.length)+')\n';
+  t+='Racha actual de recuerdo: '+streak+' noches\n';
+  t+='\nSeñales oníricas más repetidas:\n';
+  if(sorted.length)sorted.slice(0,10).forEach(s=>t+='  · '+s+' ('+freq[s]+')\n');else t+='  (ninguna etiquetada aún)\n';
+  const salud=loadSalud();
+  if(salud&&salud.days&&salud.days.length){
+    const smap={};salud.days.forEach(sd=>smap[sd.fecha]=sd);
+    const paired=days.filter(d=>smap[d.fecha]);
+    if(paired.length){
+      const buenas=paired.filter(d=>smap[d.fecha].sueno==='Bueno');
+      const rec=arr=>arr.length?Math.round(100*arr.filter(d=>d.recuerdo==='Vago'||d.recuerdo==='Claro').length/arr.length)+'%':'—';
+      t+='\nCruce con Salud ('+paired.length+' noches con dato de descanso):\n';
+      t+='  Recuerdo con sueño Bueno: '+rec(buenas)+'\n';
+    }
+  }
+  t+='\n--- RELATOS RECIENTES (para análisis de contenido) ---\n';
+  days.slice(0,10).forEach(d=>{
+    const suenos=d.suenos||[];
+    if(!suenos.length)return;
+    t+='\n['+fmt(d.fecha)+']';
+    if(d.recuerdo)t+=' recuerdo:'+d.recuerdo;
+    t+='\n';
+    suenos.forEach(s=>{
+      t+='  • '+(s.titulo||'(sin título)')+' — lúcido:'+s.lucido+(s.lucido!=='No'?' (grado '+(s.grado||'0')+')':'')+'\n';
+      if(s.emocion)t+='    emoción: '+s.emocion+'\n';
+      if(s.relato)t+='    relato: '+s.relato+'\n';
+      if(s.senal)t+='    señal que delató: '+s.senal+'\n';
+      if(s.control)t+='    control: '+s.control+'\n';
+      if((s.tags||[]).length)t+='    etiquetas: '+s.tags.join(', ')+'\n';
+    });
+    if(d.notas)t+='  notas: '+d.notas+'\n';
+  });
+  t+='\n(Señales, no causas. El progreso es ondulante — celebra lo pequeño.)\n';
+  return t;
+}
+
+function copyText(t,okMsg){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>alert(okMsg)).catch(()=>fallbackCopy(t,okMsg));
+  }else fallbackCopy(t,okMsg);
+}
+function fallbackCopy(t,okMsg){
+  const ta=document.createElement('textarea');
+  ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');alert(okMsg);}catch(e){alert('Selecciona y copia manualmente.');}
+  document.body.removeChild(ta);
+}
+function copyAnalisis(){copyText(buildAnalisisText(),'Análisis copiado ✓ — pégamelo en el chat de Claude')}
+
+function buildReport(){$('report').value=buildAnalisisText()}
+function copyReport(){const r=$('report');if(!r.value)buildReport();copyText(r.value,'Copiado ✓ — pégalo en el chat de Claude')}
+
+/* ---- backup / restore ---- */
+function backup(){
+  const t=JSON.stringify(DB,null,2);
+  $('backupBox').value=t;
+  copyText(t,'Backup copiado ✓ — guárdalo en Drive/Notas');
+}
+function restore(){
+  const raw=$('backupBox').value.trim();
+  if(!raw){alert('Pega primero un JSON de backup en el recuadro.');return;}
+  try{
+    const d=JSON.parse(raw);
+    if(!d||!Array.isArray(d.days))throw new Error('formato');
+    DB=d;if(!DB.signs)DB.signs=[];
+    save();
+    preload();renderDayList();
+    alert('Datos restaurados ✓');
+  }catch(e){alert('JSON no válido. Revisa que pegaste el backup completo.');}
+}
+
+/* ================= INIT ================= */
+$('d_fecha').value=todayISO();
+preload();
+renderDayList();
+</script>
+</body>
+</html>

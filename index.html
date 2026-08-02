@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Alex">
 <meta name="theme-color" content="#12212f">
-<title>Alex · Entreno &amp; Salud</title>
+<title>Alex · Entreno · Salud · Sueños</title>
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;background:#12212f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
@@ -25,18 +25,21 @@
 <body>
   <iframe id="fEntreno" class="frame on" title="Entreno"></iframe>
   <iframe id="fSalud" class="frame" title="Salud"></iframe>
+  <iframe id="fSuenos" class="frame" title="Sueños"></iframe>
   <nav id="bar">
     <button id="bEntreno" class="on" onclick="show('Entreno')">🏋️ Entreno</button>
     <button id="bSalud" onclick="show('Salud')">🌿 Salud</button>
+    <button id="bSuenos" onclick="show('Suenos')">🌙 Sueños</button>
   </nav>
 <script>
   // Carga siempre la última versión de cada app (evita la caché vieja del navegador).
   var _v = Date.now();
   document.getElementById('fEntreno').src = 'diario-de-fuerza-portable.html?t=' + _v;
   document.getElementById('fSalud').src   = 'Salud_Nutricion.html?t=' + _v;
+  document.getElementById('fSuenos').src  = 'suenos.html?t=' + _v;
 
   function show(w){
-    ['Entreno','Salud'].forEach(function(x){
+    ['Entreno','Salud','Suenos'].forEach(function(x){
       document.getElementById('f'+x).classList.toggle('on', x===w);
       document.getElementById('b'+x).classList.toggle('on', x===w);
     });
