@@ -127,6 +127,18 @@
 
 <!-- ============ HOY ============ -->
 <section id="hoy" class="tab active">
+  <details class="card foldcard" id="miradaCard">
+    <summary>🤍 Una mirada (guía viva) — leer / escuchar</summary>
+    <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
+    <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn sec mini" onclick="speakMirada()">▶ Escuchar</button>
+      <button class="btn sec mini" onclick="stopSpeak()">⏹</button>
+      <button class="btn sec mini" id="miradaEditBtn" onclick="editMirada()">✏️ Actualizar</button>
+      <button class="btn sec mini" id="miradaSaveBtn" style="display:none" onclick="guardarMirada()">Guardar ✓</button>
+    </div>
+    <p class="muted" style="font-size:.72rem;margin-top:6px">Guía viva: la actualizo yo (Claude) en cada revisión; pégala aquí con «Actualizar» y queda guardada en este móvil.</p>
+  </details>
   <div class="card">
     <h2>📝 Registro de hoy</h2>
     <p class="muted">Rápido, sin obsesión. Con marcar cómo estás y si hoy hubo algún disparador basta para que luego crucemos datos.</p>
@@ -166,6 +178,22 @@
       <div><label class="f">Sustancia</label><select id="d_enteoSust" onchange="enteoUnit()"><option value="">—</option><option>LSD</option><option>Psilocibina</option><option>DMT</option></select></div>
       <div><label class="f">Cantidad <span id="d_enteoUnit" class="muted"></span></label><input type="number" step="any" id="d_enteoQ" placeholder="cantidad"></div>
     </div>
+
+    <h3>💧 Sueroterapia (terapia endovenosa)</h3>
+    <label style="display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer;padding-top:2px"><input type="checkbox" id="s_suero" style="width:20px;height:20px;flex:0 0 auto" onchange="sueroToggle()"> ¿Terapia endovenosa hoy?</label>
+    <div id="sueroDetalle" style="display:none;margin-top:6px">
+      <div class="row2">
+        <div><label class="f">Tipo</label><select id="s_sueroTipo" onchange="sueroTipoChange()"></select></div>
+        <div id="sueroOtroWrap" style="display:none"><label class="f">¿Cuál? (Otro)</label><input type="text" id="s_sueroTipoOtro" placeholder="p.ej. Glutatión, Myers…"></div>
+      </div>
+      <div class="row2">
+        <div><label class="f">Dosis</label><input type="number" id="s_sueroDosis" inputmode="decimal" step="any" min="0" placeholder="p.ej. 15"></div>
+        <div><label class="f">Unidad</label><select id="s_sueroUnidad"><option value="g" selected>g</option><option value="mg">mg</option></select></div>
+      </div>
+      <label class="f">Nota (opcional)</label>
+      <input type="text" id="s_sueroNota" placeholder="p.ej. suministrada por mi pareja, tolerancia, etc.">
+    </div>
+    <p class="muted" style="margin-top:6px">Por defecto: sin terapia. Márcalo solo los días que la haya.</p>
 
     <h3>¿Hubo hoy algún disparador? (marca lo que sí)</h3>
     <div class="trig" id="d_trig">
@@ -487,6 +515,13 @@
 
 <!-- ============ EXPORT ============ -->
 <section id="export" class="tab">
+  <div class="card" style="border-left:4px solid var(--green-d)">
+    <h2>📦 Exportar TODO (las 4 áreas)</h2>
+    <p class="muted">Un solo botón para darme <b>Entreno + Salud + Sueños + Psicodelia</b> de una vez. Genera, copia y pégamelo en el chat.</p>
+    <button class="btn sec mini" onclick="exportarTodo()">📦 Generar TODO</button>
+    <button class="btn sec mini" onclick="copyTodo()">Copiar</button>
+    <textarea id="reportTodo" style="min-height:140px;margin-top:8px" placeholder="Pulsa 'Generar TODO'…"></textarea>
+  </div>
   <div class="card">
     <h2>📤 Resumen para revisar con Claude</h2>
     <p class="muted">Cada 2-4 semanas: genera, copia y pégalo en el chat (y guárdalo en Drive/SEGUIMIENTO). Yo cruzo comida, energía, molestias, entreno y báscula, y busco patrones.</p>
@@ -541,6 +576,22 @@ document.querySelectorAll('#d_trig input').forEach(c=>c.onchange=()=>{c.parentEl
 function todayISO(){return new Date().toISOString().slice(0,10)}
 function fmt(iso){const[y,m,d]=iso.split('-');return d+'/'+m+'/'+y}
 function esc(s){return(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
+
+/* ===== Una mirada (guía viva) ===== */
+function speak(txt){try{if(!('speechSynthesis' in window)){alert('Este dispositivo no permite leer en voz; puedes leerlo en pantalla.');return;}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.95;var vs=window.speechSynthesis.getVoices()||[];var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];if(es)u.voice=es;window.speechSynthesis.speak(u);}catch(e){alert('No se pudo reproducir la voz.');}}
+function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}}
+const MIRADA_KEY='mirada_salud';
+const MIRADA_SEED="UNA MIRADA — SALUD\n\nTu hilo conductor es una inflamación de bajo grado en el eje intestino–hígado–mitocondria, y tu palanca nº1 es la digestión de la grasa (bilis). Tus datos lo confirman: heces que flotan ~82% de los días, y las legumbres te sueltan la tripa.\n\nYa estás delgado (grasa ~13%): el objetivo no es adelgazar a lo bruto —bajaría energía y testosterona— sino recomponer con calma. La grasa central/pecho tiene un componente hormonal (tu hipogonadismo) que conviene revisar con tu médico; músculo, menos azúcar/alcohol, dormir y bajar estrés son las mejores palancas.\n\nTu patrón más claro: estrés (discusiones) + sueño malo + azúcar → herpes días después. El estrés es tu mayor lever, y la meditación —que casi no usas— es la herramienta sin estrenar.\n\nClaves a recordar:\n— Amargos antes de comer (vinagre de manzana diluido o verdura amarga), una sola grasa por plato y tus enzimas: ayudan la bilis.\n— Cena ligera y temprana (≥3 h antes de dormir); menos azúcar y alcohol.\n— Proteína suficiente (~40 g por comida) para músculo y recuperación.\n— Sueño y estrés no van aparte: tocan tu herpes, tu energía y tu tripa. Unos minutos de pranayama los días cargados.\n— Come a saciedad, sin obsesión: la salud es la base, la grasa cae como consecuencia.\n\nReferentes de fondo: salud metabólica (Attia), sueño (Walker), eje estrés–inmunidad. Siguiente foco: registrar comidas reales y meter algo de meditación; ver si baja el herpes.";
+function getMirada(){try{var v=localStorage.getItem(MIRADA_KEY);return (v&&v.trim())?v:MIRADA_SEED;}catch(e){return MIRADA_SEED;}}
+function renderMirada(){var el=document.getElementById('miradaTexto');if(el)el.innerHTML=esc(getMirada()).replace(/\n/g,'<br>');}
+function editMirada(){var t=document.getElementById('miradaEdit');t.value=getMirada();t.style.display='block';document.getElementById('miradaEditBtn').style.display='none';document.getElementById('miradaSaveBtn').style.display='inline-block';t.focus();}
+function guardarMirada(){var t=document.getElementById('miradaEdit');try{localStorage.setItem(MIRADA_KEY,t.value);}catch(e){}t.style.display='none';document.getElementById('miradaSaveBtn').style.display='none';document.getElementById('miradaEditBtn').style.display='inline-block';renderMirada();}
+function speakMirada(){speak(getMirada());}
+/* ===== Sueroterapia (terapia endovenosa / IV) ===== */
+var SUERO_TIPOS=['Vitamina C']; // añade aquí nuevos cócteles (p.ej. 'Glutatión','Myers'); se renderizan en el <select> + siempre una opción 'Otro'
+function renderSueroTipos(){var s=document.getElementById('s_sueroTipo');if(!s)return;var cur=s.value;s.innerHTML=SUERO_TIPOS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>';}).join('')+'<option value="Otro">Otro</option>';if(cur)s.value=cur;}
+function sueroToggle(){var c=document.getElementById('s_suero'),d=document.getElementById('sueroDetalle');if(d)d.style.display=(c&&c.checked)?'block':'none';}
+function sueroTipoChange(){var s=document.getElementById('s_sueroTipo'),w=document.getElementById('sueroOtroWrap');if(w)w.style.display=(s&&s.value==='Otro')?'block':'none';}
 function num(id){const v=document.getElementById(id).value;return v===''?null:parseFloat(v)}
 function val(id){return document.getElementById(id).value||null}
 document.getElementById('d_fecha').value=todayISO();
@@ -573,6 +624,16 @@ function preloadDay(fecha){
   const vj=document.getElementById('d_vejiga');if(vj)vj.checked=(e.vejiga==='Sí');
   const en=document.getElementById('d_enteo');if(en)en.checked=(e.enteo==='Sí');
   if(typeof enteoUnit==='function')enteoUnit();
+  // SUERO (IV)
+  const su=document.getElementById('s_suero');if(su)su.checked=(e.suero===true);
+  renderSueroTipos();
+  const stp=document.getElementById('s_sueroTipo');if(stp)stp.value=e.sueroTipo||(SUERO_TIPOS[0]||'');
+  const sto=document.getElementById('s_sueroTipoOtro');if(sto)sto.value=e.sueroTipoOtro||'';
+  const sdo=document.getElementById('s_sueroDosis');if(sdo)sdo.value=e.sueroDosis||'';
+  const sun=document.getElementById('s_sueroUnidad');if(sun)sun.value=e.sueroUnidad||'g';
+  const snt=document.getElementById('s_sueroNota');if(snt)snt.value=e.sueroNota||'';
+  if(typeof sueroToggle==='function')sueroToggle();
+  if(typeof sueroTipoChange==='function')sueroTipoChange();
   document.querySelectorAll('#d_trig input').forEach(c=>{c.checked=!!trig[c.value];c.parentElement.classList.toggle('on',c.checked);});
 }
 function addDay(){
@@ -580,6 +641,7 @@ function addDay(){
   const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),digMom:val('d_digMom'),irrita:val('d_irrita'),motiv:val('d_motiv'),
     sueno:val('d_sueno'),medita:val('d_medita'),vejiga:(document.getElementById('d_vejiga').checked?'Sí':'No'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
     evento:val('d_evento'),eventoQuien:val('d_eventoQuien'),eventoNota:val('d_eventoNota'),enteo:(document.getElementById('d_enteo').checked?'Sí':'No'),enteoSust:val('d_enteoSust'),enteoQ:val('d_enteoQ'),
+    suero:document.getElementById('s_suero').checked,sueroTipo:val('s_sueroTipo')||'',sueroTipoOtro:val('s_sueroTipoOtro')||'',sueroDosis:val('s_sueroDosis')||'',sueroUnidad:val('s_sueroUnidad')||'g',sueroNota:val('s_sueroNota')||'',
     desayuno:val('d_des'),comida:val('d_com'),cena:val('d_cen'),notas:val('d_notas')};
   DB.days=DB.days.filter(d=>d.fecha!==e.fecha); // un registro por día
   DB.days.push(e);DB.days.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
@@ -600,6 +662,7 @@ function renderDays(){
     if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';s.push('🍄 '+(e.enteoSust?esc(e.enteoSust):'entéogeno')+(e.enteoQ?' '+esc(e.enteoQ)+(eu?' '+eu:''):''));}
     if(e.ent)s.push('🏋️ '+({manana:'mañana',tarde:'tarde',no:'sin entreno'}[e.ent]||e.ent));
     if(e.herpes==='leve'||e.herpes==='brote')s.push('🦠 herpes '+({leve:'leve',brote:'brote'}[e.herpes]||e.herpes));
+    if(e.suero===true){var sut=e.sueroTipo==='Otro'?(e.sueroTipoOtro||'Otro'):(e.sueroTipo||'IV');s.push('💧 IV: '+esc(sut)+(e.sueroDosis?' — '+esc(String(e.sueroDosis))+' '+(e.sueroUnidad||'g'):''));}
     const tg=Object.keys(e.trig||{}).filter(k=>e.trig[k]);
     const clean=isClean(e);
     var mealParts=[e.desayuno&&'🍳 '+esc(e.desayuno),e.comida&&'🍽️ '+esc(e.comida),e.cena&&'🌙 '+esc(e.cena)].filter(Boolean);
@@ -835,6 +898,28 @@ function renderAnalisis(){
      '<div class="mini" style="color:#b5563f">No se puede aislar la causa; si un patrón se repite en varias tomas, entonces sí gana peso.</div></div>').join('');
   h+='</div>';
 
+  // e2) sueroterapia (IV) — solo listado, sin conclusiones causales
+  const sueroDays=days.filter(d=>d.suero===true);
+  h+='<div class="card"><h2>💧 Sueroterapia (IV)</h2>';
+  if(!sueroDays.length)h+='<p class="muted">Aún sin registros de sueroterapia.</p>';
+  else{
+    h+='<p class="mini" style="color:#b5563f;margin:0 0 8px">Solo listamos los días con terapia IV y el contexto ya registrado — <b>señales, no causas</b>. Los patrones se verán con el tiempo.</p>';
+    h+=sueroDays.map(d=>{
+      const tp=d.sueroTipo==='Otro'?(d.sueroTipoOtro||'Otro'):(d.sueroTipo||'IV');
+      const dose=d.sueroDosis?(' — '+esc(String(d.sueroDosis))+' '+(d.sueroUnidad||'g')):'';
+      const ss=trByDate[d.fecha]||[];
+      const ctx=[];
+      if(anaSick(d.herpes))ctx.push('🦠 herpes '+d.herpes);
+      if(d.evento&&d.evento!=='Neutra')ctx.push('😣 '+d.evento);
+      if(d.dig&&d.dig!=='0')ctx.push('intest '+d.dig);
+      const ens=ss.map(s=>s.energia).filter(x=>x!=null&&x!=='');if(ens.length)ctx.push('energía '+ens.join('/')+'/5');
+      const dols=ss.map(s=>s.dolorCadera).filter(x=>x!=null&&x!=='');if(dols.length)ctx.push('cadera '+dols.join('/'));
+      const pems=ss.map(s=>s.pem).filter(Boolean);if(pems.length)ctx.push('PEM '+pems.join('/'));
+      return '<div class="entry"><span class="d">'+fmt(d.fecha)+'</span> <span class="tg" style="background:#eaf3ef;color:var(--green)">'+esc(tp)+dose+'</span>'+(d.sueroNota?' <span class="muted">'+esc(d.sueroNota)+'</span>':'')+(ctx.length?'<div class="metrics">'+ctx.map(esc).join(' · ')+'</div>':'')+'</div>';
+    }).join('');
+  }
+  h+='</div>';
+
   // f) tendencias
   const pesoMap={};bio.forEach(b=>{if(b.peso!=null)pesoMap[b.fecha]=b.peso;});
   tr.forEach(s=>{const p=parseFloat(s.peso);if(!isNaN(p)&&s.fecha&&pesoMap[s.fecha]==null)pesoMap[s.fecha]=p;});
@@ -961,8 +1046,18 @@ function renderTrainingPanel(){
 }
 
 /* ---- EXPORT ---- */
+function exportarTodo(){
+  var claves=[['ENTRENO','diarioFuerzaAlex_v2'],['SALUD','alex_salud_v2'],['SUEÑOS','suenosAlex_v1'],['PSICODELIA','psicoAlex_v1']];
+  var t='EXPORT COMPLETO — Alex · '+todayISO()+'\n'+'='.repeat(44)+'\n\nCopia técnica de las 4 áreas (datos en bruto, para que Claude los analice). Pégamelo en el chat.\n\n';
+  claves.forEach(function(c){var v=null;try{v=localStorage.getItem(c[1]);}catch(e){}t+='===== '+c[0]+' ('+c[1]+') =====\n'+(v||'(sin datos)')+'\n\n';});
+  var el=document.getElementById('reportTodo');if(el)el.value=t;
+  try{alert('Generado ✓ — pulsa Copiar.');}catch(e){}
+}
+function copyTodo(){var r=document.getElementById('reportTodo');if(!r)return;if(!r.value)exportarTodo();r.select();try{document.execCommand('copy');alert('Copiado ✓ — pégalo en el chat.');}catch(e){alert('Selecciona y copia manualmente.');}}
 function buildReport(){
   let t='RESUMEN SALUD & NUTRICIÓN — Alex\nGenerado: '+fmt(todayISO())+'\n'+'='.repeat(44)+'\n\n';
+  const nSuero=DB.days.filter(d=>d.suero===true).length;
+  if(nSuero)t+='Días con sueroterapia (IV) en el periodo: '+nSuero+'\n\n';
   // biometría
   if(DB.bio.length){
     const f=DB.bio[0],l=DB.bio[DB.bio.length-1];const dd=(a,b)=>(a!=null&&b!=null)?((b-a>0?'+':'')+(+(b-a).toFixed(1))):'—';
@@ -988,6 +1083,7 @@ function buildReport(){
       if(e.evento)m.push('emocionalidad:'+e.evento+(e.eventoQuien?' con '+e.eventoQuien:'')+(e.eventoNota?' ('+e.eventoNota+')':''));
       if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';m.push('entéogeno:'+(e.enteoSust||'')+(e.enteoQ?' '+e.enteoQ+eu:''));}
       if(e.ent)m.push('entreno:'+e.ent);if(e.herpes&&e.herpes!=='no')m.push('herpes:'+e.herpes);
+      if(e.suero===true){var sut=e.sueroTipo==='Otro'?(e.sueroTipoOtro||'Otro'):(e.sueroTipo||'IV');m.push('💧 sueroterapia: '+sut+(e.sueroDosis?' '+e.sueroDosis+' '+(e.sueroUnidad||'g'):'')+(e.sueroNota?' · '+e.sueroNota:''));}
       if(e.heces)m.push(e.heces);
       t+=m.join(', ');if(tg.length)t+=' | disparadores: '+tg.join(',');
       if(e.desayuno||e.comida||e.cena){var mm=[];if(e.desayuno)mm.push('desayuno '+e.desayuno);if(e.comida)mm.push('comida '+e.comida);if(e.cena)mm.push('cena '+e.cena);t+=' | comió: '+mm.join(' · ');}else if(e.comidas)t+=' | comió: '+e.comidas;
@@ -1118,7 +1214,7 @@ const DT_SHORT={
 };
 function setDayPlan(day,k){DAY_PLAN[day]=(DAY_PLAN[day]===k?'':k);try{localStorage.setItem('alex_dayplan',JSON.stringify(DAY_PLAN));}catch(e){}renderMenu();}
 
-function initAll(){if(!DB.supp||DB.suppVer!==SUPP_VER){DB.supp=Object.assign({},SUPP_SEED);DB.suppVer=SUPP_VER;save();}renderDays();renderBio();renderKPIs();renderSupp();renderMenu();}
+function initAll(){if(!DB.supp||DB.suppVer!==SUPP_VER){DB.supp=Object.assign({},SUPP_SEED);DB.suppVer=SUPP_VER;save();}renderDays();renderBio();renderKPIs();renderSupp();renderMenu();renderMirada();}
 initAll();
 </script>
 </body>

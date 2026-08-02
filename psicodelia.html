@@ -71,6 +71,25 @@
   .secttl.arch{color:var(--muted)}
   footer{text-align:center;font-size:.72rem;color:var(--muted);padding:10px}
   .hidden{display:none}
+  /* ampliada / mi trabajo */
+  .ampl{margin-top:9px;border-left:3px solid var(--accent2);background:#241a2f;padding:8px 11px;border-radius:8px}
+  .ampl .lbl{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.02em}
+  .ampl .txt{font-size:.85rem;color:var(--text);margin-top:5px;line-height:1.5}
+  .mitrab{margin-top:9px}
+  .mitrab .lbl{font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.02em}
+  .mitrab textarea{min-height:70px;margin-top:5px}
+  /* tabla índice */
+  .idxwrap{overflow-x:auto;margin:0 0 12px}
+  table.idx{width:100%;border-collapse:collapse;font-size:.82rem}
+  table.idx th,table.idx td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  table.idx th{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.02em;font-weight:700}
+  table.idx tr.clk{cursor:pointer}
+  table.idx tr.clk:hover td{background:#2a1e37}
+  table.idx td.pw{color:var(--accent);font-weight:700;white-space:nowrap}
+  table.idx td.tp{text-align:center;white-space:nowrap}
+  /* impresión a PDF */
+  @media print{ body > *:not(#printArea){display:none!important} #printArea{display:block!important} }
+  #printArea{display:none}
 </style>
 </head>
 <body>
@@ -167,11 +186,19 @@
   <p class="intro">Los temas que sientes que debes trabajar, sacados de tus relatos. Cuando sientas uno trabajado, márcalo como 'Trabajado' y pasa a Archivados (siguen visibles para releer). El % es orientativo: cuánto se repite en tus sesiones.</p>
   <div class="disc">Esto ordena lo que TÚ escribiste; no es diagnóstico. Útil para ti y para llevarlo a terapia.</div>
 
-  <div class="card" style="border-left:4px solid var(--accent2)">
-    <h2>🤍 Una mirada, por si te sirve</h2>
-    <p class="muted" style="margin-top:0">Un apunte abierto —ni diagnóstico ni conclusión—, como el que te haría alguien que quiere ayudarte:</p>
-    <p>En tus viajes has desarrollado una habilidad real y poco común para <b>encontrarte con lo intenso y soltar el control</b> (el mantra, la «silla del corazón», el «me entrego»). Lo que tus propios relatos parecen invitar, una y otra vez, es a <b>llevar esa misma capacidad a la vida despierta</b>: al momento en que quien te descoloca no es una sustancia, sino una conversación, un tono o un recuerdo.</p>
-    <p>Y hay dos puertas que tú mismo dejas entornadas —tu padre, y eso que rozas y aplazas «sin querer»—. No hace falta forzarlas: quizá baste con <b>acercarte con la misma delicadeza con la que ya sabes soltar</b>, y hacerlo <b>acompañado</b>. Que quieras llevarlo a terapia no es un pendiente más: es, probablemente, el mejor siguiente paso. A tu ritmo.</p>
+  <div id="temasIndex"></div>
+
+  <div class="card" id="miradaCard" style="border-left:4px solid var(--accent2)">
+    <h2>🤍 Una mirada (guía viva)</h2>
+    <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
+    <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn sec mini" onclick="speakMirada()">▶ Escuchar</button>
+      <button class="btn sec mini" onclick="stopSpeak()">⏹</button>
+      <button class="btn sec mini" id="miradaEditBtn" onclick="editMirada()">✏️ Actualizar</button>
+      <button class="btn sec mini" id="miradaSaveBtn" style="display:none" onclick="guardarMirada()">Guardar ✓</button>
+    </div>
+    <p class="muted" style="font-size:.72rem;margin-top:6px">Guía viva: la actualizo yo (Claude) en cada revisión; pégala aquí con «Actualizar» y queda guardada en este móvil.</p>
   </div>
 
   <button class="btn sec" onclick="nuevoTema()">➕ Añadir tema</button>
@@ -199,6 +226,7 @@
 </section>
 
 </main>
+<div id="printArea"></div>
 <footer>Herramienta personal de apoyo · no sustituye criterio médico ni terapéutico · psicodelia v1</footer>
 
 <script>
@@ -252,6 +280,23 @@ const SEED=[
   nota:"Integrar = ver cómo se repiten estos 'espejos' en tu vida cotidiana. Describiste una conversación entre al menos 3 partes tuyas (ego / una observadora serena / una infantil): es justo el terreno de IFS y el trabajo con voces internas — buen punto de entrada con tu psicólogo."}
 ];
 
+/* ---- interpretaciones ampliadas (psicología · desarrollo) ---- */
+const SEED_INTERP={
+"Control y soltar / rendición":"Psicológicamente, aquí entrenas la tolerancia a la incertidumbre y la regulación del sistema nervioso ante lo que no controlas. Que hayas encontrado un ancla corporal (el pecho, anahata) no es casual: la sensación de seguridad se construye en el cuerpo antes que en la cabeza. El trabajo de desarrollo sería trasladar ese recurso —‘me entrego, confío’— del contexto protegido del viaje a los momentos cotidianos de activación: una discusión, un email, una espera. En terapia conecta con el trabajo de tolerancia al descontrol y con técnicas de regulación (respiración, foco somático). La pregunta guía: ¿puedo quedarme, sentir y no huir, también estando despierto?",
+"La sombra que se aplaza":"En términos junguianos, la ‘sombra’ son las partes de ti que has apartado por dolorosas o inaceptables; acercarse a ellas activa evitaciones sutiles (distracción, sueño, cambiar de tema) que no se sienten como huida. Lo valioso es que tú ya las observas sin juzgarte. El trabajo no es forzar la puerta, sino frenar justo cuando notas que ‘algo te aparta’ y quedarte un poco más de lo cómodo, preferiblemente acompañado. En terapia se crea la seguridad suficiente para sostener lo que evitabas. Recorrer la casa de tu padre en imaginación, sin exigirte resultados, es un ejercicio concreto en esa dirección.",
+"Montse — capas que no se juntan":"Que gratitud, miedo a perderla, amor y una queja de falta de libertad convivan sin integrarse es normal en los vínculos importantes: son verdades simultáneas. El desarrollo pasa por permitir que coexistan sin que una anule a las otras, y por mirar la capa incómoda (‘no soy libre en mi propia casa’) que desapareció del relato sin resolverse. En pareja y en terapia esto suele traducirse en aprender a nombrar la necesidad propia sin culpa y sin romper el vínculo. La pregunta útil: ¿qué pasó con aquello: se resolvió o se calló?",
+"Tu padre — 'el aguante'":"Elegir la palabra ‘aguante’ para alguien a quien quieres, y que del padre ‘duro y criticón’ no haya ni una línea, sugiere un duelo aún abierto y una parte del vínculo sin narrar. En desarrollo personal, honrar a un padre no exige idealizarlo: puedes agradecer al faro y, a la vez, mirar lo que dolió, sin traicionarlo. La imagen de la casa —paredes fuertes que él construyó junto a un cuarto ‘demacrado por la energía’— es una metáfora tuya muy precisa de eso. El trabajo terapéutico sería darte permiso para completar la frase ‘mi corazón fue capaz de con amor…’ y sostener las dos verdades a la vez.",
+"El duende":"Ese ‘yo’ juguetón y libre que solo aparece en estos estados es, en lenguaje de partes internas, un aspecto vital y espontáneo que en el día a día queda inhibido, casi siempre por autoexigencia, roles o miedo al juicio. No lo trae la sustancia: estaba y se resguarda. El desarrollo es darle permiso y espacios seguros en sobrio —juego, música, movimiento, humor— para que no dependa de un viaje para existir. La pregunta: ¿qué normas internas le pido cumplir que le hacen callarse?",
+"Muerte, tiempo y 'dejarlo en orden'":"La consciencia de la impermanencia, bien integrada, no es morbo: es una brújula de prioridades. Lo importante no es la fecha intuida —una intuición en un estado alterado es una intuición, no un pronóstico— sino lo que despierta: ‘dejarlo todo en orden’ y ‘vivir queriendo’. En desarrollo personal esto se trabaja convirtiéndolo en decisiones concretas (relaciones, asuntos pendientes, cómo quieres estar presente) en vez de en una emoción bonita. La muerte como maestra de la vida, no como amenaza.",
+"Creer en mí / miedo al rechazo":"La tensión entre ‘me autorizo yo’ y ‘necesito que me validen’ es un tema nuclear de autoestima e individuación: cuánto de tu valor pones fuera. Que se dispare cuando la experiencia toca a otros (pareja, amigos, quien juzgue) señala dónde aún necesitas aprobación externa para sostener tu criterio. El trabajo es fortalecer la validación interna sin caer en el aislamiento reactivo (‘no pido que me aplaudan’). En terapia se mira de dónde viene esa herida de rechazo y cómo se sostiene hoy tu propio ‘sí’.",
+"Cerrar etapas / despedidas":"Tu necesidad de ritualizar los finales es una fortaleza: los ritos de cierre ayudan al cerebro a procesar transiciones y a elaborar duelos. Reconocerla te permite usarla a propósito. El desarrollo es doble: honrar esta capacidad y preguntarte qué finales importantes no has marcado todavía —el más evidente, tu padre—. Un cierre consciente (una carta, una visita, un ritual) puede hacer con intención lo que el viaje hizo por sorpresa.",
+"Madre — culpa que se activa con gestos y tonos":"Describiste con precisión un disparador implícito: una culpa que no responde al contenido sino a gestos, tonos o ‘energías’, probablemente aprendida muy temprano. Es material central para terapia porque explica reacciones actuales desproporcionadas al estímulo presente: algo pequeño te lleva a un lugar antiguo. El trabajo es identificar las situaciones concretas de hoy donde se activa y aprender a distinguir ‘esto es de ahora’ de ‘esto es de entonces’. Reconocer el mecanismo, como ya haces, es el primer paso del cambio.",
+"Bloqueos y el poder de decidir":"Aquí tienes descritos, juntos, tu patrón (el bloqueo del otro te ‘secuestra’ en cascada automática) y tu antídoto (decides tú, actúas e invitas sin condicionar tu movimiento). En términos de regulación, es pasar de la reactividad a la respuesta elegida. El desarrollo es entrenarlo en frío: reconocer la primera señal de la cascada y practicar el desenganche, primero en imaginación y luego en la vida. Es, de todo el archivo, lo más directamente aplicable al día a día.",
+"Método: cuerpo, respiración y música":"Traducción a la vida: la respiración como ‘volante’ y el cuerpo como brújula son herramientas de autorregulación disponibles siempre, no solo en el viaje. Practicarlas en sobrio (respiración consciente, escucha corporal) construye el mismo recurso sin depender de nada.",
+"Método: yoga + dosis baja + set como actitud":"Tu hallazgo —más práctica y menos dosis— es, en el fondo, un principio de vida: la actitud (set) importa más que la intensidad del estímulo. Tener ‘actitud de meditador’ ante lo bueno y lo malo es entrenable y transferible a cualquier momento difícil.",
+"Integración y partes internas (IFS)":"Que percibieras varias ‘partes’ dialogando (el ego, una observadora serena, una infantil) es la puerta natural a modelos como IFS: no eres una sola voz, y la observadora serena puede liderar. En terapia, dar espacio y voz a cada parte, sin expulsar ninguna, es el trabajo."
+};
+
 /* ---- load / save / seed injection ---- */
 function load(){
   try{const d=JSON.parse(localStorage.getItem(LS));if(d&&typeof d==='object')return d;}catch(e){}
@@ -262,14 +307,36 @@ if(!Array.isArray(DB.tomas))DB.tomas=[];
 if(!Array.isArray(DB.temas)||!DB.temas.length){
   const t=todayISO();
   DB.temas=SEED.map(s=>({id:uid(),titulo:s.titulo,recurrencia:s.recurrencia,consulta:s.consulta,
-    categoria:s.categoria,nota:s.nota,estado:'activo',creado:t}));
+    categoria:s.categoria,nota:s.nota,
+    interpretacion:SEED_INTERP[s.titulo]||'',miTrabajo:'',
+    estado:'activo',creado:t}));
   saveInit();
 }
+/* ---- backfill idempotente: rellena interpretacion/miTrabajo en temas ya guardados ---- */
+(function backfillTemas(){
+  var changed=false;
+  DB.temas.forEach(function(tm){
+    if((!tm.interpretacion||!tm.interpretacion.trim())&&SEED_INTERP[tm.titulo]){
+      tm.interpretacion=SEED_INTERP[tm.titulo];changed=true;
+    }
+    if(typeof tm.miTrabajo==='undefined'){tm.miTrabajo='';changed=true;}
+  });
+  if(changed)saveInit();
+})();
 function saveInit(){try{localStorage.setItem(LS,JSON.stringify(DB));}catch(e){}}
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
 
+/* ---- text-to-speech ---- */
+function speak(txt){try{if(!('speechSynthesis'in window)){alert('Tu móvil no permite leer en voz aquí; puedes leerlo en pantalla.');return;}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.95;u.pitch=1;var vs=window.speechSynthesis.getVoices()||[];var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];if(es)u.voice=es;window.speechSynthesis.speak(u);}catch(e){alert('No se pudo reproducir la voz; léelo en pantalla.');}}
+function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}}
+function speakTema(id){var t=DB.temas.find(function(x){return x.id===id;});if(!t)return;speak((t.nota||'')+'. '+(t.interpretacion||''));}
+function speakMiTrabajo(id){var el=document.getElementById('mt-'+id);var v=el?el.value:'';if(!v||!v.trim()){alert('Aún no has escrito nada en «Mi trabajo» de este tema.');return;}speak(v);}
+/* precarga de voces */
+try{if('speechSynthesis'in window){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices();};}}catch(e){}
+
 /* ---- tabs ---- */
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
+  stopSpeak();
   document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');
@@ -363,10 +430,27 @@ function renderTomas(){
     if(t.proposito)h+='<div class="prop">'+esc(trunc(t.proposito,110))+'</div>';
     h+='<div class="acts">'+
        '<button class="icobtn" onclick="editToma(\''+t.id+'\')">✏️ Editar</button>'+
+       '<button class="icobtn" onclick="expPDF(\''+t.id+'\')">🖨 PDF</button>'+
        '<button class="icobtn" onclick="borrarToma(\''+t.id+'\')">🗑 Borrar</button>'+
        '</div></div>';
   });
   el.innerHTML=h;
+}
+
+/* ---- exportar una experiencia a PDF (vía impresión, sin librerías) ---- */
+function expPDF(id){
+  var t=DB.tomas.find(function(x){return x.id===id;});
+  if(!t)return;
+  var pa=document.getElementById('printArea');
+  pa.innerHTML='<div style="font-family:-apple-system,sans-serif;color:#111;padding:20px;max-width:640px">'+
+   '<h1 style="font-size:20px">Experiencia — '+esc(fmt(t.fecha))+'</h1>'+
+   '<p><b>Sustancia:</b> '+esc(t.sustancia||'—')+'  ·  <b>Dosis:</b> '+esc(t.dosis||'—')+'</p>'+
+   '<p><b>Horario:</b> '+esc(t.horaIni||'—')+' a '+esc(t.horaFin||'—')+'  ·  <b>Lugar:</b> '+esc(t.lugar||'—')+'  ·  '+esc(t.compania||'')+'</p>'+
+   '<p><b>Propósito:</b> '+esc(t.proposito||'—').replace(/\n/g,'<br>')+'</p>'+
+   '<h3>Relato</h3><div style="white-space:pre-wrap">'+esc(t.relato||'')+'</div>'+
+   (t.notas?'<h3>Notas</h3><div style="white-space:pre-wrap">'+esc(t.notas)+'</div>':'')+
+   '</div>';
+  window.print();
 }
 
 /* ---- Web Speech dictation (append if available) ---- */
@@ -420,43 +504,129 @@ function borrarTema(id){
   DB.temas=DB.temas.filter(x=>x.id!==id);
   save();renderTemas();
 }
+/* persistir «Mi trabajo» en cada tecla, SIN re-renderizar (no se pierde lo escrito) */
+function setMiTrabajo(id,v){var t=DB.temas.find(x=>x.id===id);if(t){t.miTrabajo=v;save();}}
+/* dictado hacia la textarea de «Mi trabajo» (inofensivo si no hay soporte) */
+function dictarMiTrabajo(id){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var ta=document.getElementById('mt-'+id);
+  if(!ta)return;
+  if(!SR){alert('Tu móvil no permite dictar aquí; usa el micro del teclado.');return;}
+  try{
+    var rec=new SR();rec.lang='es-ES';rec.interimResults=false;rec.continuous=false;
+    rec.onresult=function(e){
+      var txt='';for(var i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;
+      ta.value=(ta.value?ta.value+' ':'')+txt;
+      setMiTrabajo(id,ta.value);
+    };
+    rec.start();
+  }catch(err){alert('No se pudo iniciar el dictado; usa el micro del teclado.');}
+}
 
+/* tarjeta de tema ACTIVO (completa) */
 function temaCard(t){
   const rec=t.recurrencia||'';
   const w=recNum(rec);
-  let h='<div class="tema'+(t.estado==='archivado'?' arch':'')+'">';
+  let h='<div class="tema" id="tema-'+t.id+'">';
   h+='<div class="th"><div>';
   h+='<span class="tt">'+esc(t.titulo)+'</span> ';
+  if(rec)h+='<span class="badge rec">≈'+w+'%</span>';
   if(t.consulta)h+='<span class="badge ter">🩺 para terapia</span>';
-  if(rec)h+='<span class="badge rec">'+esc(rec)+'</span>';
+  if(!rec)h+='<span class="badge apr">aprendizaje</span>';
   h+='</div></div>';
-  if(rec){
-    h+='<div class="recbar"><div class="fill" style="width:'+Math.min(w,100)+'%"></div></div>';
-  }else{
-    h+='<span class="badge apr">aprendizaje</span>';
-  }
+  if(rec)h+='<div class="recbar"><div class="fill" style="width:'+Math.min(w,100)+'%"></div></div>';
   if(t.nota)h+='<div class="nota">'+esc(t.nota)+'</div>';
+  /* Visión ampliada */
+  if(t.interpretacion){
+    h+='<div class="ampl"><div class="lbl">Visión ampliada (psicología · desarrollo)</div>'+
+       '<div class="txt">'+esc(t.interpretacion)+'</div>'+
+       '<button class="icobtn" style="margin-top:8px" onclick="speakTema(\''+t.id+'\')">▶ Escuchar</button>'+
+       '</div>';
+  }
+  /* Mi trabajo */
+  h+='<div class="mitrab"><div class="lbl">Mi trabajo — lo que he descubierto</div>'+
+     '<textarea id="mt-'+t.id+'" oninput="setMiTrabajo(\''+t.id+'\',this.value)" '+
+       'placeholder="Anota aquí lo que vas descubriendo y trabajando en este tema…">'+esc(t.miTrabajo||'')+'</textarea>'+
+     '<div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">'+
+       '<button class="icobtn" onclick="dictarMiTrabajo(\''+t.id+'\')">🎤 Dictar</button>'+
+       '<button class="icobtn" onclick="speakMiTrabajo(\''+t.id+'\')">▶ Escuchar</button>'+
+       '<span class="muted" style="font-size:.74rem">usa el micro del teclado</span>'+
+     '</div></div>';
+  /* acciones */
   h+='<div class="acts">';
-  if(t.estado==='activo')h+='<button class="icobtn" onclick="marcarTrabajado(\''+t.id+'\')">✓ Marcar trabajado</button>';
-  else h+='<button class="icobtn" onclick="reactivar(\''+t.id+'\')">↩ Reactivar</button>';
+  h+='<button class="icobtn" onclick="marcarTrabajado(\''+t.id+'\')">✓ Marcar trabajado</button>';
   h+='<button class="icobtn" onclick="editNota(\''+t.id+'\')">✏️ Editar nota</button>';
   h+='<button class="icobtn" onclick="borrarTema(\''+t.id+'\')">🗑</button>';
   h+='</div></div>';
   return h;
 }
 
+/* tarjeta de tema ARCHIVADO (breve) */
+function temaCardArch(t){
+  let h='<div class="tema arch" id="tema-'+t.id+'">';
+  h+='<div class="th"><div><span class="tt">'+esc(t.titulo)+'</span></div></div>';
+  h+='<div class="acts">';
+  h+='<button class="icobtn" onclick="reactivar(\''+t.id+'\')">↩ Reactivar</button>';
+  h+='<button class="icobtn" onclick="borrarTema(\''+t.id+'\')">🗑</button>';
+  h+='</div></div>';
+  return h;
+}
+
+/* tabla índice de temas activos */
+function temasIndexTable(activos){
+  if(!activos.length)return'';
+  let h='<div class="idxwrap"><table class="idx"><thead><tr>'+
+        '<th>Título</th><th>Peso</th><th>Terapia</th></tr></thead><tbody>';
+  activos.forEach(function(t){
+    const w=recNum(t.recurrencia);
+    const peso=t.recurrencia?('≈'+w+'%'):'—';
+    h+='<tr class="clk" onclick="document.getElementById(\'tema-'+t.id+'\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">'+
+       '<td>'+esc(t.titulo)+'</td>'+
+       '<td class="pw">'+esc(peso)+'</td>'+
+       '<td class="tp">'+(t.consulta?'🩺':'')+'</td>'+
+       '</tr>';
+  });
+  h+='</tbody></table></div>';
+  return h;
+}
+
+var MIRADA_TXT=[
+"Un apunte abierto, como el que te haría alguien que quiere ayudarte.",
+"En tus viajes has desarrollado una habilidad real y poco común para encontrarte con lo intenso y soltar el control: el mantra, la silla del corazón, el me entrego. Lo que tus relatos parecen invitar, una y otra vez, es a llevar esa misma capacidad a la vida despierta: al momento en que quien te descoloca no es una sustancia, sino una conversación, un tono o un recuerdo. Y hay dos puertas que tú mismo dejas entornadas: tu padre, y eso que rozas y aplazas sin querer.",
+"Vamos a mirarlo con más profundidad, con las lentes de algunos referentes del trauma y la exploración interior. Son miradas, no verdades sobre ti.",
+"El sistema nervioso manda, en la línea de Stephen Porges y la teoría polivagal. Tu cuerpo tiene estados: uno de seguridad y conexión, uno de lucha o huida, y uno de bloqueo o colapso. Tu silla del corazón y tu me entrego son la vuelta al estado de seguridad. La cascada que te secuestra cuando alguien se bloquea, o cuando un tono te dispara la culpa, es un salto al modo defensivo. Y esa sombra que se aplaza, el sueño que te vence, puede ser tu sistema en modo protector para no sentir demasiado. En la práctica, nombrar en qué estado estás ya cambia tu fisiología, y darte señales de seguridad, respiración lenta y larga, orientarte, un contacto amable, ayuda más que razonar.",
+"El trauma vive en el cuerpo y se sana a pequeñas dosis, como enseña Peter Levine con la experiencia somática. Lo no digerido queda como energía atrapada, y se libera a poquitos, yendo y volviendo entre la activación y la calma. Eso ya lo haces bien: tu ancla en el pecho es tu lugar de calma. Para la sombra que aplazas, la clave no es forzar la puerta, sino acercarte un poco, volver a tu ancla, y otra vez, sin heroicidades. Completar lo que quedó a medias es cerrar una respuesta interrumpida.",
+"La pregunta de Gabor Maté sería: dónde tuviste que dejar de ser tú. Él define el trauma no por lo que te pasó, sino por la desconexión de ti mismo que provocó, y describe una tensión temprana entre autenticidad, ser quien eres, y apego, conservar el vínculo. De niños, si expresarnos pone en riesgo el amor, aprendemos a escondernos. Encaja con tu creer en mí frente a necesito que me validen, con el duende que solo sale a salvo, con tu padre resumido en el aguante. Y algo importante: las sustancias y muchas conductas suelen ser intentos de sentir o de calmar algo, no un defecto moral; lo que cura no es el pico de la experiencia, sino reconectar con lo auténtico, y hacerlo en relación.",
+"No eres una sola voz, como plantea el modelo IFS de Richard Schwartz. Tú ya lo viste: el ego, una observadora serena y una parte infantil dialogando. No hay partes malas; hay partes que protegen y partes heridas, y un Yo sereno que puede liderarlas. Esa observadora serena que aparece en tus viajes es ese Yo. El trabajo es dar voz a cada parte, también al duende y a la que aplaza, sin expulsar a ninguna.",
+"La experiencia abre, pero la integración transforma. El viaje es la apertura, y el cambio se consolida al traducir lo vivido a la vida cotidiana y a los vínculos. Hay un riesgo con nombre, el bypass espiritual: usar los estados elevados para saltarse el trabajo mundano y doloroso. Tu intuición de no evadirte y tu patrón de sombra que se aplaza apuntan justo ahí. Por eso llevarlo a terapia es tan acertado.",
+"Y bajado a tierra, para tu día a día: cuando notes la cascada, para, una respiración larga, y lleva la atención al pecho antes de responder. Cuando algo te dispare de más, pregúntate: esto es de ahora o es de entonces. Con lo que aplazas, acércate un poquito, vuelve a la calma, repite, mejor acompañado. Dale al duende diez minutos deliberados a la semana. Ensaya en frío la escena del bloqueo y practica decido yo e invito. Y lo primero: un terapeuta con enfoque somático o de trauma, en la línea de Levine, Porges, Maté o IFS, encajaría muy bien con lo que aquí aparece.",
+"Nada de esto es un diagnóstico ni una verdad sobre ti: son lentes por si te ayudan a mirar. Tú tienes la última palabra, y, idealmente, un buen profesional al lado."
+].join(" ");
+function toggleMirada(btn){var m=document.getElementById('miradaMas');if(!m)return;if(m.classList.contains('hidden')){m.classList.remove('hidden');btn.textContent='Ver menos ▴';}else{m.classList.add('hidden');btn.textContent='Ver más ▾';}}
+
+/* ===== Una mirada (guía viva) ===== */
+const MIRADA_KEY='mirada_psico';
+const MIRADA_SEED=MIRADA_TXT;
+function getMirada(){try{var v=localStorage.getItem(MIRADA_KEY);return (v&&v.trim())?v:MIRADA_SEED;}catch(e){return MIRADA_SEED;}}
+function renderMirada(){var el=document.getElementById('miradaTexto');if(el)el.innerHTML=esc(getMirada()).replace(/\n/g,'<br>');}
+function editMirada(){var t=document.getElementById('miradaEdit');t.value=getMirada();t.style.display='block';document.getElementById('miradaEditBtn').style.display='none';document.getElementById('miradaSaveBtn').style.display='inline-block';t.focus();}
+function guardarMirada(){var t=document.getElementById('miradaEdit');try{localStorage.setItem(MIRADA_KEY,t.value);}catch(e){}t.style.display='none';document.getElementById('miradaSaveBtn').style.display='none';document.getElementById('miradaEditBtn').style.display='inline-block';renderMirada();}
+function speakMirada(){speak(getMirada());}
 function renderTemas(){
-  const body=$('temasBody');
   const activos=DB.temas.filter(t=>t.estado==='activo')
     .sort((a,b)=>recNum(b.recurrencia)-recNum(a.recurrencia));
   const arch=DB.temas.filter(t=>t.estado==='archivado');
+  /* índice (encima de «Una mirada») */
+  $('temasIndex').innerHTML=temasIndexTable(activos);
+  /* tarjetas */
+  const body=$('temasBody');
   let h='';
   h+='<div class="secttl">🔴 Activos — a trabajar</div>';
   if(!activos.length)h+='<p class="muted">No hay temas activos ahora mismo.</p>';
   else activos.forEach(t=>h+=temaCard(t));
   h+='<div class="secttl arch">✅ Archivados — trabajados</div>';
   if(!arch.length)h+='<p class="muted">Todavía no has archivado ningún tema.</p>';
-  else arch.forEach(t=>h+=temaCard(t));
+  else arch.forEach(t=>h+=temaCardArch(t));
   body.innerHTML=h;
 }
 
@@ -536,6 +706,7 @@ function restore(){
 $('f_fecha').value=todayISO();
 renderTomas();
 renderTemas();
+renderMirada();
 </script>
 </body>
 </html>

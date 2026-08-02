@@ -106,6 +106,18 @@
 
 <!-- ============ HOY ============ -->
 <section id="hoy" class="tab active">
+  <details class="card foldcard" id="miradaCard">
+    <summary>🤍 Una mirada (guía viva) — leer / escuchar</summary>
+    <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
+    <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn sec mini" onclick="speakMirada()">▶ Escuchar</button>
+      <button class="btn sec mini" onclick="stopSpeak()">⏹</button>
+      <button class="btn sec mini" id="miradaEditBtn" onclick="editMirada()">✏️ Actualizar</button>
+      <button class="btn sec mini" id="miradaSaveBtn" style="display:none" onclick="guardarMirada()">Guardar ✓</button>
+    </div>
+    <p class="muted" style="font-size:.72rem;margin-top:6px">Guía viva: la actualizo yo (Claude) en cada revisión; pégala aquí con «Actualizar» y queda guardada en este móvil.</p>
+  </details>
   <div class="card">
     <h2>📝 Registro de hoy</h2>
     <label class="f">Fecha</label>
@@ -390,6 +402,15 @@ function todayISO(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezone
 function fmt(iso){if(!iso)return'';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
 function esc(s){return(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
 function pct(n,d){return d>0?Math.round(100*n/d)+'%':'—'}
+
+/* ===== Una mirada (guía viva) ===== */
+const MIRADA_KEY='mirada_suenos';
+const MIRADA_SEED="UNA MIRADA — SUEÑOS\n\nEstás en la Fase 1 de Campayo: la base es diario + reality checks + higiene del sueño. Sin dormir bien no hay lucidez, y con tu fibromialgia eso es lo primero: nada de despertares nocturnos por ahora.\n\nLa idea que comparten los referentes (Campayo, LaBerge, yoga de los sueños): la lucidez es la puerta, no la meta. El fin real es aprovechar un tercio de tu vida para conocerte y entrenar una consciencia que también te sirve despierto.\n\nClaves a recordar:\n— Al despertar no te muevas: pregúntate «¿qué soñaba?» y apúntalo YA (a los 10 min se pierde el 90%). Si no recuerdas nada, apunta la emoción.\n— Reality checks durante el día (5–10, con prueba física): crean el hábito que se cuela en el sueño.\n— Intención al dormir, sin esfuerzo ni apego («demasiado deseo es un obstáculo»).\n— Busca tus señales oníricas recurrentes: son tu llave personal para reconocer que sueñas.\n— El progreso es ondulante: celebra el recuerdo, no exijas lucidez.\n\nSiguiente foco: constancia del diario y los reality checks. Cuando tengas más noches, cruzaremos si recuerdas o lucidas más los días que meditas, duermes bien o cenas pronto.";
+function getMirada(){try{var v=localStorage.getItem(MIRADA_KEY);return (v&&v.trim())?v:MIRADA_SEED;}catch(e){return MIRADA_SEED;}}
+function renderMirada(){var el=document.getElementById('miradaTexto');if(el)el.innerHTML=esc(getMirada()).replace(/\n/g,'<br>');}
+function editMirada(){var t=document.getElementById('miradaEdit');t.value=getMirada();t.style.display='block';document.getElementById('miradaEditBtn').style.display='none';document.getElementById('miradaSaveBtn').style.display='inline-block';t.focus();}
+function guardarMirada(){var t=document.getElementById('miradaEdit');try{localStorage.setItem(MIRADA_KEY,t.value);}catch(e){}t.style.display='none';document.getElementById('miradaSaveBtn').style.display='none';document.getElementById('miradaEditBtn').style.display='inline-block';renderMirada();}
+function speakMirada(){speak(getMirada());}
 function $(id){return document.getElementById(id)}
 
 /* ---- default suggested chips (Campayo's 4 categories) ---- */
@@ -867,6 +888,7 @@ try{if('speechSynthesis' in window){window.speechSynthesis.getVoices();window.sp
 $('d_fecha').value=todayISO();
 preload();
 renderDayList();
+renderMirada();
 </script>
 </body>
 </html>

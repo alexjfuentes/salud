@@ -112,6 +112,19 @@
 <h1>Diario de Fuerza — Álex</h1>
 <div class="sub">Fase 1 · Reentrada · displasia+CAM+labrum+artrosis · L3–S1 · sin impacto · sin dolor · sin llegar al fallo</div>
 
+<div class="card" id="miradaCard">
+  <h2>🤍 Una mirada (guía viva)</h2>
+  <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
+  <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
+  <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn sec" style="width:auto" onclick="speakMirada()">▶ Escuchar</button>
+    <button class="btn sec" style="width:auto" onclick="stopSpeak()">⏹</button>
+    <button class="btn sec" style="width:auto" id="miradaEditBtn" onclick="editMirada()">✏️ Actualizar</button>
+    <button class="btn sec" style="width:auto;display:none" id="miradaSaveBtn" onclick="guardarMirada()">Guardar ✓</button>
+  </div>
+  <p class="muted" style="font-size:.72rem;margin-top:6px">Guía viva: la actualizo yo (Claude) en cada revisión; pégala aquí con «Actualizar» y queda guardada en este móvil.</p>
+</div>
+
 <div id="banner" class="banner"></div>
 
 <div class="card">
@@ -527,6 +540,19 @@ function importJson(){const t=prompt("Pega tu copia de seguridad (JSON):");if(!t
 function copy(txt,msg){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>flash(msg),()=>prompt("Copia:",txt));else prompt("Copia:",txt)}
 
 function syncMesSem(){const iso=$("fecha").value||todayISO();$("mes").value=mesFromISO(iso);$("semana").value=semFromISO(iso);updateJulyNote()}
+
+/* ===== Una mirada (guía viva) ===== */
+function esc(s){return (s||'').replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];});}
+function speak(txt){try{if(!('speechSynthesis' in window)){alert('Este dispositivo no permite leer en voz; puedes leerlo en pantalla.');return;}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.95;var vs=window.speechSynthesis.getVoices()||[];var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];if(es)u.voice=es;window.speechSynthesis.speak(u);}catch(e){alert('No se pudo reproducir la voz.');}}
+function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}}
+const MIRADA_KEY='mirada_entreno';
+const MIRADA_SEED="UNA MIRADA — ENTRENAMIENTO\n\nTu objetivo no es estético: es fuerza funcional para envejecer bien cuidando cadera (displasia/labrum), lumbar y fibromialgia. Los referentes de longevidad (p. ej. Peter Attia) insisten en que fuerza y estabilidad son tu mejor seguro para las próximas décadas: entrena para poder levantarte del suelo, cargar peso y mantener el equilibrio, más que para un número.\n\nTus datos ya muestran lo importante: subes cargas en todo SIN despertar dolor de cadera/lumbar/hombro, y autorregulas bien (yoga suave cuando llegas con agujetas o PEM). Ese es el camino.\n\nClaves a recordar:\n— Fuerza primero, sin llegar al fallo (RIR ~5 en esta fase): el estímulo está en la técnica y la constancia, no en la intensidad máxima.\n— Dolor no es igual a daño: una molestia leve (≤3/10) que no se resiente al día siguiente suele ser tejido adaptándose; dolor que crece o se arrastra, frena.\n— Con fibromialgia manda la regla PEM: si el malestar aparece 24–48 h después, baja carga esa semana. Mejor constante que heroico.\n— Core y tren inferior estables protegen cadera y lumbar: farmer carry, hip thrust y planchas antirrotación son oro para ti.\n— Hueso y tendón tardan más que el músculo: paciencia al subir peso.\n— Fuerza + yoga + monte se potencian entre sí.\n\nSiguiente foco: consolidar técnica y cargas sin dolor; más adelante, algo de potencia y equilibrio.";
+function getMirada(){try{var v=localStorage.getItem(MIRADA_KEY);return (v&&v.trim())?v:MIRADA_SEED;}catch(e){return MIRADA_SEED;}}
+function renderMirada(){var el=document.getElementById('miradaTexto');if(el)el.innerHTML=esc(getMirada()).replace(/\n/g,'<br>');}
+function editMirada(){var t=document.getElementById('miradaEdit');t.value=getMirada();t.style.display='block';document.getElementById('miradaEditBtn').style.display='none';document.getElementById('miradaSaveBtn').style.display='inline-block';t.focus();}
+function guardarMirada(){var t=document.getElementById('miradaEdit');try{localStorage.setItem(MIRADA_KEY,t.value);}catch(e){}t.style.display='none';document.getElementById('miradaSaveBtn').style.display='none';document.getElementById('miradaEditBtn').style.display='inline-block';renderMirada();}
+function speakMirada(){speak(getMirada());}
+
 function init(){
   fillMonthSelects();
   $("fecha").value=todayISO();syncMesSem();
@@ -540,6 +566,7 @@ function init(){
   $("mes").onchange=()=>{$("semana").value=($("mes").value==="Julio")?"S1":$("semana").value;updateJulyNote()};
   $("filtMes").onchange=renderHist;$("filtSem").onchange=renderHist;
   $("cardioTimer").onclick=()=>startTimer(0,"Monte / cardio");
+  renderMirada();
 }
 init();
 </script>
