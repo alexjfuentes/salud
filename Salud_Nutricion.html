@@ -515,13 +515,6 @@
 
 <!-- ============ EXPORT ============ -->
 <section id="export" class="tab">
-  <div class="card" style="border-left:4px solid var(--green-d)">
-    <h2>📦 Exportar TODO (las 4 áreas)</h2>
-    <p class="muted">Un solo botón para darme <b>Entreno + Salud + Sueños + Psicodelia</b> de una vez. Genera, copia y pégamelo en el chat.</p>
-    <button class="btn sec mini" onclick="exportarTodo()">📦 Generar TODO</button>
-    <button class="btn sec mini" onclick="copyTodo()">Copiar</button>
-    <textarea id="reportTodo" style="min-height:140px;margin-top:8px" placeholder="Pulsa 'Generar TODO'…"></textarea>
-  </div>
   <div class="card">
     <h2>📤 Resumen para revisar con Claude</h2>
     <p class="muted">Cada 2-4 semanas: genera, copia y pégalo en el chat (y guárdalo en Drive/SEGUIMIENTO). Yo cruzo comida, energía, molestias, entreno y báscula, y busco patrones.</p>
@@ -1046,14 +1039,6 @@ function renderTrainingPanel(){
 }
 
 /* ---- EXPORT ---- */
-function exportarTodo(){
-  var claves=[['ENTRENO','diarioFuerzaAlex_v2'],['SALUD','alex_salud_v2'],['SUEÑOS','suenosAlex_v1'],['PSICODELIA','psicoAlex_v1']];
-  var t='EXPORT COMPLETO — Alex · '+todayISO()+'\n'+'='.repeat(44)+'\n\nCopia técnica de las 4 áreas (datos en bruto, para que Claude los analice). Pégamelo en el chat.\n\n';
-  claves.forEach(function(c){var v=null;try{v=localStorage.getItem(c[1]);}catch(e){}t+='===== '+c[0]+' ('+c[1]+') =====\n'+(v||'(sin datos)')+'\n\n';});
-  var el=document.getElementById('reportTodo');if(el)el.value=t;
-  try{alert('Generado ✓ — pulsa Copiar.');}catch(e){}
-}
-function copyTodo(){var r=document.getElementById('reportTodo');if(!r)return;if(!r.value)exportarTodo();r.select();try{document.execCommand('copy');alert('Copiado ✓ — pégalo en el chat.');}catch(e){alert('Selecciona y copia manualmente.');}}
 function buildReport(){
   let t='RESUMEN SALUD & NUTRICIÓN — Alex\nGenerado: '+fmt(todayISO())+'\n'+'='.repeat(44)+'\n\n';
   const nSuero=DB.days.filter(d=>d.suero===true).length;
@@ -1214,7 +1199,7 @@ const DT_SHORT={
 };
 function setDayPlan(day,k){DAY_PLAN[day]=(DAY_PLAN[day]===k?'':k);try{localStorage.setItem('alex_dayplan',JSON.stringify(DAY_PLAN));}catch(e){}renderMenu();}
 
-function initAll(){if(!DB.supp||DB.suppVer!==SUPP_VER){DB.supp=Object.assign({},SUPP_SEED);DB.suppVer=SUPP_VER;save();}renderDays();renderBio();renderKPIs();renderSupp();renderMenu();renderMirada();}
+function initAll(){if(!DB.supp||DB.suppVer!==SUPP_VER){DB.supp=Object.assign({},SUPP_SEED);DB.suppVer=SUPP_VER;save();}renderDays();renderBio();renderKPIs();renderSupp();renderMenu();try{if(!localStorage.getItem(MIRADA_KEY))localStorage.setItem(MIRADA_KEY,MIRADA_SEED);}catch(e){}renderMirada();}
 initAll();
 </script>
 </body>

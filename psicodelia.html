@@ -7,26 +7,26 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Psicodelia">
-<meta name="theme-color" content="#1b1222">
+<meta name="theme-color" content="#161022">
 <title>Diario de la Psicodelia · Alex</title>
 <style>
   :root{
-    --bg:#1b1222; --card:#271a33; --line:#3d2b4d;
-    --accent:#d97aa8; --accent2:#6ee7d6;
+    --bg:#161022; --card:#221833; --line:#382a4d;
+    --accent:#c88bff; --accent2:#5eead4;
     --ok:#34d399; --warn:#fbbf24;
-    --text:#efe6f2; --muted:#b09bc0;
-    --chip:#33234280; --shadow:0 2px 14px rgba(0,0,0,.38);
+    --text:#f1eaf7; --muted:#b6a6c8;
+    --chip:#33234280; --shadow:0 2px 14px rgba(0,0,0,.40);
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
-  header{background:linear-gradient(135deg,#2e1c3d,#3d2450);color:#fff;
+  header{background:linear-gradient(135deg,#5b2ea6,#8b5cf6);color:#fff;
     padding:calc(env(safe-area-inset-top) + 8px) 16px 12px;box-shadow:var(--shadow)}
   header h1{margin:0;font-size:1.12rem}
   header .sub{opacity:.85;font-size:.76rem;margin-top:2px}
   nav{display:flex;gap:3px;background:#170f1f;position:sticky;top:0;z-index:30;padding:6px;overflow-x:auto}
   nav button{flex:1 0 auto;background:transparent;border:0;color:var(--muted);padding:9px 12px;border-radius:9px;font-size:.86rem;font-weight:600;cursor:pointer;white-space:nowrap}
-  nav button.active{background:var(--accent);color:#25142c}
+  nav button.active{background:var(--accent);color:#241436}
   main{max-width:780px;margin:0 auto;padding:14px 12px calc(90px + env(safe-area-inset-bottom))}
   .tab{display:none;animation:fade .25s ease}
   .tab.active{display:block}
@@ -44,7 +44,7 @@
   textarea.big{min-height:150px}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   @media(max-width:520px){.row2{grid-template-columns:1fr}}
-  .btn{background:var(--accent);color:#25142c;border:0;border-radius:10px;padding:12px 14px;font-size:.92rem;font-weight:700;cursor:pointer;width:100%;margin-top:12px}
+  .btn{background:var(--accent);color:#241436;border:0;border-radius:10px;padding:12px 14px;font-size:.92rem;font-weight:700;cursor:pointer;width:100%;margin-top:12px}
   .btn.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
   .btn.mini{width:auto;padding:8px 13px;font-size:.82rem;margin:6px 6px 0 0}
   .btn.ok{background:var(--ok);color:#0b241d}
@@ -87,6 +87,10 @@
   table.idx tr.clk:hover td{background:#2a1e37}
   table.idx td.pw{color:var(--accent);font-weight:700;white-space:nowrap}
   table.idx td.tp{text-align:center;white-space:nowrap}
+  /* mirada: preview con clamp */
+  .miradaClamp{max-height:4.8em;overflow:hidden;position:relative;transition:max-height .2s}
+  .miradaClamp:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.6em;background:linear-gradient(transparent,var(--card))}
+  .miradaClamp.open{max-height:none}
   /* impresión a PDF */
   @media print{ body > *:not(#printArea){display:none!important} #printArea{display:block!important} }
   #printArea{display:none}
@@ -98,14 +102,14 @@
   <div class="sub">Registro de experiencias · temas para trabajar · apoyo a tu reflexión y a tu terapia</div>
 </header>
 <nav id="nav">
-  <button data-t="registro" class="active">Registro</button>
-  <button data-t="temas">Temas</button>
+  <button data-t="registro">Registro</button>
+  <button data-t="temas" class="active">Temas</button>
   <button data-t="export">Exportar</button>
 </nav>
 <main>
 
 <!-- ============ REGISTRO ============ -->
-<section id="registro" class="tab active">
+<section id="registro" class="tab">
   <p class="intro">Aquí registras solo los días con toma. Lo normal es no registrar nada = sin consumo. El día que haya una experiencia, la anotas. Privado; solo en este móvil.</p>
 
   <button class="btn sec" id="btnAdd" onclick="nuevaToma()">➕ Añadir experiencia</button>
@@ -182,7 +186,7 @@
 </section>
 
 <!-- ============ TEMAS ============ -->
-<section id="temas" class="tab">
+<section id="temas" class="tab active">
   <p class="intro">Los temas que sientes que debes trabajar, sacados de tus relatos. Cuando sientas uno trabajado, márcalo como 'Trabajado' y pasa a Archivados (siguen visibles para releer). El % es orientativo: cuánto se repite en tus sesiones.</p>
   <div class="disc">Esto ordena lo que TÚ escribiste; no es diagnóstico. Útil para ti y para llevarlo a terapia.</div>
 
@@ -190,9 +194,12 @@
 
   <div class="card" id="miradaCard" style="border-left:4px solid var(--accent2)">
     <h2>🤍 Una mirada (guía viva)</h2>
-    <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
+    <div id="miradaClamp" class="miradaClamp">
+      <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
+    </div>
     <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
     <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn sec mini" id="miradaVerBtn" onclick="toggleMirada(this)">Ver más ▾</button>
       <button class="btn sec mini" onclick="speakMirada()">▶ Escuchar</button>
       <button class="btn sec mini" onclick="stopSpeak()">⏹</button>
       <button class="btn sec mini" id="miradaEditBtn" onclick="editMirada()">✏️ Actualizar</button>
@@ -602,7 +609,7 @@ var MIRADA_TXT=[
 "Y bajado a tierra, para tu día a día: cuando notes la cascada, para, una respiración larga, y lleva la atención al pecho antes de responder. Cuando algo te dispare de más, pregúntate: esto es de ahora o es de entonces. Con lo que aplazas, acércate un poquito, vuelve a la calma, repite, mejor acompañado. Dale al duende diez minutos deliberados a la semana. Ensaya en frío la escena del bloqueo y practica decido yo e invito. Y lo primero: un terapeuta con enfoque somático o de trauma, en la línea de Levine, Porges, Maté o IFS, encajaría muy bien con lo que aquí aparece.",
 "Nada de esto es un diagnóstico ni una verdad sobre ti: son lentes por si te ayudan a mirar. Tú tienes la última palabra, y, idealmente, un buen profesional al lado."
 ].join(" ");
-function toggleMirada(btn){var m=document.getElementById('miradaMas');if(!m)return;if(m.classList.contains('hidden')){m.classList.remove('hidden');btn.textContent='Ver menos ▴';}else{m.classList.add('hidden');btn.textContent='Ver más ▾';}}
+function toggleMirada(btn){var c=document.getElementById('miradaClamp');if(!c)return;if(c.classList.contains('open')){c.classList.remove('open');btn.textContent='Ver más ▾';}else{c.classList.add('open');btn.textContent='Ver menos ▴';}}
 
 /* ===== Una mirada (guía viva) ===== */
 const MIRADA_KEY='mirada_psico';
@@ -706,6 +713,7 @@ function restore(){
 $('f_fecha').value=todayISO();
 renderTomas();
 renderTemas();
+try{if(!localStorage.getItem(MIRADA_KEY))localStorage.setItem(MIRADA_KEY,MIRADA_SEED);}catch(e){}
 renderMirada();
 </script>
 </body>

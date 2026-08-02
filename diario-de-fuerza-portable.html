@@ -566,6 +566,7 @@ function init(){
   $("mes").onchange=()=>{$("semana").value=($("mes").value==="Julio")?"S1":$("semana").value;updateJulyNote()};
   $("filtMes").onchange=renderHist;$("filtSem").onchange=renderHist;
   $("cardioTimer").onclick=()=>startTimer(0,"Monte / cardio");
+  try{if(!localStorage.getItem(MIRADA_KEY))localStorage.setItem(MIRADA_KEY,MIRADA_SEED);}catch(e){}
   renderMirada();
 }
 init();

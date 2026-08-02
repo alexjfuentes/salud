@@ -13,13 +13,36 @@
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;background:#12212f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
   .frame{position:fixed;top:env(safe-area-inset-top);left:0;width:100%;
-    height:calc(100% - 60px - env(safe-area-inset-top));border:0;display:none;background:#fff;-webkit-overflow-scrolling:touch}
+    height:calc(100% - 58px - env(safe-area-inset-top));border:0;display:none;background:#fff;-webkit-overflow-scrolling:touch}
   .frame.on{display:block}
-  #bar{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;gap:4px;
-    padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));background:#12212f}
-  #bar button{flex:1;border:0;border-radius:12px;padding:12px 4px;font-size:13px;font-weight:700;white-space:nowrap;
+  #bar{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;gap:3px;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));background:#12212f}
+  #bar button{flex:1;border:0;border-radius:12px;padding:11px 2px;font-size:20px;line-height:1;
     color:#cdd8e2;background:transparent;cursor:pointer;transition:background .15s}
-  #bar button.on{background:#fff;color:#12212f}
+  #bar button.on{background:#fff}
+  #bar button.util{font-size:17px;color:#9fb0c0;background:#1b2f42;max-width:52px}
+  #bar button.util:active{background:#24405a}
+  /* hojas emergentes */
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:none}
+  .backdrop.on{display:block}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:#16283a;color:#e7eef5;
+    border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px));
+    box-shadow:0 -6px 24px rgba(0,0,0,.4);transform:translateY(110%);transition:transform .22s ease;max-width:640px;margin:0 auto}
+  .sheet.on{transform:none}
+  .sheet h3{margin:2px 0 4px;font-size:1rem}
+  .sheet p.sub{margin:0 0 12px;font-size:.8rem;color:#9fb0c0}
+  .sheet .close{position:absolute;top:10px;right:12px;background:transparent;border:0;color:#9fb0c0;font-size:22px;cursor:pointer}
+  .opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#1e364b;border:1px solid #2b455e;border-radius:12px;
+    padding:13px 14px;margin:7px 0;color:#e7eef5;font-size:.95rem;font-weight:600;cursor:pointer}
+  .opt:active{background:#24405a}
+  .opt .em{font-size:20px}
+  .opt.todo{background:#173a35;border-color:#245c53;color:#8ff0dd}
+  .row-actions{display:flex;gap:8px;margin-top:6px}
+  .row-actions button{flex:1}
+  #toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);z-index:40;
+    background:#0c1a26;color:#8ff0dd;border:1px solid #245c53;padding:10px 16px;border-radius:12px;
+    font-size:.86rem;font-weight:600;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -27,14 +50,47 @@
   <iframe id="fSalud" class="frame" title="Salud"></iframe>
   <iframe id="fSuenos" class="frame" title="Sueños"></iframe>
   <iframe id="fPsico" class="frame" title="Psicodelia"></iframe>
+
   <nav id="bar">
-    <button id="bEntreno" class="on" onclick="show('Entreno')">🏋️ Entreno</button>
-    <button id="bSalud" onclick="show('Salud')">🌿 Salud</button>
-    <button id="bSuenos" onclick="show('Suenos')">🌙 Sueños</button>
-    <button id="bPsico" onclick="show('Psico')">🍄 Psico</button>
+    <button id="bEntreno" class="on" title="Entreno" onclick="show('Entreno')">🏋️</button>
+    <button id="bSalud" title="Salud" onclick="show('Salud')">🌿</button>
+    <button id="bSuenos" title="Sueños" onclick="show('Suenos')">🌙</button>
+    <button id="bPsico" title="Psicodelia" onclick="show('Psico')">🍄</button>
+    <button class="util" title="Exportar" onclick="openSheet('exp')">⤓</button>
+    <button class="util" title="Audios" onclick="openSheet('aud')">🔊</button>
   </nav>
+
+  <!-- Hoja: Exportar -->
+  <div class="backdrop" id="bd" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheetExp">
+    <button class="close" onclick="closeSheet()">✕</button>
+    <h3>⤓ Exportar datos</h3>
+    <p class="sub">Copia y pégamelo en el chat. «Todo» junta las 4 áreas; o exporta una sola.</p>
+    <button class="opt todo" onclick="expAll()"><span class="em">📦</span> Exportar TODO (las 4 áreas)</button>
+    <button class="opt" onclick="expOne('diarioFuerzaAlex_v2')"><span class="em">🏋️</span> Solo Entreno</button>
+    <button class="opt" onclick="expOne('alex_salud_v2')"><span class="em">🌿</span> Solo Salud</button>
+    <button class="opt" onclick="expOne('suenosAlex_v1')"><span class="em">🌙</span> Solo Sueños</button>
+    <button class="opt" onclick="expOne('psicoAlex_v1')"><span class="em">🍄</span> Solo Psicodelia</button>
+  </div>
+
+  <!-- Hoja: Audios -->
+  <div class="sheet" id="sheetAud">
+    <button class="close" onclick="closeSheet()">✕</button>
+    <h3>🔊 Audios · guías de cada área</h3>
+    <p class="sub">Escucha la «guía viva» de cada área desde aquí.</p>
+    <button class="opt" onclick="playMir('Entreno')"><span class="em">🏋️</span> Guía de Entreno</button>
+    <button class="opt" onclick="playMir('Salud')"><span class="em">🌿</span> Guía de Salud</button>
+    <button class="opt" onclick="playMir('Sueños')"><span class="em">🌙</span> Guía de Sueños</button>
+    <button class="opt" onclick="playMir('Psicodelia')"><span class="em">🍄</span> Guía de Psicodelia</button>
+    <div class="row-actions">
+      <button class="opt" style="justify-content:center" onclick="stopSpeak()">⏹ Parar</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
 <script>
-  // Carga siempre la última versión de cada app (evita la caché vieja del navegador).
+  // Carga siempre la última versión de cada app (evita la caché vieja).
   var _v = Date.now();
   document.getElementById('fEntreno').src = 'diario-de-fuerza-portable.html?t=' + _v;
   document.getElementById('fSalud').src   = 'Salud_Nutricion.html?t=' + _v;
@@ -49,6 +105,57 @@
     try{localStorage.setItem('alex_shell_tab',w);}catch(e){}
   }
   try{var t=localStorage.getItem('alex_shell_tab'); if(t){show(t);}}catch(e){}
+
+  /* ---- hojas emergentes ---- */
+  function openSheet(which){
+    document.getElementById('bd').classList.add('on');
+    document.getElementById('sheetExp').classList.toggle('on', which==='exp');
+    document.getElementById('sheetAud').classList.toggle('on', which==='aud');
+  }
+  function closeSheet(){
+    document.getElementById('bd').classList.remove('on');
+    document.getElementById('sheetExp').classList.remove('on');
+    document.getElementById('sheetAud').classList.remove('on');
+  }
+
+  /* ---- toast ---- */
+  var _tt;
+  function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(_tt);_tt=setTimeout(function(){el.classList.remove('on');},1800);}
+
+  /* ---- copiar ---- */
+  function copyText(t){
+    function fb(x){var a=document.createElement('textarea');a.value=x;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.focus();a.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}a.remove();toast(ok?'Copiado ✓ — pégalo en el chat':'No se pudo copiar');}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('Copiado ✓ — pégalo en el chat');}).catch(function(){fb(t);});}
+    else{fb(t);}
+  }
+
+  /* ---- exportar ---- */
+  var AREAS=[['Entreno','diarioFuerzaAlex_v2'],['Salud','alex_salud_v2'],['Sueños','suenosAlex_v1'],['Psicodelia','psicoAlex_v1']];
+  function dump(list){
+    var t='EXPORT — Alex · '+new Date().toISOString().slice(0,10)+'\n'+Array(41).join('=')+'\n\n';
+    list.forEach(function(a){var v=null;try{v=localStorage.getItem(a[1]);}catch(e){}t+='===== '+a[0]+' ('+a[1]+') =====\n'+(v||'(sin datos)')+'\n\n';});
+    return t;
+  }
+  function expAll(){copyText(dump(AREAS));closeSheet();}
+  function expOne(k){copyText(dump(AREAS.filter(function(a){return a[1]===k;})));closeSheet();}
+
+  /* ---- audios (guía viva de cada área) ---- */
+  var MK={Entreno:'mirada_entreno',Salud:'mirada_salud','Sueños':'mirada_suenos',Psicodelia:'mirada_psico'};
+  function speak(txt){
+    try{
+      if(!('speechSynthesis' in window)){toast('Este dispositivo no permite audio');return;}
+      window.speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.95;
+      var vs=window.speechSynthesis.getVoices()||[];var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];
+      if(es)u.voice=es;window.speechSynthesis.speak(u);
+    }catch(e){toast('No se pudo reproducir');}
+  }
+  function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}}
+  function playMir(area){
+    var txt=null;try{txt=localStorage.getItem(MK[area]);}catch(e){}
+    if(!txt||!txt.trim()){toast('Abre '+area+' una vez para cargar su guía');return;}
+    speak(txt);toast('▶ Reproduciendo '+area);
+  }
 </script>
 </body>
 </html>

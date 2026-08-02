@@ -888,6 +888,7 @@ try{if('speechSynthesis' in window){window.speechSynthesis.getVoices();window.sp
 $('d_fecha').value=todayISO();
 preload();
 renderDayList();
+try{if(!localStorage.getItem(MIRADA_KEY))localStorage.setItem(MIRADA_KEY,MIRADA_SEED);}catch(e){}
 renderMirada();
 </script>
 </body>
