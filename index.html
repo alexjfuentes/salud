@@ -8,16 +8,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Alex">
 <meta name="theme-color" content="#12212f">
-<title>Alex · Entreno · Salud · Sueños</title>
+<title>Alex · Entreno · Salud · Sueños · Psico</title>
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;background:#12212f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
   .frame{position:fixed;top:env(safe-area-inset-top);left:0;width:100%;
     height:calc(100% - 60px - env(safe-area-inset-top));border:0;display:none;background:#fff;-webkit-overflow-scrolling:touch}
   .frame.on{display:block}
-  #bar{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;gap:6px;
-    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:#12212f}
-  #bar button{flex:1;border:0;border-radius:12px;padding:12px 8px;font-size:15px;font-weight:700;
+  #bar{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;gap:4px;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));background:#12212f}
+  #bar button{flex:1;border:0;border-radius:12px;padding:12px 4px;font-size:13px;font-weight:700;white-space:nowrap;
     color:#cdd8e2;background:transparent;cursor:pointer;transition:background .15s}
   #bar button.on{background:#fff;color:#12212f}
 </style>
@@ -26,10 +26,12 @@
   <iframe id="fEntreno" class="frame on" title="Entreno"></iframe>
   <iframe id="fSalud" class="frame" title="Salud"></iframe>
   <iframe id="fSuenos" class="frame" title="Sueños"></iframe>
+  <iframe id="fPsico" class="frame" title="Psicodelia"></iframe>
   <nav id="bar">
     <button id="bEntreno" class="on" onclick="show('Entreno')">🏋️ Entreno</button>
     <button id="bSalud" onclick="show('Salud')">🌿 Salud</button>
     <button id="bSuenos" onclick="show('Suenos')">🌙 Sueños</button>
+    <button id="bPsico" onclick="show('Psico')">🍄 Psico</button>
   </nav>
 <script>
   // Carga siempre la última versión de cada app (evita la caché vieja del navegador).
@@ -37,9 +39,10 @@
   document.getElementById('fEntreno').src = 'diario-de-fuerza-portable.html?t=' + _v;
   document.getElementById('fSalud').src   = 'Salud_Nutricion.html?t=' + _v;
   document.getElementById('fSuenos').src  = 'suenos.html?t=' + _v;
+  document.getElementById('fPsico').src   = 'psicodelia.html?t=' + _v;
 
   function show(w){
-    ['Entreno','Salud','Suenos'].forEach(function(x){
+    ['Entreno','Salud','Suenos','Psico'].forEach(function(x){
       document.getElementById('f'+x).classList.toggle('on', x===w);
       document.getElementById('b'+x).classList.toggle('on', x===w);
     });

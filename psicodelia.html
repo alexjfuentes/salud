@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Psicodelia">
+<meta name="theme-color" content="#1b1222">
+<title>Diario de la Psicodelia · Alex</title>
+<style>
+  :root{
+    --bg:#1b1222; --card:#271a33; --line:#3d2b4d;
+    --accent:#d97aa8; --accent2:#6ee7d6;
+    --ok:#34d399; --warn:#fbbf24;
+    --text:#efe6f2; --muted:#b09bc0;
+    --chip:#33234280; --shadow:0 2px 14px rgba(0,0,0,.38);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{background:linear-gradient(135deg,#2e1c3d,#3d2450);color:#fff;
+    padding:calc(env(safe-area-inset-top) + 8px) 16px 12px;box-shadow:var(--shadow)}
+  header h1{margin:0;font-size:1.12rem}
+  header .sub{opacity:.85;font-size:.76rem;margin-top:2px}
+  nav{display:flex;gap:3px;background:#170f1f;position:sticky;top:0;z-index:30;padding:6px;overflow-x:auto}
+  nav button{flex:1 0 auto;background:transparent;border:0;color:var(--muted);padding:9px 12px;border-radius:9px;font-size:.86rem;font-weight:600;cursor:pointer;white-space:nowrap}
+  nav button.active{background:var(--accent);color:#25142c}
+  main{max-width:780px;margin:0 auto;padding:14px 12px calc(90px + env(safe-area-inset-bottom))}
+  .tab{display:none;animation:fade .25s ease}
+  .tab.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin:0 0 12px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+  .card h3{margin:14px 0 6px;font-size:.9rem;color:var(--accent2)}
+  p{margin:6px 0}
+  .muted{color:var(--muted);font-size:.85rem}
+  .intro{color:var(--muted);font-size:.9rem;margin:2px 0 12px;line-height:1.55}
+  .disc{border-left:3px solid var(--warn);background:#2c2033;padding:8px 11px;border-radius:8px;font-size:.8rem;color:var(--muted);margin:8px 0}
+  label.f{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:8px 0 3px}
+  input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;font-size:.92rem;font-family:inherit;background:#1e1428;color:var(--text)}
+  textarea{min-height:64px;resize:vertical}
+  textarea.big{min-height:150px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.row2{grid-template-columns:1fr}}
+  .btn{background:var(--accent);color:#25142c;border:0;border-radius:10px;padding:12px 14px;font-size:.92rem;font-weight:700;cursor:pointer;width:100%;margin-top:12px}
+  .btn.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+  .btn.mini{width:auto;padding:8px 13px;font-size:.82rem;margin:6px 6px 0 0}
+  .btn.ok{background:var(--ok);color:#0b241d}
+  .icobtn{background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);padding:6px 9px;font-size:.82rem;cursor:pointer;width:auto;margin:0}
+  .item{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin:9px 0;background:#20172b}
+  .item .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .item .ti{font-weight:700;color:var(--accent2);font-size:.9rem}
+  .item .meta{color:var(--muted);font-size:.8rem;margin-top:2px}
+  .item .prop{font-size:.85rem;margin-top:5px;color:var(--text)}
+  .item .acts{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+  .tema{border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin:10px 0;background:#20172b}
+  .tema.arch{opacity:.82}
+  .tema .th{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .tema .tt{font-weight:700;font-size:.96rem;color:var(--text)}
+  .tema .nota{font-size:.86rem;color:var(--text);margin-top:7px;line-height:1.5}
+  .badge{display:inline-block;font-size:.68rem;font-weight:700;border-radius:10px;padding:2px 8px;margin:0 4px 0 0;vertical-align:middle}
+  .badge.rec{background:#3a2740;color:var(--accent)}
+  .badge.ter{background:#173a35;color:var(--accent2)}
+  .badge.apr{background:#2c2033;color:var(--muted)}
+  .recbar{height:7px;background:var(--chip);border-radius:5px;overflow:hidden;margin:7px 0 2px}
+  .recbar .fill{height:100%;background:var(--accent);border-radius:5px}
+  .tema .acts{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
+  .secttl{font-size:.95rem;font-weight:700;margin:16px 0 4px;color:var(--accent)}
+  .secttl.arch{color:var(--muted)}
+  footer{text-align:center;font-size:.72rem;color:var(--muted);padding:10px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌀 Diario de la Psicodelia</h1>
+  <div class="sub">Registro de experiencias · temas para trabajar · apoyo a tu reflexión y a tu terapia</div>
+</header>
+<nav id="nav">
+  <button data-t="registro" class="active">Registro</button>
+  <button data-t="temas">Temas</button>
+  <button data-t="export">Exportar</button>
+</nav>
+<main>
+
+<!-- ============ REGISTRO ============ -->
+<section id="registro" class="tab active">
+  <p class="intro">Aquí registras solo los días con toma. Lo normal es no registrar nada = sin consumo. El día que haya una experiencia, la anotas. Privado; solo en este móvil.</p>
+
+  <button class="btn sec" id="btnAdd" onclick="nuevaToma()">➕ Añadir experiencia</button>
+
+  <div class="card hidden" id="formCard">
+    <h2 id="formTitle">Nueva experiencia</h2>
+    <input type="hidden" id="f_id">
+    <label class="f">Fecha</label>
+    <input type="date" id="f_fecha">
+    <div class="row2">
+      <div>
+        <label class="f">Sustancia</label>
+        <select id="f_sustancia">
+          <option value="">—</option>
+          <option>LSD</option>
+          <option>Psilocibina</option>
+          <option>MDMA</option>
+          <option>DMT</option>
+          <option>Ayahuasca</option>
+          <option>Ketamina</option>
+          <option>Mescalina</option>
+          <option>2C-B</option>
+          <option>Cannabis</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div>
+        <label class="f">Dosis</label>
+        <input type="text" id="f_dosis" placeholder='p.ej. "0,35 g" / "200 µg"'>
+      </div>
+    </div>
+    <label class="f">Propósito / intención de la toma</label>
+    <textarea id="f_proposito" placeholder="¿Con qué intención te acercas a esta experiencia?"></textarea>
+    <div class="row2">
+      <div>
+        <label class="f">Hora de la toma</label>
+        <input type="time" id="f_horaIni">
+      </div>
+      <div>
+        <label class="f">Hora en que consideras que acabó</label>
+        <input type="time" id="f_horaFin">
+      </div>
+    </div>
+    <div class="row2">
+      <div>
+        <label class="f">Lugar (opcional)</label>
+        <input type="text" id="f_lugar" placeholder="casa, naturaleza…">
+      </div>
+      <div>
+        <label class="f">¿Solo o acompañado?</label>
+        <select id="f_compania">
+          <option value="">—</option>
+          <option>Solo</option>
+          <option>Acompañado</option>
+        </select>
+      </div>
+    </div>
+    <label class="f">Relato de la experiencia</label>
+    <textarea id="f_relato" class="big" placeholder="Lo que viviste, sentiste, viste, entendiste… con tus palabras, sin filtro."></textarea>
+    <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+      <button class="icobtn" id="btnDictar" onclick="dictar()">🎤 Dictar</button>
+      <span class="muted" style="font-size:.76rem">Tip: usa el micro del teclado del móvil para dictar.</span>
+    </div>
+    <label class="f">Notas (opcional)</label>
+    <textarea id="f_notas" placeholder="Set y setting, música, cómo te sentías antes/después…"></textarea>
+    <button class="btn ok" onclick="guardarToma()">Guardar experiencia ✓</button>
+    <button class="btn sec" onclick="cancelarToma()">Cancelar</button>
+  </div>
+
+  <div class="card">
+    <h2>Experiencias registradas</h2>
+    <div id="tomaList"><p class="muted">Aún no hay experiencias registradas.</p></div>
+  </div>
+</section>
+
+<!-- ============ TEMAS ============ -->
+<section id="temas" class="tab">
+  <p class="intro">Los temas que sientes que debes trabajar, sacados de tus relatos. Cuando sientas uno trabajado, márcalo como 'Trabajado' y pasa a Archivados (siguen visibles para releer). El % es orientativo: cuánto se repite en tus sesiones.</p>
+  <div class="disc">Esto ordena lo que TÚ escribiste; no es diagnóstico. Útil para ti y para llevarlo a terapia.</div>
+
+  <div class="card" style="border-left:4px solid var(--accent2)">
+    <h2>🤍 Una mirada, por si te sirve</h2>
+    <p class="muted" style="margin-top:0">Un apunte abierto —ni diagnóstico ni conclusión—, como el que te haría alguien que quiere ayudarte:</p>
+    <p>En tus viajes has desarrollado una habilidad real y poco común para <b>encontrarte con lo intenso y soltar el control</b> (el mantra, la «silla del corazón», el «me entrego»). Lo que tus propios relatos parecen invitar, una y otra vez, es a <b>llevar esa misma capacidad a la vida despierta</b>: al momento en que quien te descoloca no es una sustancia, sino una conversación, un tono o un recuerdo.</p>
+    <p>Y hay dos puertas que tú mismo dejas entornadas —tu padre, y eso que rozas y aplazas «sin querer»—. No hace falta forzarlas: quizá baste con <b>acercarte con la misma delicadeza con la que ya sabes soltar</b>, y hacerlo <b>acompañado</b>. Que quieras llevarlo a terapia no es un pendiente más: es, probablemente, el mejor siguiente paso. A tu ritmo.</p>
+  </div>
+
+  <button class="btn sec" onclick="nuevoTema()">➕ Añadir tema</button>
+
+  <div id="temasBody"></div>
+</section>
+
+<!-- ============ EXPORT ============ -->
+<section id="export" class="tab">
+  <div class="card">
+    <h2>📋 Copiar para mí / terapeuta</h2>
+    <p class="muted">Para tus reflexiones o para llevar a terapia.</p>
+    <button class="btn sec mini" onclick="copyResumen()">Copiar resumen</button>
+    <textarea id="resumenBox" style="min-height:180px;margin-top:8px" placeholder="Pulsa 'Copiar resumen' para generarlo y copiarlo…"></textarea>
+  </div>
+  <div class="card">
+    <h2>💾 Backup (JSON)</h2>
+    <p class="muted">Copia completa de todos tus datos. Guárdala de vez en cuando.</p>
+    <button class="btn sec mini" onclick="backup()">Copiar backup (JSON)</button>
+    <button class="btn sec mini" onclick="restore()">Restaurar (pegar JSON)</button>
+    <textarea id="backupBox" style="min-height:120px;margin-top:8px" placeholder="Aquí aparece el backup; o pega aquí un JSON y pulsa Restaurar."></textarea>
+    <p class="muted" style="margin-top:8px">Diario privado. Se guarda solo en este móvil — haz Backup de vez en cuando.</p>
+  </div>
+  <div class="disc">Este diario es un apoyo para tu propia reflexión y para tu trabajo con tu psicólogo. No es consejo clínico ni una guía de consumo o dosis. Cuida de ti.</div>
+</section>
+
+</main>
+<footer>Herramienta personal de apoyo · no sustituye criterio médico ni terapéutico · psicodelia v1</footer>
+
+<script>
+/* ===== MODELO DE DATOS =====
+   DB = { tomas:[ tomaObj ], temas:[ temaObj ] }
+   tomaObj = { id, fecha, sustancia, dosis, proposito, horaIni, horaFin,
+               lugar, compania, relato, notas }
+   temaObj = { id, titulo, recurrencia, consulta(bool), categoria('trabajar'|'aprendizaje'),
+               nota, estado('activo'|'archivado'), creado }
+   Persist a localStorage clave 'psicoAlex_v1'.
+   ============================ */
+
+const LS='psicoAlex_v1';
+
+/* ---- helpers ---- */
+function todayISO(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
+function fmt(iso){if(!iso)return'';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function esc(s){return(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
+function $(id){return document.getElementById(id)}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function recNum(r){const m=(r||'').match(/(\d+)/);return m?parseInt(m[1],10):0}
+function trunc(s,n){s=s||'';return s.length>n?s.slice(0,n-1)+'…':s}
+
+/* ---- seed (temas iniciales) ---- */
+const SEED=[
+ {titulo:"Control y soltar / rendición", recurrencia:"≈45%", consulta:false, categoria:"trabajar",
+  nota:"De 'miedo a perder el control' → mantra ('ábrete', 'me entrego') → ancla somática en el pecho (anahata, la 'silla del corazón') → un protocolo que sabes explicar. Pregunta abierta: ¿dónde está esa silla del corazón cuando quien te descoloca es una conversación, un email o una discusión, y no una sustancia?"},
+ {titulo:"La sombra que se aplaza", recurrencia:"≈29%", consulta:true, categoria:"trabajar",
+  nota:"Patrón muy consistente: te acercas a lo oscuro y algo te desvía sin violencia (un pitido, el sueño que te vence, un amigo que entra a por frutos secos). Tú mismo lo viste: 'hubiera sido interesante… y no lo pensé más'. Tarea posible sin sustancia: recorrer la casa en meditación, habitación por habitación, y terminar lo que se interrumpió."},
+ {titulo:"Montse — capas que no se juntan", recurrencia:"≈29%", consulta:true, categoria:"trabajar",
+  nota:"Gratitud, propósito, miedo a perderla, amor sin condición… y una capa de queja aislada (dic 2023: 'no soy libre en mi propia casa') que nunca vuelve a aparecer en el archivo. ¿Qué pasó con eso?"},
+ {titulo:"Tu padre — 'el aguante'", recurrencia:"≈21%", consulta:true, categoria:"trabajar",
+  nota:"Dos padres: el faro con valores y el 'hombre capaz, duro y criticón' — del segundo no hay ni una línea escrita. Dos puertas concretas: la frase a medias 'mi corazón fue capaz de con amor…' (¿capaz de qué?) y la casa (paredes fuertes que él construyó vs. el cuarto de la tele 'demacrado por la energía que había ahí')."},
+ {titulo:"El duende", recurrencia:"≈21%", consulta:false, categoria:"trabajar",
+  nota:"Una parte tuya con nombre propio, juguetona y libre, que solo aparece dentro de estos estados. ¿Qué le impide salir el resto del tiempo? Idea: darle espacio deliberado —baile, música, juego— sin sustancia, a ver si aparece."},
+ {titulo:"Muerte, tiempo y 'dejarlo en orden'", recurrencia:"≈21%", consulta:false, categoria:"trabajar",
+  nota:"De un hecho aceptado a una experiencia con lágrimas ('la tragicomedia de la vida'). Lo accionable no es la fecha intuida, sino dos decisiones: 'dejarlo todo en orden' y 'vivir queriendo'. Usas la misma palabra —'faro'— para tu padre y para lo que quieres ser con Montse."},
+ {titulo:"Creer en mí / miedo al rechazo", recurrencia:"≈21%", consulta:false, categoria:"trabajar",
+  nota:"Tensión entre 'quiero autorizarme yo' y 'necesito que me validen', que asoma cuando la experiencia toca a otras personas (pareja, amigos, quien pueda juzgar). Dos veces nombrado y dos veces a medias — una quedó solo en el título de una carpeta ('miedo a rechazo')."},
+ {titulo:"Cerrar etapas / despedidas", recurrencia:"≈14%", consulta:false, categoria:"trabajar",
+  nota:"Dos de tus experiencias más potentes fueron despedidas de una casa (el loft tras 16 años; la casa de tu padre). Es una capacidad, no un problema: necesitas marcar los finales para digerirlos. ¿Qué otros finales no has marcado? (uno se llama tu padre)."},
+ {titulo:"Madre — culpa que se activa con gestos y tonos", recurrencia:"≈7%", consulta:true, categoria:"trabajar",
+  nota:"No es un recuerdo, es un disparador: una culpa que se activa por gestos, tonos o 'energías/vibraciones similares', no por temas ni conversaciones. Falta identificar en qué situaciones actuales de tu vida se dispara."},
+ {titulo:"Bloqueos y el poder de decidir", recurrencia:"≈7%", consulta:false, categoria:"trabajar",
+  nota:"Patrón y antídoto en el mismo párrafo (Roquetas): el bloqueo del otro te secuestra en cascada; el antídoto = 'decides tú e invitas a la persona, sin condicionar tu movimiento a que ella se mueva'. Ensayable en meditación: recrear la escena, notar dónde empieza la cascada, practicar el desenganche."},
+ {titulo:"Método: cuerpo, respiración y música", recurrencia:"", consulta:false, categoria:"aprendizaje",
+  nota:"El cuerpo dirige y 'la respiración es mi volante'. La música es un ancla ('para saber que no has perdido la cabeza'), no decoración."},
+ {titulo:"Método: yoga + dosis baja + set como actitud", recurrencia:"", consulta:false, categoria:"aprendizaje",
+  nota:"Tu hallazgo más repetido: 0,35 g + hatha yoga da más profundidad que 1,6 g sin práctica. Y el set es una actitud (sin juicio, aceptación, honestidad), no una preparación."},
+ {titulo:"Integración y partes internas (IFS)", recurrencia:"", consulta:true, categoria:"aprendizaje",
+  nota:"Integrar = ver cómo se repiten estos 'espejos' en tu vida cotidiana. Describiste una conversación entre al menos 3 partes tuyas (ego / una observadora serena / una infantil): es justo el terreno de IFS y el trabajo con voces internas — buen punto de entrada con tu psicólogo."}
+];
+
+/* ---- load / save / seed injection ---- */
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(LS));if(d&&typeof d==='object')return d;}catch(e){}
+  return {};
+}
+let DB=load();
+if(!Array.isArray(DB.tomas))DB.tomas=[];
+if(!Array.isArray(DB.temas)||!DB.temas.length){
+  const t=todayISO();
+  DB.temas=SEED.map(s=>({id:uid(),titulo:s.titulo,recurrencia:s.recurrencia,consulta:s.consulta,
+    categoria:s.categoria,nota:s.nota,estado:'activo',creado:t}));
+  saveInit();
+}
+function saveInit(){try{localStorage.setItem(LS,JSON.stringify(DB));}catch(e){}}
+function save(){localStorage.setItem(LS,JSON.stringify(DB))}
+
+/* ---- tabs ---- */
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  $(b.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ================= REGISTRO ================= */
+function nuevaToma(){
+  $('formTitle').textContent='Nueva experiencia';
+  $('f_id').value='';
+  $('f_fecha').value=todayISO();
+  $('f_sustancia').value='';
+  $('f_dosis').value='';
+  $('f_proposito').value='';
+  $('f_horaIni').value='';
+  $('f_horaFin').value='';
+  $('f_lugar').value='';
+  $('f_compania').value='';
+  $('f_relato').value='';
+  $('f_notas').value='';
+  $('formCard').classList.remove('hidden');
+  $('btnAdd').classList.add('hidden');
+  $('f_fecha').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function editToma(id){
+  const t=DB.tomas.find(x=>x.id===id);
+  if(!t)return;
+  $('formTitle').textContent='Editar experiencia';
+  $('f_id').value=t.id;
+  $('f_fecha').value=t.fecha||todayISO();
+  $('f_sustancia').value=t.sustancia||'';
+  $('f_dosis').value=t.dosis||'';
+  $('f_proposito').value=t.proposito||'';
+  $('f_horaIni').value=t.horaIni||'';
+  $('f_horaFin').value=t.horaFin||'';
+  $('f_lugar').value=t.lugar||'';
+  $('f_compania').value=t.compania||'';
+  $('f_relato').value=t.relato||'';
+  $('f_notas').value=t.notas||'';
+  $('formCard').classList.remove('hidden');
+  $('btnAdd').classList.add('hidden');
+  $('formCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function guardarToma(){
+  const id=$('f_id').value;
+  const obj={
+    id:id||uid(),
+    fecha:$('f_fecha').value||todayISO(),
+    sustancia:$('f_sustancia').value,
+    dosis:$('f_dosis').value.trim(),
+    proposito:$('f_proposito').value.trim(),
+    horaIni:$('f_horaIni').value,
+    horaFin:$('f_horaFin').value,
+    lugar:$('f_lugar').value.trim(),
+    compania:$('f_compania').value,
+    relato:$('f_relato').value.trim(),
+    notas:$('f_notas').value.trim()
+  };
+  const i=DB.tomas.findIndex(x=>x.id===obj.id);
+  if(i>=0)DB.tomas[i]=obj; else DB.tomas.push(obj);
+  DB.tomas.sort((a,b)=>a.fecha<b.fecha?1:(a.fecha>b.fecha?-1:0));
+  save();
+  cancelarToma();
+  renderTomas();
+  alert('Experiencia guardada ✓');
+}
+
+function cancelarToma(){
+  $('formCard').classList.add('hidden');
+  $('btnAdd').classList.remove('hidden');
+}
+
+function borrarToma(id){
+  if(!confirm('¿Borrar esta experiencia? No se puede deshacer.'))return;
+  DB.tomas=DB.tomas.filter(x=>x.id!==id);
+  save();
+  renderTomas();
+}
+
+function renderTomas(){
+  const el=$('tomaList');
+  if(!DB.tomas.length){el.innerHTML='<p class="muted">Aún no hay experiencias registradas.</p>';return;}
+  let h='';
+  DB.tomas.forEach(t=>{
+    const sd=[t.sustancia,t.dosis].filter(Boolean).join(' · ')||'—';
+    h+='<div class="item"><div class="top">'+
+       '<div><div class="ti">'+fmt(t.fecha)+'</div><div class="meta">'+esc(sd)+'</div></div></div>';
+    if(t.proposito)h+='<div class="prop">'+esc(trunc(t.proposito,110))+'</div>';
+    h+='<div class="acts">'+
+       '<button class="icobtn" onclick="editToma(\''+t.id+'\')">✏️ Editar</button>'+
+       '<button class="icobtn" onclick="borrarToma(\''+t.id+'\')">🗑 Borrar</button>'+
+       '</div></div>';
+  });
+  el.innerHTML=h;
+}
+
+/* ---- Web Speech dictation (append if available) ---- */
+function dictar(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const ta=$('f_relato');
+  const btn=$('btnDictar');
+  if(!SR){btn.textContent='🎤 (usa el teclado)';return;}
+  try{
+    const rec=new SR();
+    rec.lang='es-ES';rec.interimResults=false;rec.continuous=false;
+    btn.textContent='🎤 escuchando…';
+    rec.onresult=e=>{
+      let txt='';
+      for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;
+      ta.value=(ta.value?ta.value+' ':'')+txt;
+    };
+    rec.onerror=()=>{btn.textContent='🎤 Dictar';};
+    rec.onend=()=>{btn.textContent='🎤 Dictar';};
+    rec.start();
+  }catch(err){btn.textContent='🎤 Dictar';}
+}
+
+/* ================= TEMAS ================= */
+function nuevoTema(){
+  const titulo=(prompt('Título del tema:')||'').trim();
+  if(!titulo)return;
+  const nota=(prompt('Nota (¿qué sientes que hay que trabajar aquí?):')||'').trim();
+  DB.temas.push({id:uid(),titulo:titulo,recurrencia:'',consulta:false,
+    categoria:'trabajar',nota:nota,estado:'activo',creado:todayISO()});
+  save();
+  renderTemas();
+}
+
+function marcarTrabajado(id){
+  const t=DB.temas.find(x=>x.id===id);if(!t)return;
+  t.estado='archivado';save();renderTemas();
+}
+function reactivar(id){
+  const t=DB.temas.find(x=>x.id===id);if(!t)return;
+  t.estado='activo';save();renderTemas();
+}
+function editNota(id){
+  const t=DB.temas.find(x=>x.id===id);if(!t)return;
+  const v=prompt('Editar nota:',t.nota||'');
+  if(v===null)return;
+  t.nota=v.trim();save();renderTemas();
+}
+function borrarTema(id){
+  if(!confirm('¿Borrar este tema? No se puede deshacer.'))return;
+  DB.temas=DB.temas.filter(x=>x.id!==id);
+  save();renderTemas();
+}
+
+function temaCard(t){
+  const rec=t.recurrencia||'';
+  const w=recNum(rec);
+  let h='<div class="tema'+(t.estado==='archivado'?' arch':'')+'">';
+  h+='<div class="th"><div>';
+  h+='<span class="tt">'+esc(t.titulo)+'</span> ';
+  if(t.consulta)h+='<span class="badge ter">🩺 para terapia</span>';
+  if(rec)h+='<span class="badge rec">'+esc(rec)+'</span>';
+  h+='</div></div>';
+  if(rec){
+    h+='<div class="recbar"><div class="fill" style="width:'+Math.min(w,100)+'%"></div></div>';
+  }else{
+    h+='<span class="badge apr">aprendizaje</span>';
+  }
+  if(t.nota)h+='<div class="nota">'+esc(t.nota)+'</div>';
+  h+='<div class="acts">';
+  if(t.estado==='activo')h+='<button class="icobtn" onclick="marcarTrabajado(\''+t.id+'\')">✓ Marcar trabajado</button>';
+  else h+='<button class="icobtn" onclick="reactivar(\''+t.id+'\')">↩ Reactivar</button>';
+  h+='<button class="icobtn" onclick="editNota(\''+t.id+'\')">✏️ Editar nota</button>';
+  h+='<button class="icobtn" onclick="borrarTema(\''+t.id+'\')">🗑</button>';
+  h+='</div></div>';
+  return h;
+}
+
+function renderTemas(){
+  const body=$('temasBody');
+  const activos=DB.temas.filter(t=>t.estado==='activo')
+    .sort((a,b)=>recNum(b.recurrencia)-recNum(a.recurrencia));
+  const arch=DB.temas.filter(t=>t.estado==='archivado');
+  let h='';
+  h+='<div class="secttl">🔴 Activos — a trabajar</div>';
+  if(!activos.length)h+='<p class="muted">No hay temas activos ahora mismo.</p>';
+  else activos.forEach(t=>h+=temaCard(t));
+  h+='<div class="secttl arch">✅ Archivados — trabajados</div>';
+  if(!arch.length)h+='<p class="muted">Todavía no has archivado ningún tema.</p>';
+  else arch.forEach(t=>h+=temaCard(t));
+  body.innerHTML=h;
+}
+
+/* ================= EXPORT ================= */
+function buildResumen(){
+  let t='=== DIARIO DE LA PSICODELIA (Alex) ===\n';
+  t+='Apoyo para reflexión personal y terapia. No es diagnóstico ni consejo clínico.\n';
+
+  const activos=DB.temas.filter(x=>x.estado==='activo')
+    .sort((a,b)=>recNum(b.recurrencia)-recNum(a.recurrencia));
+  const arch=DB.temas.filter(x=>x.estado==='archivado');
+
+  t+='\n--- TEMAS ACTIVOS ---\n';
+  if(!activos.length)t+='(ninguno)\n';
+  activos.forEach(x=>{
+    t+='\n• '+x.titulo;
+    if(x.recurrencia)t+=' · '+x.recurrencia;
+    if(x.consulta)t+=' · [para terapia]';
+    t+='\n';
+    if(x.nota)t+='  '+x.nota+'\n';
+  });
+
+  t+='\n--- TEMAS ARCHIVADOS (trabajados) ---\n';
+  if(!arch.length)t+='(ninguno)\n';
+  else arch.forEach(x=>t+='• '+x.titulo+'\n');
+
+  t+='\n--- ÚLTIMAS EXPERIENCIAS ---\n';
+  if(!DB.tomas.length)t+='(ninguna registrada)\n';
+  DB.tomas.slice(0,12).forEach(x=>{
+    const sd=[x.sustancia,x.dosis].filter(Boolean).join(' ')||'—';
+    t+='\n['+fmt(x.fecha)+'] '+sd+'\n';
+    if(x.proposito)t+='  propósito: '+x.proposito+'\n';
+    if(x.relato)t+='  relato: '+x.relato+'\n';
+  });
+  return t;
+}
+
+function copyText(t,okMsg){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>alert(okMsg)).catch(()=>fallbackCopy(t,okMsg));
+  }else fallbackCopy(t,okMsg);
+}
+function fallbackCopy(t,okMsg){
+  const ta=document.createElement('textarea');
+  ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');alert(okMsg);}catch(e){alert('Selecciona y copia manualmente.');}
+  document.body.removeChild(ta);
+}
+function copyResumen(){
+  const t=buildResumen();
+  $('resumenBox').value=t;
+  copyText(t,'Resumen copiado ✓');
+}
+
+function backup(){
+  const t=JSON.stringify(DB,null,2);
+  $('backupBox').value=t;
+  copyText(t,'Backup copiado ✓ — guárdalo en Drive/Notas');
+}
+function restore(){
+  const raw=$('backupBox').value.trim();
+  if(!raw){alert('Pega primero un JSON de backup en el recuadro.');return;}
+  try{
+    const d=JSON.parse(raw);
+    if(!d||typeof d!=='object')throw new Error('formato');
+    DB=d;
+    if(!Array.isArray(DB.tomas))DB.tomas=[];
+    if(!Array.isArray(DB.temas))DB.temas=[];
+    save();
+    renderTomas();renderTemas();
+    alert('Datos restaurados ✓');
+  }catch(e){alert('JSON no válido. Revisa que pegaste el backup completo.');}
+}
+
+/* ================= INIT ================= */
+$('f_fecha').value=todayISO();
+renderTomas();
+renderTemas();
+</script>
+</body>
+</html>
