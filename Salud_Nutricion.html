@@ -138,8 +138,10 @@
       <div><label class="f">Irritabilidad (0=nada · 3=mucho)</label><select id="d_irrita"><option selected>0</option><option>1</option><option>2</option><option>3</option></select></div>
       <div><label class="f">Motivación / Burnout</label><select id="d_motiv"><option>Burnout</option><option selected>Neutro</option><option>Motivado</option></select></div>
     </div>
-    <label class="f">Emocionalidad — ¿qué pasó? (opcional)</label>
-    <input type="text" id="d_eventoNota" placeholder="discusión con pareja/madre…">
+    <div class="row2">
+      <div><label class="f">Emocionalidad — ¿con quién?</label><select id="d_eventoQuien"><option value="">—</option><option>Pareja</option><option>Madre</option><option>Hermano</option><option>Cliente</option><option>Trabajo</option><option>Amigos</option><option>Uno mismo</option><option>Otro</option></select></div>
+      <div><label class="f">¿Qué pasó? (opcional)</label><input type="text" id="d_eventoNota" placeholder="tema: discusión, dinero, límites…"></div>
+    </div>
     <div class="row3">
       <div><label class="f">Sueño</label><select id="d_sueno"><option>Malo</option><option selected>Regular</option><option>Bueno</option></select></div>
       <div><label class="f">Pranayama/meditar</label><select id="d_medita"><option>Sí</option><option selected>No</option></select></div>
@@ -551,7 +553,7 @@ function enteoUnit(){var s=document.getElementById('d_enteoSust'),o=document.get
 function preloadDay(fecha){
   const e=DB.days.find(d=>d.fecha===fecha)||{};
   const map={d_dig:'dig',d_digMom:'digMom',d_irrita:'irrita',d_motiv:'motiv',d_sueno:'sueno',d_medita:'medita',
-    d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_evento:'evento',d_eventoNota:'eventoNota',
+    d_heces:'heces',d_ent:'ent',d_herpes:'herpes',d_evento:'evento',d_eventoQuien:'eventoQuien',d_eventoNota:'eventoNota',
     d_enteoSust:'enteoSust',d_enteoQ:'enteoQ',d_des:'desayuno',d_com:'comida',d_cen:'cena',d_notas:'notas'};
   Object.keys(map).forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
@@ -577,7 +579,7 @@ function addDay(){
   const trig={};document.querySelectorAll('#d_trig input').forEach(c=>trig[c.value]=c.checked);
   const e={fecha:val('d_fecha')||todayISO(),dig:val('d_dig'),digMom:val('d_digMom'),irrita:val('d_irrita'),motiv:val('d_motiv'),
     sueno:val('d_sueno'),medita:val('d_medita'),vejiga:(document.getElementById('d_vejiga').checked?'Sí':'No'),heces:val('d_heces'),ent:val('d_ent'),herpes:val('d_herpes'),trig:trig,
-    evento:val('d_evento'),eventoNota:val('d_eventoNota'),enteo:(document.getElementById('d_enteo').checked?'Sí':'No'),enteoSust:val('d_enteoSust'),enteoQ:val('d_enteoQ'),
+    evento:val('d_evento'),eventoQuien:val('d_eventoQuien'),eventoNota:val('d_eventoNota'),enteo:(document.getElementById('d_enteo').checked?'Sí':'No'),enteoSust:val('d_enteoSust'),enteoQ:val('d_enteoQ'),
     desayuno:val('d_des'),comida:val('d_com'),cena:val('d_cen'),notas:val('d_notas')};
   DB.days=DB.days.filter(d=>d.fecha!==e.fecha); // un registro por día
   DB.days.push(e);DB.days.sort((a,b)=>a.fecha<b.fecha?-1:1);save();
@@ -594,7 +596,7 @@ function renderDays(){
     if(e.dig&&e.dig!=='0')s.push('intest '+e.dig+(e.digMom?' ('+e.digMom+')':''));if(e.irrita&&e.irrita!=='0')s.push('irrit '+e.irrita);if(e.motiv)s.push('ánimo: '+e.motiv);
     if(e.sueno)s.push('sueño '+e.sueno);if(e.medita)s.push('meditó: '+e.medita);
     if(e.vejiga==='Sí')s.push('🚽 vejiga');
-    if(e.evento)s.push('😣 '+e.evento+(e.eventoNota?' — '+esc(e.eventoNota):''));
+    if(e.evento)s.push('😣 '+e.evento+(e.eventoQuien?' · '+e.eventoQuien:'')+(e.eventoNota?' — '+esc(e.eventoNota):''));
     if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';s.push('🍄 '+(e.enteoSust?esc(e.enteoSust):'entéogeno')+(e.enteoQ?' '+esc(e.enteoQ)+(eu?' '+eu:''):''));}
     if(e.ent)s.push('🏋️ '+({manana:'mañana',tarde:'tarde',no:'sin entreno'}[e.ent]||e.ent));
     if(e.herpes==='leve'||e.herpes==='brote')s.push('🦠 herpes '+({leve:'leve',brote:'brote'}[e.herpes]||e.herpes));
@@ -719,6 +721,13 @@ function anaColorFor(d){
   if(d.herpes==='leve'||d.evento==='Frustración')return A;
   return G;
 }
+function anaPorPersona(stressDays,byDate){
+  if(!stressDays.length)return '';
+  const g={};stressDays.forEach(d=>{const q=d.eventoQuien||'(sin indicar)';(g[q]=g[q]||{n:0,herp:0}).n++;
+    for(let k=0;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,k)];if(dd&&anaSick(dd.herpes)){g[q].herp++;break;}}});
+  const rows=Object.keys(g).sort((a,b)=>g[b].n-g[a].n).map(q=>'<div class="metrics">👤 <b>'+esc(q)+'</b>: '+g[q].n+' evento(s)'+(g[q].herp?' · '+g[q].herp+' seguido(s) de herpes ≤3d':'')+'</div>');
+  return '<div style="margin-top:8px"><b class="mini">Por persona:</b>'+rows.join('')+'</div>';
+}
 function renderAnalisis(){
   const body=document.getElementById('analisisBody');if(!body)return;
   const days=[...DB.days].sort((a,b)=>a.fecha<b.fecha?-1:1);
@@ -755,11 +764,11 @@ function renderAnalisis(){
   // --- d) herpes precede ---
   const herpDays=days.filter(d=>anaSick(d.herpes));
   const herpRows=herpDays.map(d=>{
-    let trg=false,azu=false,emo=false,mal=false;
+    let trg=false,azu=false,mal=false,evs=[];
     for(let k=1;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,-k)];if(!dd)continue;
       const tg=dd.trig||{};if(tg.lacteos||tg.cerdo||tg.gluten||tg.maiz||tg.alcohol||tg.azucar||tg.grasaAlta)trg=true;if(tg.azucar)azu=true;
-      if(anaStress(dd.evento))emo=true;if(dd.sueno==='Malo')mal=true;}
-    const tags=[];if(azu)tags.push('🍬 azúcar');else if(trg)tags.push('⚠️ disparador');if(emo)tags.push('😣 estrés');if(mal)tags.push('😴 sueño malo');
+      if(anaStress(dd.evento))evs.push(dd.evento+(dd.eventoQuien?' con '+dd.eventoQuien:'')+(dd.eventoNota?' ('+dd.eventoNota+')':''));if(dd.sueno==='Malo')mal=true;}
+    const tags=[];if(azu)tags.push('🍬 azúcar');else if(trg)tags.push('⚠️ disparador');if(evs.length)tags.push('😣 '+evs.join('; '));if(mal)tags.push('😴 sueño malo');
     return {fecha:d.fecha,h:d.herpes,tags:tags};
   });
 
@@ -767,11 +776,11 @@ function renderAnalisis(){
   const enteoDays=days.filter(d=>d.enteo==='Sí');
   function enteoUnitOf(s){return s==='LSD'?'µg':s==='Psilocibina'?'g':s==='DMT'?'mg':'';}
   const enteoRows=enteoDays.map(d=>{
-    let eSum=0,eN=0,herpN=0,maloN=0;
+    let eSum=0,eN=0,herpN=0,maloN=0,estresN=0,dispN=0,evList=[];
     for(let k=1;k<=7;k++){const iso=anaIsoAdd(d.fecha,k);
       const ss=trByDate[iso]||[];ss.forEach(s=>{const e=parseFloat(s.energia);if(!isNaN(e)){eSum+=e;eN++;}});
-      const dd=byDate[iso];if(dd){if(anaSick(dd.herpes))herpN++;if(dd.sueno==='Malo')maloN++;}}
-    return {fecha:d.fecha,sust:d.enteoSust,q:d.enteoQ,unit:enteoUnitOf(d.enteoSust),energia:eN?(eSum/eN):null,herpN:herpN,maloN:maloN};
+      const dd=byDate[iso];if(dd){if(anaSick(dd.herpes))herpN++;if(dd.sueno==='Malo')maloN++;if(anaStress(dd.evento)){estresN++;evList.push(dd.evento+(dd.eventoQuien?' con '+dd.eventoQuien:'')+(dd.eventoNota?' ('+dd.eventoNota+')':'')+' · '+fmt(iso));}const tg=dd.trig||{};if(tg.lacteos||tg.cerdo||tg.gluten||tg.maiz||tg.alcohol||tg.azucar||tg.grasaAlta)dispN++;}}
+    return {fecha:d.fecha,sust:d.enteoSust,q:d.enteoQ,unit:enteoUnitOf(d.enteoSust),energia:eN?(eSum/eN):null,herpN:herpN,maloN:maloN,estresN:estresN,dispN:dispN,evList:evList};
   });
 
   // --- a) insights ---
@@ -779,9 +788,9 @@ function renderAnalisis(){
   if(flotanPct!=null&&flotanPct>0)ins.push('🍽️ Heces que flotan el '+flotanPct+'% de los días → la digestión de la grasa (bilis) sigue siendo tu palanca.');
   if(digC!=null&&digT!=null&&digT>digC+0.05)ins.push('⚠️ En días con disparador tu molestia intestinal sube de '+digC.toFixed(1)+' a '+digT.toFixed(1)+' (0–3).');
   if(irrC!=null&&irrT!=null&&irrT>irrC+0.05)ins.push('😤 Con disparador tu irritabilidad pasa de '+irrC.toFixed(1)+' a '+irrT.toFixed(1)+' (0–3).');
-  if(stressDays.length){let l='😣 '+stressDays.length+' día(s) de Frustración/Ira';if(stHerpes)l+='; herpes apareció en ≤3 días tras estrés en '+stHerpes+' de ellos';if(stMaloPct!=null)l+='; sueño malo asociado en el '+stMaloPct+'%';ins.push(l+'.');}
+  if(stressDays.length){let l='😣 '+stressDays.length+' día(s) de Frustración/Ira';if(stHerpes)l+='; herpes apareció en ≤3 días tras estrés en '+stHerpes+' de ellos';if(stMaloPct!=null)l+='; sueño malo asociado en el '+stMaloPct+'%';ins.push(l+'.');const pc={};stressDays.forEach(d=>{const q=d.eventoQuien||'';if(q)pc[q]=(pc[q]||0)+1;});const top=Object.keys(pc).sort((a,b)=>pc[b]-pc[a])[0];if(top&&pc[top]>=2)ins.push('👤 La persona que más se repite en tus días de estrés: '+top+' ('+pc[top]+' veces) — a vigilar en tu trabajo personal.');}
   if(vC.p!=null&&vT.p!=null&&vT.p>vC.p)ins.push('🦠 Herpes activo en '+vT.p+'% de días con disparador vs '+vC.p+'% en limpios.');
-  if(enteoRows.length){const last=enteoRows[enteoRows.length-1];if(last.energia!=null)ins.push('🍄 Tras la toma de '+(last.sust||'entéogeno')+(last.q?' '+last.q+last.unit:'')+' del '+fmt(last.fecha)+', tu energía de entreno la semana siguiente fue '+last.energia.toFixed(1)+'/5.');}
+  if(enteoRows.length){const last=enteoRows[enteoRows.length-1];if(last.energia!=null)ins.push('🍄 Semana siguiente a '+(last.sust||'entéogeno')+(last.q?' '+last.q+last.unit:'')+' ('+fmt(last.fecha)+'): energía de entreno '+last.energia.toFixed(1)+'/5. Pero esa semana también hubo '+last.estresN+' día(s) de estrés y '+last.dispN+' con disparador — no se puede atribuir al entéogeno.');}
   if(bio.length>=2){const p0=bio.find(b=>b.peso!=null),p1=[...bio].reverse().find(b=>b.peso!=null);if(p0&&p1&&p0!==p1){const dd=+(p1.peso-p0.peso).toFixed(1);ins.push((dd<=0?'📉':'📈')+' Peso '+p0.peso+' → '+p1.peso+' kg ('+(dd>0?'+':'')+dd+' kg).');}}
   if(!ins.length)ins.push('🌱 Aún sin señales claras — sigue registrando y esto se irá afinando.');
 
@@ -789,7 +798,7 @@ function renderAnalisis(){
   if(nD<3)h+='<div class="banner">🌱 Aún pocos datos ('+nD+' día'+(nD===1?'':'s')+'): esto gana valor con las semanas. Te muestro lo que ya se puede leer.</div>';
 
   // a
-  h+='<div class="card"><h2>✨ Qué destaca</h2>'+ins.slice(0,7).map(x=>'<p style="margin:6px 0">'+esc(x)+'</p>').join('')+'</div>';
+  h+='<div class="card"><h2>✨ Qué destaca</h2><p class="mini" style="color:#b5563f;margin:0 0 8px">⚠️ Son <b>señales/asociaciones, no causas</b>. Con pocas semanas hay muchos factores a la vez (estrés, sueño, comida) — úsalo como hipótesis a vigilar, y lo cruzamos bien antes de concluir.</p>'+ins.slice(0,7).map(x=>'<p style="margin:6px 0">'+esc(x)+'</p>').join('')+'</div>';
 
   // b
   h+='<div class="card"><h2>🍽️ Días limpios vs con disparador</h2>'+
@@ -806,8 +815,8 @@ function renderAnalisis(){
      '<div class="kpi"><div><div class="n">'+stressDays.length+'</div><div class="l">días estrés</div></div>'+
      '<div><div class="n">'+calmDays.length+'</div><div class="l">días calma/neutro</div></div>'+
      '<div><div class="n">'+(stMaloPct!=null?stMaloPct+'%':'—')+'</div><div class="l">→ sueño malo</div></div>'+
-     '<div><div class="n">'+(stHerpesPct!=null?stHerpesPct+'%':'—')+'</div><div class="l">→ herpes ≤3d</div></div></div>'+
-     '<p class="muted">De los días de Frustración/Ira: cuántos van seguidos de sueño "Malo" (mismo día o el siguiente) y cuántos con herpes activo dentro de 3 días.</p></div>';
+     '<div><div class="n">'+(stHerpesPct!=null?stHerpesPct+'%':'—')+'</div><div class="l">→ herpes ≤3d</div></div></div>'+anaPorPersona(stressDays,byDate)+
+     '<p class="muted">De los días de Frustración/Ira: cuántos van seguidos de sueño "Malo" (mismo día o el siguiente) y cuántos con herpes activo dentro de 3 días.</p>'+(stressDays.length?'<div class="metrics" style="margin-top:6px"><b>📝 Eventos registrados:</b><br>'+stressDays.map(d=>esc(d.evento+(d.eventoQuien?' con '+d.eventoQuien:'')+(d.eventoNota?' — '+d.eventoNota:'')+' · '+fmt(d.fecha))).join('<br>')+'</div>':'')+'</div>';
 
   // d
   h+='<div class="card"><h2>🦠 Herpes — qué lo precede</h2>';
@@ -820,7 +829,10 @@ function renderAnalisis(){
   h+='<div class="card"><h2>🍄 Entéogeno → semana siguiente</h2>';
   if(!enteoRows.length)h+='<p class="muted">Sin tomas registradas.</p>';
   else h+=enteoRows.map(r=>'<div class="entry"><span class="d">'+fmt(r.fecha)+'</span> <span class="tg" style="background:#f1edf8;color:#5a4b86">'+esc(r.sust||'entéogeno')+(r.q?' '+esc(String(r.q))+r.unit:'')+'</span>'+
-     '<div class="metrics">7 días siguientes: energía entreno '+(r.energia!=null?r.energia.toFixed(1)+'/5':'—')+' · '+r.herpN+' día(s) herpes activo · '+r.maloN+' noche(s) sueño malo</div></div>').join('');
+     '<div class="metrics">7 días siguientes: energía entreno '+(r.energia!=null?r.energia.toFixed(1)+'/5':'—')+' · '+r.herpN+' día(s) herpes activo · '+r.maloN+' noche(s) sueño malo</div>'+
+     '<div class="metrics">Concurrieron esa semana: '+r.estresN+' día(s) de estrés (Frustración/Ira) · '+r.dispN+' día(s) con disparador</div>'+
+     '<div class="metrics">'+(r.evList&&r.evList.length?'📝 Eventos esa semana: '+r.evList.map(esc).join(' · '):'📝 sin eventos emocionales anotados esa semana')+'</div>'+
+     '<div class="mini" style="color:#b5563f">No se puede aislar la causa; si un patrón se repite en varias tomas, entonces sí gana peso.</div></div>').join('');
   h+='</div>';
 
   // f) tendencias
@@ -849,7 +861,7 @@ function renderAnalisis(){
     const d=byDate[f],ss=trByDate[f]||[];const parts=[];
     ss.forEach(s=>parts.push((sem[s.dia]||'🏋️')+' '+(s.sesion||'entreno')));
     if(d){const hp=[];if(d.dig&&d.dig!=='0')hp.push('intest '+d.dig);if(d.heces&&d.heces!=='Formadas, no flotan')hp.push(d.heces);
-      if(anaSick(d.herpes))hp.push('🦠 '+d.herpes);if(d.evento&&d.evento!=='Neutra')hp.push('😣 '+d.evento);
+      if(anaSick(d.herpes))hp.push('🦠 '+d.herpes);if(d.evento&&d.evento!=='Neutra')hp.push('😣 '+d.evento+(d.eventoQuien?' con '+d.eventoQuien:'')+(d.eventoNota?': '+d.eventoNota:''));
       const tg=Object.keys(d.trig||{}).filter(k=>d.trig[k]);if(tg.length)hp.push('⚠️ '+tg.join(','));
       if(hp.length)parts.push(hp.join(' · '));}
     return '<div class="entry" style="margin:5px 0;padding:6px 9px"><span class="d">'+fmt(f)+'</span> <span class="metrics">'+(parts.length?esc(parts.join('  ·  ')):'—')+'</span></div>';
@@ -880,16 +892,16 @@ function copyAnalisis(){
   stressDays.forEach(d=>{const same=byDate[d.fecha],nxt=byDate[anaIsoAdd(d.fecha,1)];if((same&&same.sueno==='Malo')||(nxt&&nxt.sueno==='Malo'))stMalo++;
     let hz=false;for(let k=0;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,k)];if(dd&&anaSick(dd.herpes))hz=true;}if(hz)stHerpes++;});
   t+='EMOCIONALIDAD\n Días Frustración/Ira: '+stressDays.length+' · Calma/Neutro: '+days.filter(d=>d.evento==='Calmada'||d.evento==='Neutra').length+'\n';
-  t+=' De los de estrés → sueño malo (mismo/día sig.): '+stMalo+' · herpes ≤3d: '+stHerpes+'\n\n';
+  t+=' De los de estrés → sueño malo (mismo/día sig.): '+stMalo+' · herpes ≤3d: '+stHerpes+'\n';var _pc={};stressDays.forEach(d=>{const q=d.eventoQuien||'(sin indicar)';_pc[q]=(_pc[q]||0)+1;});t+=' Por persona: '+Object.keys(_pc).sort((a,b)=>_pc[b]-_pc[a]).map(q=>q+' '+_pc[q]).join(' · ')+'\n\n';
   // herpes precede
   const herpDays=days.filter(d=>anaSick(d.herpes));
   t+='HERPES — QUÉ LO PRECEDE (3 días previos)\n';
   if(!herpDays.length)t+=' Sin episodios.\n';
-  else herpDays.forEach(d=>{let trg=false,azu=false,emo=false,mal=false;
+  else herpDays.forEach(d=>{let trg=false,azu=false,mal=false,evs=[];
     for(let k=1;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,-k)];if(!dd)continue;const tg=dd.trig||{};
       if(tg.lacteos||tg.cerdo||tg.gluten||tg.maiz||tg.alcohol||tg.azucar||tg.grasaAlta)trg=true;if(tg.azucar)azu=true;
-      if(anaStress(dd.evento))emo=true;if(dd.sueno==='Malo')mal=true;}
-    const tags=[];if(azu)tags.push('azúcar');else if(trg)tags.push('disparador');if(emo)tags.push('estrés');if(mal)tags.push('sueño malo');
+      if(anaStress(dd.evento))evs.push(dd.evento+(dd.eventoQuien?' con '+dd.eventoQuien:'')+(dd.eventoNota?' ('+dd.eventoNota+')':''));if(dd.sueno==='Malo')mal=true;}
+    const tags=[];if(azu)tags.push('azúcar');else if(trg)tags.push('disparador');if(evs.length)tags.push('estrés: '+evs.join('; '));if(mal)tags.push('sueño malo');
     t+=' '+fmt(d.fecha)+' ('+d.herpes+'): '+(tags.length?tags.join(', '):'nada marcado')+'\n';});
   t+='\n';
   // enteogeno
@@ -897,10 +909,10 @@ function copyAnalisis(){
   t+='ENTÉOGENO → SEMANA SIGUIENTE\n';
   if(!enteoDays.length)t+=' Sin tomas.\n';
   else enteoDays.forEach(d=>{const unit=d.enteoSust==='LSD'?'µg':d.enteoSust==='Psilocibina'?'g':d.enteoSust==='DMT'?'mg':'';
-    let eSum=0,eN=0,herpN=0,maloN=0;
+    let eSum=0,eN=0,herpN=0,maloN=0,estresN=0,dispN=0,evList=[];
     for(let k=1;k<=7;k++){const iso=anaIsoAdd(d.fecha,k);(trByDate[iso]||[]).forEach(s=>{const e=parseFloat(s.energia);if(!isNaN(e)){eSum+=e;eN++;}});
-      const dd=byDate[iso];if(dd){if(anaSick(dd.herpes))herpN++;if(dd.sueno==='Malo')maloN++;}}
-    t+=' '+fmt(d.fecha)+' '+(d.enteoSust||'entéogeno')+(d.enteoQ?' '+d.enteoQ+unit:'')+': energía entreno '+(eN?(eSum/eN).toFixed(1)+'/5':'—')+' · herpes '+herpN+'d · sueño malo '+maloN+' noches\n';});
+      const dd=byDate[iso];if(dd){if(anaSick(dd.herpes))herpN++;if(dd.sueno==='Malo')maloN++;if(anaStress(dd.evento)){estresN++;evList.push(dd.evento+(dd.eventoQuien?' con '+dd.eventoQuien:'')+(dd.eventoNota?' ('+dd.eventoNota+')':'')+' '+fmt(iso));}const tg=dd.trig||{};if(tg.lacteos||tg.cerdo||tg.gluten||tg.maiz||tg.alcohol||tg.azucar||tg.grasaAlta)dispN++;}}
+    t+=' '+fmt(d.fecha)+' '+(d.enteoSust||'entéogeno')+(d.enteoQ?' '+d.enteoQ+unit:'')+': energía entreno '+(eN?(eSum/eN).toFixed(1)+'/5':'—')+' · herpes '+herpN+'d · sueño malo '+maloN+' noches · CONCURRIÓ: estrés '+estresN+'d, disparador '+dispN+'d'+(evList.length?' · EVENTOS: '+evList.join('; '):'')+'\n';});
   t+='\n';
   // timeline
   const allDates={};days.forEach(d=>allDates[d.fecha]=1);tr.forEach(s=>{if(s.fecha)allDates[s.fecha]=1;});
@@ -910,7 +922,7 @@ function copyAnalisis(){
   dates.forEach(f=>{const d=byDate[f],ss=trByDate[f]||[];const parts=[];
     ss.forEach(s=>parts.push((semT[s.dia]||'')+(s.sesion?' '+s.sesion:'entreno')));
     if(d){const hp=[];if(d.dig&&d.dig!=='0')hp.push('intest'+d.dig);if(d.heces&&d.heces!=='Formadas, no flotan')hp.push(d.heces);
-      if(anaSick(d.herpes))hp.push('herpes '+d.herpes);if(d.evento&&d.evento!=='Neutra')hp.push(d.evento);
+      if(anaSick(d.herpes))hp.push('herpes '+d.herpes);if(d.evento&&d.evento!=='Neutra')hp.push(d.evento+(d.eventoQuien?' con '+d.eventoQuien:'')+(d.eventoNota?': '+d.eventoNota:''));
       const tg=Object.keys(d.trig||{}).filter(k=>d.trig[k]);if(tg.length)hp.push('disp:'+tg.join(','));
       if(hp.length)parts.push(hp.join(', '));}
     t+=' '+fmt(f)+': '+(parts.length?parts.join(' | '):'—')+'\n';});
@@ -973,7 +985,7 @@ function buildReport(){
       t+='• '+fmt(e.fecha)+(isClean(e)?' [limpio]':'')+': ';
       const m=[];if(e.dig&&e.dig!=='0')m.push('intest'+e.dig+(e.digMom?' '+e.digMom:''));if(e.irrita&&e.irrita!=='0')m.push('irrit'+e.irrita);if(e.motiv)m.push('ánimo:'+e.motiv);if(e.sueno)m.push('sueño:'+e.sueno);if(e.medita)m.push('meditó:'+e.medita);
       if(e.vejiga==='Sí')m.push('vejiga hiperactiva');
-      if(e.evento)m.push('emocionalidad:'+e.evento+(e.eventoNota?' ('+e.eventoNota+')':''));
+      if(e.evento)m.push('emocionalidad:'+e.evento+(e.eventoQuien?' con '+e.eventoQuien:'')+(e.eventoNota?' ('+e.eventoNota+')':''));
       if(e.enteo==='Sí'){var eu=e.enteoSust==='LSD'?'µg':e.enteoSust==='Psilocibina'?'g':e.enteoSust==='DMT'?'mg':'';m.push('entéogeno:'+(e.enteoSust||'')+(e.enteoQ?' '+e.enteoQ+eu:''));}
       if(e.ent)m.push('entreno:'+e.ent);if(e.herpes&&e.herpes!=='no')m.push('herpes:'+e.herpes);
       if(e.heces)m.push(e.heces);
