@@ -119,6 +119,7 @@
   <button data-t="suplem">Suplem.</button>
   <button data-t="bascula">Báscula</button>
   <button data-t="patrones">Patrones</button>
+  <button data-t="analisis">📊 Análisis</button>
   <button data-t="guia">Guía</button>
   <button data-t="export">Exportar</button>
 </nav>
@@ -261,6 +262,16 @@
     <div id="trainPanel"></div>
     <p class="muted">Se leen solos si abres esto desde la app unificada (misma web que el Diario de Fuerza).</p>
   </div>
+</section>
+
+<!-- ============ ANALISIS ============ -->
+<section id="analisis" class="tab">
+  <div class="card">
+    <h2>📊 Análisis</h2>
+    <p class="muted">Lectura automática cruzando comida, molestias, emoción, herpes, entéogenos, báscula y entreno. Señales, no diagnóstico — ganan valor con las semanas.</p>
+  </div>
+  <div id="analisisBody"></div>
+  <button class="btn sec" onclick="copyAnalisis()">📋 Copiar análisis para Claude</button>
 </section>
 
 <!-- ============ SUPLEMENTACION ============ -->
@@ -518,6 +529,7 @@ document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');document.getElementById(b.dataset.t).classList.add('active');
   if(b.dataset.t==='patrones')renderPatterns();
+  if(b.dataset.t==='analisis')renderAnalisis();
   window.scrollTo({top:0,behavior:'smooth'});
 });
 
@@ -678,6 +690,240 @@ function spark(f,lab,color){
   return '<div style="margin:8px 0"><div style="font-size:.8rem;margin-bottom:2px">'+lab+': <b>'+last+'</b> '+
     '<span class="delta '+(diff<=0?'down':'up')+'">'+(diff>0?'+':'')+diff+'</span></div>'+
     '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="max-width:340px"><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2"/></svg></div>';
+}
+
+/* ---- ANÁLISIS ---- */
+function anaIsoAdd(iso,n){try{const dt=new Date(iso+'T00:00:00');dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}catch(e){return iso;}}
+function anaPct(n,d){return d?Math.round(n/d*100):null;}
+function anaSick(h){return h==='leve'||h==='brote';}
+function anaStress(ev){return ev==='Frustración'||ev==='Ira';}
+function anaSpark(pts,color){
+  if(!pts.length)return '<span class="muted">sin datos</span>';
+  if(pts.length===1)return '<span class="muted">'+pts[0].y+' (1 dato, aún sin tendencia)</span>';
+  const W=320,H=40,pad=4;const ys=pts.map(p=>p.y);const mn=Math.min.apply(null,ys),mx=Math.max.apply(null,ys);const rng=(mx-mn)||1;
+  const step=(W-2*pad)/(pts.length-1);
+  const d=pts.map((p,i)=>(i===0?'M':'L')+(pad+i*step).toFixed(1)+' '+(H-pad-(p.y-mn)/rng*(H-2*pad)).toFixed(1)).join(' ');
+  return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="height:40px;display:block"><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2"/></svg>';
+}
+function anaStrip(items){
+  if(!items.length)return '<span class="muted">sin datos</span>';
+  const W=320,H=40,pad=6,r=4;
+  const step=items.length>1?(W-2*pad)/(items.length-1):0;
+  const cy=H/2;
+  const circ=items.map((it,i)=>{const cx=(pad+i*step).toFixed(1);return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+it.color+'"/>';}).join('');
+  return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="height:40px;display:block">'+circ+'</svg>';
+}
+function anaColorFor(d){
+  const G='#3f7d6e',A='#c98a2b',R='#b5563f';
+  if(d.herpes==='brote'||d.evento==='Ira')return R;
+  if(d.herpes==='leve'||d.evento==='Frustración')return A;
+  return G;
+}
+function renderAnalisis(){
+  const body=document.getElementById('analisisBody');if(!body)return;
+  const days=[...DB.days].sort((a,b)=>a.fecha<b.fecha?-1:1);
+  const bio=[...DB.bio].sort((a,b)=>a.fecha<b.fecha?-1:1);
+  const tr=readTraining();
+  const byDate={};days.forEach(d=>{byDate[d.fecha]=d;});
+  const trByDate={};tr.forEach(s=>{if(!s.fecha)return;(trByDate[s.fecha]=trByDate[s.fecha]||[]).push(s);});
+  const nD=days.length;
+
+  // --- b) limpio vs disparador ---
+  const clean=days.filter(isClean),dirty=days.filter(d=>!isClean(d));
+  const digC=avg(clean,'dig'),digT=avg(dirty,'dig'),irrC=avg(clean,'irrita'),irrT=avg(dirty,'irrita');
+  function pctHeces(a){const rec=a.filter(d=>d.heces);const bad=rec.filter(d=>d.heces==='Formadas, flotan'||d.heces==='Blandas/mal formadas');return {p:anaPct(bad.length,rec.length),n:rec.length};}
+  function pctHerpes(a){return {p:anaPct(a.filter(d=>anaSick(d.herpes)).length,a.length),n:a.length};}
+  const hC=pctHeces(clean),hT=pctHeces(dirty),vC=pctHerpes(clean),vT=pctHerpes(dirty);
+
+  // --- overall heces flotan ---
+  const hecesRec=days.filter(d=>d.heces);
+  const flotanN=days.filter(d=>d.heces==='Formadas, flotan').length;
+  const flotanPct=anaPct(flotanN,hecesRec.length);
+
+  // --- c) emocionalidad ---
+  const stressDays=days.filter(d=>anaStress(d.evento));
+  const calmDays=days.filter(d=>d.evento==='Calmada'||d.evento==='Neutra');
+  let stMalo=0,stHerpes=0;
+  stressDays.forEach(d=>{
+    const same=byDate[d.fecha],nxt=byDate[anaIsoAdd(d.fecha,1)];
+    if((same&&same.sueno==='Malo')||(nxt&&nxt.sueno==='Malo'))stMalo++;
+    let h=false;for(let k=0;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,k)];if(dd&&anaSick(dd.herpes))h=true;}
+    if(h)stHerpes++;
+  });
+  const stMaloPct=anaPct(stMalo,stressDays.length),stHerpesPct=anaPct(stHerpes,stressDays.length);
+
+  // --- d) herpes precede ---
+  const herpDays=days.filter(d=>anaSick(d.herpes));
+  const herpRows=herpDays.map(d=>{
+    let trg=false,azu=false,emo=false,mal=false;
+    for(let k=1;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,-k)];if(!dd)continue;
+      const tg=dd.trig||{};if(tg.lacteos||tg.cerdo||tg.gluten||tg.maiz||tg.alcohol||tg.azucar||tg.grasaAlta)trg=true;if(tg.azucar)azu=true;
+      if(anaStress(dd.evento))emo=true;if(dd.sueno==='Malo')mal=true;}
+    const tags=[];if(azu)tags.push('🍬 azúcar');else if(trg)tags.push('⚠️ disparador');if(emo)tags.push('😣 estrés');if(mal)tags.push('😴 sueño malo');
+    return {fecha:d.fecha,h:d.herpes,tags:tags};
+  });
+
+  // --- e) entéogeno → semana siguiente ---
+  const enteoDays=days.filter(d=>d.enteo==='Sí');
+  function enteoUnitOf(s){return s==='LSD'?'µg':s==='Psilocibina'?'g':s==='DMT'?'mg':'';}
+  const enteoRows=enteoDays.map(d=>{
+    let eSum=0,eN=0,herpN=0,maloN=0;
+    for(let k=1;k<=7;k++){const iso=anaIsoAdd(d.fecha,k);
+      const ss=trByDate[iso]||[];ss.forEach(s=>{const e=parseFloat(s.energia);if(!isNaN(e)){eSum+=e;eN++;}});
+      const dd=byDate[iso];if(dd){if(anaSick(dd.herpes))herpN++;if(dd.sueno==='Malo')maloN++;}}
+    return {fecha:d.fecha,sust:d.enteoSust,q:d.enteoQ,unit:enteoUnitOf(d.enteoSust),energia:eN?(eSum/eN):null,herpN:herpN,maloN:maloN};
+  });
+
+  // --- a) insights ---
+  const ins=[];
+  if(flotanPct!=null&&flotanPct>0)ins.push('🍽️ Heces que flotan el '+flotanPct+'% de los días → la digestión de la grasa (bilis) sigue siendo tu palanca.');
+  if(digC!=null&&digT!=null&&digT>digC+0.05)ins.push('⚠️ En días con disparador tu molestia intestinal sube de '+digC.toFixed(1)+' a '+digT.toFixed(1)+' (0–3).');
+  if(irrC!=null&&irrT!=null&&irrT>irrC+0.05)ins.push('😤 Con disparador tu irritabilidad pasa de '+irrC.toFixed(1)+' a '+irrT.toFixed(1)+' (0–3).');
+  if(stressDays.length){let l='😣 '+stressDays.length+' día(s) de Frustración/Ira';if(stHerpes)l+='; herpes apareció en ≤3 días tras estrés en '+stHerpes+' de ellos';if(stMaloPct!=null)l+='; sueño malo asociado en el '+stMaloPct+'%';ins.push(l+'.');}
+  if(vC.p!=null&&vT.p!=null&&vT.p>vC.p)ins.push('🦠 Herpes activo en '+vT.p+'% de días con disparador vs '+vC.p+'% en limpios.');
+  if(enteoRows.length){const last=enteoRows[enteoRows.length-1];if(last.energia!=null)ins.push('🍄 Tras la toma de '+(last.sust||'entéogeno')+(last.q?' '+last.q+last.unit:'')+' del '+fmt(last.fecha)+', tu energía de entreno la semana siguiente fue '+last.energia.toFixed(1)+'/5.');}
+  if(bio.length>=2){const p0=bio.find(b=>b.peso!=null),p1=[...bio].reverse().find(b=>b.peso!=null);if(p0&&p1&&p0!==p1){const dd=+(p1.peso-p0.peso).toFixed(1);ins.push((dd<=0?'📉':'📈')+' Peso '+p0.peso+' → '+p1.peso+' kg ('+(dd>0?'+':'')+dd+' kg).');}}
+  if(!ins.length)ins.push('🌱 Aún sin señales claras — sigue registrando y esto se irá afinando.');
+
+  let h='';
+  if(nD<3)h+='<div class="banner">🌱 Aún pocos datos ('+nD+' día'+(nD===1?'':'s')+'): esto gana valor con las semanas. Te muestro lo que ya se puede leer.</div>';
+
+  // a
+  h+='<div class="card"><h2>✨ Qué destaca</h2>'+ins.slice(0,7).map(x=>'<p style="margin:6px 0">'+esc(x)+'</p>').join('')+'</div>';
+
+  // b
+  h+='<div class="card"><h2>🍽️ Días limpios vs con disparador</h2>'+
+     '<p class="muted">"Limpio" = sin lácteos, cerdo, gluten ni maíz ese día.</p>'+
+     '<table class="tbl"><tr><th></th><th>Limpios ('+clean.length+')</th><th>Disparador ('+dirty.length+')</th></tr>'+
+     '<tr><td>Molestia intestinal (0–3)</td><td class="g">'+(digC!=null?digC.toFixed(1):'—')+'</td><td class="g">'+(digT!=null?digT.toFixed(1):'—')+'</td></tr>'+
+     '<tr><td>Irritabilidad (0–3)</td><td class="g">'+(irrC!=null?irrC.toFixed(1):'—')+'</td><td class="g">'+(irrT!=null?irrT.toFixed(1):'—')+'</td></tr>'+
+     '<tr><td>Heces flotan/blandas</td><td class="g">'+(hC.p!=null?hC.p+'%':'—')+'</td><td class="g">'+(hT.p!=null?hT.p+'%':'—')+'</td></tr>'+
+     '<tr><td>Herpes activo</td><td class="g">'+(vC.p!=null?vC.p+'%':'—')+'</td><td class="g">'+(vT.p!=null?vT.p+'%':'—')+'</td></tr>'+
+     '</table></div>';
+
+  // c
+  h+='<div class="card"><h2>😣 Emocionalidad</h2>'+
+     '<div class="kpi"><div><div class="n">'+stressDays.length+'</div><div class="l">días estrés</div></div>'+
+     '<div><div class="n">'+calmDays.length+'</div><div class="l">días calma/neutro</div></div>'+
+     '<div><div class="n">'+(stMaloPct!=null?stMaloPct+'%':'—')+'</div><div class="l">→ sueño malo</div></div>'+
+     '<div><div class="n">'+(stHerpesPct!=null?stHerpesPct+'%':'—')+'</div><div class="l">→ herpes ≤3d</div></div></div>'+
+     '<p class="muted">De los días de Frustración/Ira: cuántos van seguidos de sueño "Malo" (mismo día o el siguiente) y cuántos con herpes activo dentro de 3 días.</p></div>';
+
+  // d
+  h+='<div class="card"><h2>🦠 Herpes — qué lo precede</h2>';
+  if(!herpRows.length)h+='<p class="muted">Sin episodios de herpes registrados. 👍</p>';
+  else h+=herpRows.map(r=>'<div class="entry"><span class="d">'+fmt(r.fecha)+'</span> <span class="tg">'+r.h+'</span>'+
+     '<div class="metrics">3 días previos: '+(r.tags.length?r.tags.map(esc).join(' · '):'nada marcado')+'</div></div>').join('');
+  h+='</div>';
+
+  // e
+  h+='<div class="card"><h2>🍄 Entéogeno → semana siguiente</h2>';
+  if(!enteoRows.length)h+='<p class="muted">Sin tomas registradas.</p>';
+  else h+=enteoRows.map(r=>'<div class="entry"><span class="d">'+fmt(r.fecha)+'</span> <span class="tg" style="background:#f1edf8;color:#5a4b86">'+esc(r.sust||'entéogeno')+(r.q?' '+esc(String(r.q))+r.unit:'')+'</span>'+
+     '<div class="metrics">7 días siguientes: energía entreno '+(r.energia!=null?r.energia.toFixed(1)+'/5':'—')+' · '+r.herpN+' día(s) herpes activo · '+r.maloN+' noche(s) sueño malo</div></div>').join('');
+  h+='</div>';
+
+  // f) tendencias
+  const pesoMap={};bio.forEach(b=>{if(b.peso!=null)pesoMap[b.fecha]=b.peso;});
+  tr.forEach(s=>{const p=parseFloat(s.peso);if(!isNaN(p)&&s.fecha&&pesoMap[s.fecha]==null)pesoMap[s.fecha]=p;});
+  const pesoPts=Object.keys(pesoMap).sort().map(f=>({x:f,y:pesoMap[f]}));
+  const cintMap={};bio.forEach(b=>{if(b.cintura!=null)cintMap[b.fecha]=b.cintura;});
+  tr.forEach(s=>{const c=parseFloat(s.cintura);if(!isNaN(c)&&s.fecha&&cintMap[s.fecha]==null)cintMap[s.fecha]=c;});
+  const cintPts=Object.keys(cintMap).sort().map(f=>({x:f,y:cintMap[f]}));
+  const enePts=tr.map(s=>({x:s.fecha,y:parseFloat(s.energia)})).filter(p=>!isNaN(p.y));
+  const stripItems=days.map(d=>({fecha:d.fecha,color:anaColorFor(d)}));
+  h+='<div class="card"><h2>📈 Tendencias</h2>'+
+     '<div style="margin:6px 0"><div style="font-size:.78rem;margin-bottom:2px">Peso (kg) <span class="muted">· báscula + pesadas de entreno</span></div>'+anaSpark(pesoPts,'#c0603f')+'</div>'+
+     '<div style="margin:6px 0"><div style="font-size:.78rem;margin-bottom:2px">Cintura (cm)</div>'+anaSpark(cintPts,'#3f7d6e')+'</div>'+
+     '<div style="margin:6px 0"><div style="font-size:.78rem;margin-bottom:2px">Energía de entreno (1–5)</div>'+anaSpark(enePts,'#7a6cae')+'</div>'+
+     '<div style="margin:6px 0"><div style="font-size:.78rem;margin-bottom:2px">Herpes / estrés por día <span class="muted">· 🟢 normal · 🟡 leve/frustración · 🔴 brote/ira</span></div>'+anaStrip(stripItems)+'</div>'+
+     '</div>';
+
+  // g) timeline
+  const allDates={};days.forEach(d=>allDates[d.fecha]=1);tr.forEach(s=>{if(s.fecha)allDates[s.fecha]=1;});
+  const dates=Object.keys(allDates).sort((a,b)=>a<b?1:-1).slice(0,21);
+  const sem={v:'🟢',a:'🟡',r:'🔴'};
+  h+='<div class="card"><h2>🗓️ Línea de tiempo (últimos 21 días)</h2>';
+  if(!dates.length)h+='<p class="muted">Sin registros aún.</p>';
+  else h+=dates.map(f=>{
+    const d=byDate[f],ss=trByDate[f]||[];const parts=[];
+    ss.forEach(s=>parts.push((sem[s.dia]||'🏋️')+' '+(s.sesion||'entreno')));
+    if(d){const hp=[];if(d.dig&&d.dig!=='0')hp.push('intest '+d.dig);if(d.heces&&d.heces!=='Formadas, no flotan')hp.push(d.heces);
+      if(anaSick(d.herpes))hp.push('🦠 '+d.herpes);if(d.evento&&d.evento!=='Neutra')hp.push('😣 '+d.evento);
+      const tg=Object.keys(d.trig||{}).filter(k=>d.trig[k]);if(tg.length)hp.push('⚠️ '+tg.join(','));
+      if(hp.length)parts.push(hp.join(' · '));}
+    return '<div class="entry" style="margin:5px 0;padding:6px 9px"><span class="d">'+fmt(f)+'</span> <span class="metrics">'+(parts.length?esc(parts.join('  ·  ')):'—')+'</span></div>';
+  }).join('');
+  h+='</div>';
+
+  body.innerHTML=h;
+}
+function copyAnalisis(){
+  const days=[...DB.days].sort((a,b)=>a.fecha<b.fecha?-1:1);
+  const bio=[...DB.bio].sort((a,b)=>a.fecha<b.fecha?-1:1);
+  const tr=readTraining();
+  const byDate={};days.forEach(d=>{byDate[d.fecha]=d;});
+  const trByDate={};tr.forEach(s=>{if(!s.fecha)return;(trByDate[s.fecha]=trByDate[s.fecha]||[]).push(s);});
+  const clean=days.filter(isClean),dirty=days.filter(d=>!isClean(d));
+  const digC=avg(clean,'dig'),digT=avg(dirty,'dig'),irrC=avg(clean,'irrita'),irrT=avg(dirty,'irrita');
+  const hecesRec=days.filter(d=>d.heces);const flotanPct=anaPct(days.filter(d=>d.heces==='Formadas, flotan').length,hecesRec.length);
+  const nn=(v)=>v==null?'—':v;
+  let t='ANÁLISIS SALUD & NUTRICIÓN — Alex\nGenerado: '+fmt(todayISO())+'\n'+'='.repeat(44)+'\n\n';
+  t+='DÍAS LIMPIOS vs CON DISPARADOR (limpio = sin lácteos/cerdo/gluten/maíz)\n';
+  t+=' Limpios: '+clean.length+' · Con disparador: '+dirty.length+'\n';
+  t+=' Molestia intestinal (0–3): limpio '+(digC!=null?digC.toFixed(1):'—')+' vs disparador '+(digT!=null?digT.toFixed(1):'—')+'\n';
+  t+=' Irritabilidad (0–3): limpio '+(irrC!=null?irrC.toFixed(1):'—')+' vs disparador '+(irrT!=null?irrT.toFixed(1):'—')+'\n';
+  t+=' Heces flotan (global): '+nn(flotanPct!=null?flotanPct+'%':null)+'\n\n';
+  // emocionalidad
+  const stressDays=days.filter(d=>anaStress(d.evento));
+  let stMalo=0,stHerpes=0;
+  stressDays.forEach(d=>{const same=byDate[d.fecha],nxt=byDate[anaIsoAdd(d.fecha,1)];if((same&&same.sueno==='Malo')||(nxt&&nxt.sueno==='Malo'))stMalo++;
+    let hz=false;for(let k=0;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,k)];if(dd&&anaSick(dd.herpes))hz=true;}if(hz)stHerpes++;});
+  t+='EMOCIONALIDAD\n Días Frustración/Ira: '+stressDays.length+' · Calma/Neutro: '+days.filter(d=>d.evento==='Calmada'||d.evento==='Neutra').length+'\n';
+  t+=' De los de estrés → sueño malo (mismo/día sig.): '+stMalo+' · herpes ≤3d: '+stHerpes+'\n\n';
+  // herpes precede
+  const herpDays=days.filter(d=>anaSick(d.herpes));
+  t+='HERPES — QUÉ LO PRECEDE (3 días previos)\n';
+  if(!herpDays.length)t+=' Sin episodios.\n';
+  else herpDays.forEach(d=>{let trg=false,azu=false,emo=false,mal=false;
+    for(let k=1;k<=3;k++){const dd=byDate[anaIsoAdd(d.fecha,-k)];if(!dd)continue;const tg=dd.trig||{};
+      if(tg.lacteos||tg.cerdo||tg.gluten||tg.maiz||tg.alcohol||tg.azucar||tg.grasaAlta)trg=true;if(tg.azucar)azu=true;
+      if(anaStress(dd.evento))emo=true;if(dd.sueno==='Malo')mal=true;}
+    const tags=[];if(azu)tags.push('azúcar');else if(trg)tags.push('disparador');if(emo)tags.push('estrés');if(mal)tags.push('sueño malo');
+    t+=' '+fmt(d.fecha)+' ('+d.herpes+'): '+(tags.length?tags.join(', '):'nada marcado')+'\n';});
+  t+='\n';
+  // enteogeno
+  const enteoDays=days.filter(d=>d.enteo==='Sí');
+  t+='ENTÉOGENO → SEMANA SIGUIENTE\n';
+  if(!enteoDays.length)t+=' Sin tomas.\n';
+  else enteoDays.forEach(d=>{const unit=d.enteoSust==='LSD'?'µg':d.enteoSust==='Psilocibina'?'g':d.enteoSust==='DMT'?'mg':'';
+    let eSum=0,eN=0,herpN=0,maloN=0;
+    for(let k=1;k<=7;k++){const iso=anaIsoAdd(d.fecha,k);(trByDate[iso]||[]).forEach(s=>{const e=parseFloat(s.energia);if(!isNaN(e)){eSum+=e;eN++;}});
+      const dd=byDate[iso];if(dd){if(anaSick(dd.herpes))herpN++;if(dd.sueno==='Malo')maloN++;}}
+    t+=' '+fmt(d.fecha)+' '+(d.enteoSust||'entéogeno')+(d.enteoQ?' '+d.enteoQ+unit:'')+': energía entreno '+(eN?(eSum/eN).toFixed(1)+'/5':'—')+' · herpes '+herpN+'d · sueño malo '+maloN+' noches\n';});
+  t+='\n';
+  // timeline
+  const allDates={};days.forEach(d=>allDates[d.fecha]=1);tr.forEach(s=>{if(s.fecha)allDates[s.fecha]=1;});
+  const dates=Object.keys(allDates).sort((a,b)=>a<b?1:-1).slice(0,21);
+  const semT={v:'🟢',a:'🟡',r:'🔴'};
+  t+='LÍNEA DE TIEMPO (últimos 21 días)\n';
+  dates.forEach(f=>{const d=byDate[f],ss=trByDate[f]||[];const parts=[];
+    ss.forEach(s=>parts.push((semT[s.dia]||'')+(s.sesion?' '+s.sesion:'entreno')));
+    if(d){const hp=[];if(d.dig&&d.dig!=='0')hp.push('intest'+d.dig);if(d.heces&&d.heces!=='Formadas, no flotan')hp.push(d.heces);
+      if(anaSick(d.herpes))hp.push('herpes '+d.herpes);if(d.evento&&d.evento!=='Neutra')hp.push(d.evento);
+      const tg=Object.keys(d.trig||{}).filter(k=>d.trig[k]);if(tg.length)hp.push('disp:'+tg.join(','));
+      if(hp.length)parts.push(hp.join(', '));}
+    t+=' '+fmt(f)+': '+(parts.length?parts.join(' | '):'—')+'\n';});
+  copyText(t.trim());
+}
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>alert('Análisis copiado ✓ — pégamelo en el chat')).catch(()=>fallbackCopy(t));
+  }else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  try{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('Análisis copiado ✓ — pégamelo en el chat');}
+  catch(e){prompt('Copia el análisis manualmente:',t);}
 }
 
 /* ---- ENTRENO (lectura automática, misma web/origen) ---- */
