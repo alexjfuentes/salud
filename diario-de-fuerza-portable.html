@@ -112,9 +112,9 @@
 <h1>Diario de Fuerza — Álex</h1>
 <div class="sub">Fase 1 · Reentrada · displasia+CAM+labrum+artrosis · L3–S1 · sin impacto · sin dolor · sin llegar al fallo</div>
 
-<div class="card" id="miradaCard">
-  <h2>🤍 Una mirada (guía viva)</h2>
-  <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
+<details class="card" id="miradaCard">
+  <summary style="cursor:pointer;font-weight:700;font-size:1rem">🤍 Una mirada (guía viva) <span style="font-weight:400;opacity:.65;font-size:.78rem">— toca para leer / escuchar</span></summary>
+  <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:8px"></div>
   <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
   <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
     <button class="btn sec" style="width:auto" onclick="speakMirada()">▶ Escuchar</button>
@@ -123,7 +123,7 @@
     <button class="btn sec" style="width:auto;display:none" id="miradaSaveBtn" onclick="guardarMirada()">Guardar ✓</button>
   </div>
   <p class="muted" style="font-size:.72rem;margin-top:6px">Guía viva: la actualizo yo (Claude) en cada revisión; pégala aquí con «Actualizar» y queda guardada en este móvil.</p>
-</div>
+</details>
 
 <div id="banner" class="banner"></div>
 

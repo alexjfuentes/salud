@@ -190,23 +190,20 @@
   <p class="intro">Los temas que sientes que debes trabajar, sacados de tus relatos. Cuando sientas uno trabajado, márcalo como 'Trabajado' y pasa a Archivados (siguen visibles para releer). El % es orientativo: cuánto se repite en tus sesiones.</p>
   <div class="disc">Esto ordena lo que TÚ escribiste; no es diagnóstico. Útil para ti y para llevarlo a terapia.</div>
 
-  <div id="temasIndex"></div>
-
-  <div class="card" id="miradaCard" style="border-left:4px solid var(--accent2)">
-    <h2>🤍 Una mirada (guía viva)</h2>
-    <div id="miradaClamp" class="miradaClamp">
-      <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:6px"></div>
-    </div>
+  <details class="card" id="miradaCard" style="border-left:4px solid var(--accent2)">
+    <summary style="cursor:pointer;font-weight:700;font-size:1rem;color:var(--accent)">🤍 Una mirada (guía viva) <span style="font-weight:400;opacity:.65;font-size:.78rem;color:var(--muted)">— toca para leer / escuchar</span></summary>
+    <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:8px"></div>
     <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
     <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-      <button class="btn sec mini" id="miradaVerBtn" onclick="toggleMirada(this)">Ver más ▾</button>
       <button class="btn sec mini" onclick="speakMirada()">▶ Escuchar</button>
       <button class="btn sec mini" onclick="stopSpeak()">⏹</button>
       <button class="btn sec mini" id="miradaEditBtn" onclick="editMirada()">✏️ Actualizar</button>
       <button class="btn sec mini" id="miradaSaveBtn" style="display:none" onclick="guardarMirada()">Guardar ✓</button>
     </div>
     <p class="muted" style="font-size:.72rem;margin-top:6px">Guía viva: la actualizo yo (Claude) en cada revisión; pégala aquí con «Actualizar» y queda guardada en este móvil.</p>
-  </div>
+  </details>
+
+  <div id="temasIndex"></div>
 
   <button class="btn sec" onclick="nuevoTema()">➕ Añadir tema</button>
 
