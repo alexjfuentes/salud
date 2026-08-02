@@ -99,6 +99,7 @@
   <button data-t="hoy" class="active">Hoy</button>
   <button data-t="analisis">📊 Análisis</button>
   <button data-t="guia">Guía</button>
+  <button data-t="ruta">🧭 Ruta</button>
   <button data-t="export">Exportar</button>
 </nav>
 <main>
@@ -282,6 +283,56 @@
   </details>
 </section>
 
+<!-- ============ RUTA ============ -->
+<section id="ruta" class="tab">
+  <h2>🧭 ¿Adónde lleva esto?</h2>
+  <p class="muted">Lo que buscas cuando aprendes a saber que sueñas. Dos miradas, separadas a propósito: lo que dicen los estudiosos, y —aparte— el relato de Castaneda para encender la imaginación. Puedes leerlo o pulsar ▶ para escucharlo.</p>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0">
+    <button class="btn mini" onclick="speakKey('cienciaAll')">▶ Escuchar (ciencia)</button>
+    <button class="btn sec mini" onclick="stopSpeak()">⏹ Parar</button>
+  </div>
+
+  <div class="card">
+    <h2>🔬 La ciencia y los maestros</h2>
+
+    <h3>La lucidez es la puerta, no la meta</h3>
+    <p>Lograr darte cuenta de que estás soñando es solo la puerta de entrada; a partir de ahí empieza el viaje. Los estudiosos, de Stephen LaBerge a Javier García Campayo, describen un camino en tres pasos: primero estabilizar el sueño para que no se desvanezca al emocionarte; después explorar y transformar ese mundo a voluntad; y por último, aplicarlo. Y es en ese aplicarlo donde aparece lo interesante.</p>
+    <button class="btn sec mini" onclick="speakKey('a1')">▶ Escuchar</button>
+
+    <h3>¿Para qué sirve?</h3>
+    <p>Los autores documentan usos concretos. Afrontar y disolver pesadillas quedándote en vez de huir, una de las aplicaciones con más respaldo científico. Ensayar habilidades, gestos deportivos o situaciones que temes, en un entorno totalmente seguro. Estimular la creatividad y resolver problemas aprovechando una distancia que la vigilia no da; Dalí y Edison ya usaban ese territorio. Y, más hondo, el autoconocimiento: encontrarte en el sueño con partes de ti que rechazas, lo que Jung llamó la Sombra, y poder integrarlas. Como escribió Rilke: tal vez todos los dragones de nuestras vidas son princesas que esperan tan solo vernos una vez bellos y valientes.</p>
+    <button class="btn sec mini" onclick="speakKey('a2')">▶ Escuchar</button>
+
+    <h3>La vía contemplativa: el yoga de los sueños</h3>
+    <p>Para las tradiciones contemplativas, y para el propio Campayo, el sueño lúcido no es un juguete para volar, sino una práctica. En el yoga de los sueños tibetano el objetivo real es reconocer que tu cuerpo, tu yo y todo lo que te rodea son de la misma naturaleza que un sueño: ilusorios. Entrenar eso reduce el apego y despierta la consciencia. Meditar dentro de un sueño lúcido se considera potentísimo: Alan Wallace dice que un minuto meditando en el sueño lúcido equivale a un retiro de una semana. Y hay algo más profundo: dominar el estado del sueño se entiende como preparación para atravesar con consciencia los umbrales hondos de la mente, incluso el de la muerte. En la antigua Grecia, el Sueño y la Muerte, Hypnos y Thánatos, eran hermanos gemelos.</p>
+    <button class="btn sec mini" onclick="speakKey('a3')">▶ Escuchar</button>
+
+    <h3>Lo que se sale del cuerpo (con prudencia)</h3>
+    <p>Algunos soñadores describen experiencias fuera del cuerpo, la sensación de verse desde fuera. Campayo las trata con respeto pero con prudencia científica: son experiencias reales y estudiadas, ligadas a una zona concreta del cerebro y hasta inducibles en laboratorio, pero su interpretación esotérica, la del viaje astral literal, no está demostrada. Su regla de oro: recuerda que sigues dentro del sueño, no en otra realidad.</p>
+    <button class="btn sec mini" onclick="speakKey('a4')">▶ Escuchar</button>
+
+    <h3>El sentido de fondo</h3>
+    <p>Pasamos un tercio de la vida dormidos, casi siempre sin consciencia. Entrenar el sueño lúcido es aprovechar ese tercio: convertirlo en un laboratorio de tu propia mente para conocerte, sanar, crear y expandir tu consciencia. Una aventura interior, paralela a la vida cotidiana, que además tiende a hacerte más consciente y despierto también de día. Como resume Campayo, los sueños lúcidos son una de las aventuras más apasionantes del ser humano: una puerta a mundos alternativos.</p>
+    <button class="btn sec mini" onclick="speakKey('a5')">▶ Escuchar</button>
+
+    <h3>Con los pies en el suelo</h3>
+    <p>Dos avisos honestos. Es una práctica segura: siempre puedes salir despertando y la mayoría de experiencias son positivas. Pero no se trata de evadirse: si se usa para escapar de una vida insatisfactoria, refuerza el escape en vez de la vida. La clave es el equilibrio, hacer tu vigilia más rica, no sustituirla. Y sin obsesión: el progreso es ondulante, se celebra lo pequeño.</p>
+    <button class="btn sec mini" onclick="speakKey('a6')">▶ Escuchar</button>
+  </div>
+
+  <div class="banner blue">«Confía en los sueños, ya que en ellos está oculta la puerta hacia la eternidad.» — Khalil Gibran</div>
+
+  <div class="card" style="border-color:var(--accent2);border-left:4px solid var(--accent2)">
+    <div class="banner">⚠️ Esto es literatura, no ciencia. Apártalo de lo anterior: es mitología chamánica de los libros de Carlos Castaneda, para encender la imaginación.</div>
+    <h2 style="color:var(--accent2)">🌵 El ensueño de Castaneda (novela — aparte)</h2>
+    <p>En los libros de Carlos Castaneda, el brujo Don Juan enseña el arte de ensoñar a través de las compuertas del ensueño, umbrales que se cruzan uno a uno, y empieza justo donde tú vas a empezar. La primera compuerta se cruza cuando, dentro de un sueño, eres capaz de encontrar tus propias manos y sostener la mirada en ellas sin que el sueño se deshaga: el primer acto de voluntad del soñador. La segunda, cuando aprendes a cambiar de un sueño a otro y a despertar dentro del propio sueño. La tercera, cuando te ves a ti mismo y el cuerpo de ensueño cobra fuerza. Y la cuarta, cuando ese cuerpo energético viaja a lugares y mundos que Don Juan describe como reales. Es una mitología poderosa, pensada para encender la imaginación y las ganas de aventura. Tómala como lo que es, un relato, y deja que alimente tu fantasía mientras entrenas con los pies en el suelo.</p>
+    <button class="btn sec mini" onclick="speakKey('castaneda')">▶ Escuchar</button>
+  </div>
+
+  <div class="banner ok">«Nuestra vida más auténtica tiene lugar cuando soñamos despiertos.» — Thoreau</div>
+</section>
+
 <!-- ============ EXPORT ============ -->
 <section id="export" class="tab">
   <div class="card">
@@ -356,6 +407,7 @@ document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
   b.classList.add('active');
   $(b.dataset.t).classList.add('active');
   if(b.dataset.t==='analisis')renderAnalisis();
+  stopSpeak();
   window.scrollTo({top:0,behavior:'smooth'});
 });
 
@@ -782,6 +834,34 @@ function restore(){
     alert('Datos restaurados ✓');
   }catch(e){alert('JSON no válido. Revisa que pegaste el backup completo.');}
 }
+
+/* ================= RUTA · TEXTO A VOZ (TTS) ================= */
+const NARR={
+  a1:"Lograr darte cuenta de que estás soñando es solo la puerta de entrada; a partir de ahí empieza el viaje. Los estudiosos, de Stephen LaBerge a Javier García Campayo, describen un camino en tres pasos: primero estabilizar el sueño para que no se desvanezca al emocionarte; después explorar y transformar ese mundo a voluntad; y por último, aplicarlo. Y es en ese aplicarlo donde aparece lo interesante.",
+  a2:"Los autores documentan usos concretos. Afrontar y disolver pesadillas quedándote en vez de huir, una de las aplicaciones con más respaldo científico. Ensayar habilidades, gestos deportivos o situaciones que temes, en un entorno totalmente seguro. Estimular la creatividad y resolver problemas aprovechando una distancia que la vigilia no da; Dalí y Edison ya usaban ese territorio. Y, más hondo, el autoconocimiento: encontrarte en el sueño con partes de ti que rechazas, lo que Jung llamó la Sombra, y poder integrarlas. Como escribió Rilke: tal vez todos los dragones de nuestras vidas son princesas que esperan tan solo vernos una vez bellos y valientes.",
+  a3:"Para las tradiciones contemplativas, y para el propio Campayo, el sueño lúcido no es un juguete para volar, sino una práctica. En el yoga de los sueños tibetano el objetivo real es reconocer que tu cuerpo, tu yo y todo lo que te rodea son de la misma naturaleza que un sueño: ilusorios. Entrenar eso reduce el apego y despierta la consciencia. Meditar dentro de un sueño lúcido se considera potentísimo: Alan Wallace dice que un minuto meditando en el sueño lúcido equivale a un retiro de una semana. Y hay algo más profundo: dominar el estado del sueño se entiende como preparación para atravesar con consciencia los umbrales hondos de la mente, incluso el de la muerte. En la antigua Grecia, el Sueño y la Muerte, Hypnos y Thánatos, eran hermanos gemelos.",
+  a4:"Algunos soñadores describen experiencias fuera del cuerpo, la sensación de verse desde fuera. Campayo las trata con respeto pero con prudencia científica: son experiencias reales y estudiadas, ligadas a una zona concreta del cerebro y hasta inducibles en laboratorio, pero su interpretación esotérica, la del viaje astral literal, no está demostrada. Su regla de oro: recuerda que sigues dentro del sueño, no en otra realidad.",
+  a5:"Pasamos un tercio de la vida dormidos, casi siempre sin consciencia. Entrenar el sueño lúcido es aprovechar ese tercio: convertirlo en un laboratorio de tu propia mente para conocerte, sanar, crear y expandir tu consciencia. Una aventura interior, paralela a la vida cotidiana, que además tiende a hacerte más consciente y despierto también de día. Como resume Campayo, los sueños lúcidos son una de las aventuras más apasionantes del ser humano: una puerta a mundos alternativos.",
+  a6:"Dos avisos honestos. Es una práctica segura: siempre puedes salir despertando y la mayoría de experiencias son positivas. Pero no se trata de evadirse: si se usa para escapar de una vida insatisfactoria, refuerza el escape en vez de la vida. La clave es el equilibrio, hacer tu vigilia más rica, no sustituirla. Y sin obsesión: el progreso es ondulante, se celebra lo pequeño.",
+  castaneda:"En los libros de Carlos Castaneda, el brujo Don Juan enseña el arte de ensoñar a través de las compuertas del ensueño, umbrales que se cruzan uno a uno, y empieza justo donde tú vas a empezar. La primera compuerta se cruza cuando, dentro de un sueño, eres capaz de encontrar tus propias manos y sostener la mirada en ellas sin que el sueño se deshaga: el primer acto de voluntad del soñador. La segunda, cuando aprendes a cambiar de un sueño a otro y a despertar dentro del propio sueño. La tercera, cuando te ves a ti mismo y el cuerpo de ensueño cobra fuerza. Y la cuarta, cuando ese cuerpo energético viaja a lugares y mundos que Don Juan describe como reales. Es una mitología poderosa, pensada para encender la imaginación y las ganas de aventura. Tómala como lo que es, un relato, y deja que alimente tu fantasía mientras entrenas con los pies en el suelo."
+};
+NARR.cienciaAll=NARR.a1+" "+NARR.a2+" "+NARR.a3+" "+NARR.a4+" "+NARR.a5+" "+NARR.a6;
+function speakKey(k){speak(NARR[k]);}
+function speak(txt){
+  try{
+    if(!('speechSynthesis' in window)){alert('Tu móvil no permite leer en voz aquí; puedes leerlo en pantalla.');return;}
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(txt);
+    u.lang='es-ES';u.rate=0.95;u.pitch=1;
+    var vs=window.speechSynthesis.getVoices()||[];
+    var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];
+    if(es)u.voice=es;
+    window.speechSynthesis.speak(u);
+  }catch(e){alert('No se pudo reproducir la voz; léelo en pantalla.');}
+}
+function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}}
+/* precargar voces (iOS) */
+try{if('speechSynthesis' in window){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=function(){};}}catch(e){}
 
 /* ================= INIT ================= */
 $('d_fecha').value=todayISO();
