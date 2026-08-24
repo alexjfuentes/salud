@@ -15,7 +15,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
   body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    padding:calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 24px) 12px;line-height:1.4;font-size:16px;transition:padding-top .2s}
+    padding:calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 92px) 12px;line-height:1.4;font-size:16px;transition:padding-top .2s}
   body.bar-on{padding-top:calc(env(safe-area-inset-top) + 60px)}
   h1{font-size:19px;margin:2px 0 2px}
   .sub{color:var(--mut);font-size:12.5px;margin-bottom:12px}
@@ -31,7 +31,7 @@
   .chip{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:9px 13px;border-radius:999px;font-size:14px;cursor:pointer;user-select:none}
   .chip.active{background:var(--accent);color:#04263a;border-color:var(--accent);font-weight:700}
   .diachips{display:flex;gap:8px}
-  .diachips .chip{flex:1;text-align:center;font-size:14.5px;white-space:nowrap;padding:12px 6px;display:flex;align-items:center;justify-content:center;gap:5px;line-height:1.1}
+  .diachips .chip{flex:1;text-align:center;font-size:18px}
   .diachips .chip.on-v{background:var(--ok);border-color:var(--ok)}
   .diachips .chip.on-a{background:var(--warn);border-color:var(--warn)}
   .diachips .chip.on-r{background:var(--bad);border-color:var(--bad)}
@@ -98,6 +98,16 @@
   .tmbar .time.down{color:var(--accent)}.tmbar .time.up{color:var(--violet)}.tmbar .time.ready{color:var(--ok)}
   .tmbar button{flex:0 0 auto;width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:18px;cursor:pointer}
   .tmbar button.prim{background:var(--accent);color:#04263a;border-color:var(--accent)}
+  /* --- v3 --- */
+  .dep{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:10px;opacity:.85}
+  .dep summary{color:var(--mut);font-size:12.5px;font-weight:600}
+  input[readonly]{opacity:.8}
+  .dupitem{border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:7px;background:var(--card);font-size:12.5px;display:flex;gap:9px;align-items:flex-start}
+  .dupitem input[type=checkbox]{width:20px;height:20px;flex:0 0 auto;accent-color:var(--bad);margin-top:2px}
+  .protbox{border:1px dashed var(--accent2);border-radius:10px;padding:9px;margin-top:8px}
+  .protbox .t{font-size:11.5px;color:var(--accent2);margin-bottom:2px;font-weight:700}
+  .rirwrap{margin-top:8px}
+  code{font-size:11px;background:#0e1729;padding:1px 4px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -110,34 +120,27 @@
 </div>
 
 <h1>Diario de Fuerza — Álex</h1>
-<div class="sub">Fase 1 · Reentrada · displasia+CAM+labrum+artrosis · L3–S1 · sin impacto · sin dolor · sin llegar al fallo</div>
+<div class="sub" id="subTitulo">Fase 1 · Reentrada · displasia+CAM+labrum+artrosis · L3–S1 · sin impacto · sin dolor · sin llegar al fallo</div>
 
-<details class="card" id="miradaCard">
-  <summary style="cursor:pointer;font-weight:700;font-size:1rem">🤍 Una mirada (guía viva) <span style="font-weight:400;opacity:.65;font-size:.78rem">— toca para leer / escuchar</span></summary>
-  <div id="miradaTexto" style="font-size:.9rem;line-height:1.55;margin-top:8px"></div>
-  <textarea id="miradaEdit" style="display:none;min-height:150px;margin-top:8px" placeholder="Pega aquí la mirada actualizada…"></textarea>
-  <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-    <button class="btn sec" style="width:auto" onclick="speakMirada()">▶ Escuchar</button>
-    <button class="btn sec" style="width:auto" onclick="stopSpeak()">⏹</button>
-    <button class="btn sec" style="width:auto" id="miradaEditBtn" onclick="editMirada()">✏️ Actualizar</button>
-    <button class="btn sec" style="width:auto;display:none" id="miradaSaveBtn" onclick="guardarMirada()">Guardar ✓</button>
-  </div>
-  <p class="muted" style="font-size:.72rem;margin-top:6px">Guía viva: la actualizo yo (Claude) en cada revisión; pégala aquí con «Actualizar» y queda guardada en este móvil.</p>
-</details>
-
+<div id="migBanner" class="banner"></div>
 <div id="banner" class="banner"></div>
 
 <div class="card">
-  <h2>Día · mes · semana</h2>
+  <h2>Día · mes · ciclo</h2>
   <div class="row">
     <div><label>Fecha</label><input type="date" id="fecha"></div>
     <div><label>Momento</label><select id="momento"><option>Mañana (8–9h)</option><option>Tarde (14–16h)</option><option>Otro</option></select></div>
   </div>
   <div class="row">
     <div><label>Mes</label><select id="mes"></select></div>
-    <div><label>Semana</label><select id="semana"><option>S1</option><option>S2</option><option>S3</option><option>S4 (descarga)</option><option>S5</option></select></div>
+    <div><label>Ciclo A-B-C <span class="mini">(automático)</span></label><input type="text" id="cicloView" readonly value="—"></div>
   </div>
-  <div class="help" id="julyNote" style="display:none">🗓️ <b>Julio = mes de arranque:</b> empiezas la semana del 13, así que son <b>3 semanas (S1 · S2 · S3), sin descarga</b>. La descarga (semana 4) vuelve en agosto.</div>
+  <div class="help" id="cicloNota">Un ciclo = 3 sesiones (A · B · C) que deben cerrarse en 8 días o menos. Fase 2 arranca el 24/08/2026.</div>
+  <details class="dep" id="semanaDep">
+    <summary>Campo heredado «Semana» (deprecado)</summary>
+    <div class="help">Se sigue guardando para no perder el histórico de Fase 1, pero ya no manda: ahora el plan se organiza por ciclos A-B-C. Sin hardcodeo de julio y sin etiquetar la semana 4 como «descarga».</div>
+    <label>Semana</label><select id="semana"><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S4 (descarga)</option><option>S5</option></select>
+  </details>
   <label>Tipo de sesión</label><div class="chips" id="sesionChips"></div>
 </div>
 
@@ -194,14 +197,13 @@
 </div>
 
 <div class="card"><h2>Notas de la sesión</h2><textarea id="notas" placeholder="Sensaciones, cambios de carga, gestos que molestaron..."></textarea></div>
-<button class="btn" id="guardar" style="margin:2px 0 14px">Guardar sesión ✓</button>
 
 <div class="card">
   <details id="histDetails">
     <summary>Historial (<span id="histCount">0</span>)</summary>
     <div class="row" style="margin-top:10px">
       <div><label>Ver mes</label><select id="filtMes"></select></div>
-      <div><label>Ver semana</label><select id="filtSem"><option>Todas</option><option>S1</option><option>S2</option><option>S3</option><option>S4 (descarga)</option><option>S5</option></select></div>
+      <div><label>Ver semana <span class="mini">(heredado)</span></label><select id="filtSem"><option>Todas</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S4 (descarga)</option><option>S5</option></select></div>
     </div>
     <div id="histLista" style="margin-top:10px"></div>
     <div class="row" style="margin-top:10px">
@@ -212,16 +214,29 @@
       <button class="btn sec" id="exportJson">💾 Backup</button>
       <button class="btn sec" id="importBtn">Importar copia</button>
     </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn sec" id="dedupBtn">🧹 Revisar duplicados vacíos</button>
+    </div>
+    <div id="dedupPanel"></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn sec" id="restoreBtn">↩ Restaurar copia previa a v3</button>
+    </div>
     <div class="mini" style="margin-top:8px">Los datos se guardan solo en este móvil. «Copiar para Claude» copia un resumen para pegar en el chat y ajustar el plan.</div>
   </details>
 </div>
 
-
+<div class="footwrap"><button class="btn" id="guardar">Guardar sesión ✓</button></div>
 <div class="flash" id="flash">Guardado ✓</div>
 
 <script>
 "use strict";
 const STORE="diarioFuerzaAlex_v2";
+const APP_VERSION=3;
+const META_KEY="diarioFuerzaAlex_v2_meta";
+const BACKUP_KEY="diarioFuerzaAlex_v2_backup_pre_v3";
+const BACKUP_DEDUP_KEY="diarioFuerzaAlex_v2_backup_pre_dedup";
+const FASE2_INICIO="2026-08-24";
+const CICLO_MAX_DIAS=8;
 const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
 /* ===== Ilustraciones SVG (reconocer el ejercicio) ===== */
@@ -308,8 +323,24 @@ const YT_IDS={
 function ytId(name){return YT_IDS[name]||""}
 function ytWatch(name){const id=ytId(name);return id?"https://www.youtube.com/watch?v="+id:"https://www.youtube.com/results?search_query="+encodeURIComponent(name);}
 
-let state={sesion:"A · Inferior",dia:"v",pem:"no",yogaTipo:"Hatha",exDone:{},exLog:{},wDone:{}};
-let editTs=null;
+/* ===== Campos numéricos de los ejercicios protectores (SE AÑADEN al texto libre, no lo sustituyen) ===== */
+const PROTECTORES={
+ "Plancha Copenhague (Nivel 1, rodilla)":{campos:[
+   {k:"copenhagenSeg",lbl:"Segundos/serie",tipo:"num",ph:"seg"},
+   {k:"copenhagenLado",lbl:"Lado",tipo:"sel",opts:["Ambos","Izquierdo","Derecho"]}
+ ]},
+ "Press Pallof estático":{campos:[
+   {k:"pallofKg",lbl:"Kilos",tipo:"num",ph:"kg"},
+   {k:"pallofSeg",lbl:"Segundos",tipo:"num",ph:"seg"}
+ ]},
+ "Dead bug (bicho muerto)":{campos:[
+   {k:"deadbugReps",lbl:"Repeticiones",tipo:"num",ph:"reps"}
+ ]}
+};
+function protCampos(name){const p=PROTECTORES[name];return (p&&p.campos)||[]}
+function vacio(v){return v==null||v===""||(typeof v==="string"&&!v.trim())}
+
+let state={sesion:"A · Inferior",dia:"v",pem:"no",yogaTipo:"Hatha",exDone:{},exLog:{},exRir:{},exProt:{},wDone:{}};
 
 const $=id=>document.getElementById(id);
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"[]")}catch(e){return[]}}
@@ -318,12 +349,36 @@ function todayISO(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezone
 function flash(m){const f=$("flash");f.textContent=m;f.classList.add("show");setTimeout(()=>f.classList.remove("show"),1500)}
 function fmt(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60),ss=s%60;return (m<10?"0":"")+m+":"+(ss<10?"0":"")+ss}
 function mesFromISO(iso){const d=new Date(iso+"T00:00");return MESES[d.getMonth()]}
+/* Campo heredado «semana»: se sigue calculando y guardando, pero SIN el hardcodeo de julio de 2026
+   y SIN etiquetar automáticamente la semana 4 como «descarga». */
 function semFromISO(iso){const d=new Date(iso+"T00:00"),day=d.getDate();
-  if(d.getMonth()===6){ /* Julio 2026: mes de arranque (empiezas el 13) → S1·S2·S3, sin descarga */
-    if(day<=19)return "S1"; if(day<=26)return "S2"; return "S3";
-  }
-  const n=Math.min(5,Math.ceil(day/7));return n===4?"S4 (descarga)":"S"+n}
-function updateJulyNote(){const el=$("julyNote");if(el)el.style.display=($("mes").value==="Julio")?"block":"none"}
+  return "S"+Math.min(5,Math.ceil(day/7))}
+
+/* ===== Ciclos A-B-C (Fase 2 desde el 24/08/2026) ===== */
+function letraSesion(s){const m=/^([ABC])\s*·/.exec(String(s||""));return m?m[1]:""}
+function esFase2(fecha){return String(fecha||"")>=FASE2_INICIO}
+function faseDe(fecha){return esFase2(fecha)?"Fase 2":"Fase 1"}
+function diasEntre(a,b){return Math.round((new Date(b+"T00:00")-new Date(a+"T00:00"))/86400000)}
+/* Recorre el historial por fecha y numera los ciclos A-B-C. Un ciclo se cierra al completar
+   las 3 letras, al repetir una letra, o al superar CICLO_MAX_DIAS (8) días desde su apertura.
+   Devuelve un mapa clave -> {ciclo,diaCiclo,fase,cicloIni,cicloDias}. La clave de las entradas
+   guardadas es "e"+indice; la de una sesión aún sin guardar es "__nuevo__". */
+function calcCiclos(arr,extra){
+  const items=[];
+  (arr||[]).forEach(function(e,i){items.push({k:"e"+i,fecha:(e&&e.fecha)||"",sesion:(e&&e.sesion)||""})});
+  if(extra)items.push({k:"__nuevo__",fecha:extra.fecha||"",sesion:extra.sesion||""});
+  const f2=items.filter(function(x){return esFase2(x.fecha)&&letraSesion(x.sesion)});
+  f2.sort(function(a,b){return a.fecha<b.fecha?-1:(a.fecha>b.fecha?1:0)});
+  const out={};let ciclo=0,letras=[],ini="";
+  f2.forEach(function(x){
+    const L=letraSesion(x.sesion);
+    const abre=(ciclo===0)||(letras.indexOf(L)>=0)||(letras.length>=3)||(ini&&diasEntre(ini,x.fecha)>CICLO_MAX_DIAS);
+    if(abre){ciclo++;letras=[];ini=x.fecha}
+    letras.push(L);
+    out[x.k]={ciclo:ciclo,diaCiclo:letras.length,fase:"Fase 2",cicloIni:ini,cicloDias:diasEntre(ini,x.fecha)};
+  });
+  return out;
+}
 
 let AC=null;
 function alertOnce(){
@@ -363,7 +418,7 @@ function bindTimer(){$("tmToggle").onclick=tmToggle;$("tmClose").onclick=tmClose
 function buildChips(){
   const c=$("sesionChips");c.innerHTML="";
   Object.keys(SESIONES).forEach(k=>{const el=document.createElement("div");el.className="chip"+(k===state.sesion?" active":"");el.textContent=k;
-    el.onclick=()=>{state.sesion=k;state.exDone={};state.exLog={};state.wDone={};renderSesion();buildChips()};c.appendChild(el)});
+    el.onclick=()=>{state.sesion=k;state.exDone={};state.exLog={};state.exRir={};state.exProt={};state.wDone={};renderSesion();buildChips();refreshCicloView()};c.appendChild(el)});
   const yc=$("yogaChips");yc.innerHTML="";
   YOGA_TIPOS.forEach(k=>{const el=document.createElement("div");el.className="chip"+(k===state.yogaTipo?" active":"");el.textContent=k;el.onclick=()=>{state.yogaTipo=k;buildChips()};yc.appendChild(el)});
 }
@@ -380,6 +435,31 @@ function renderWarmup(){
       '<button class="exdone sm'+(done?' on':'')+'" data-wdone="'+i+'">✓</button></div>';
     c.appendChild(wrap)});
   c.querySelectorAll("[data-wdone]").forEach(b=>b.onclick=()=>{state.wDone[b.dataset.wdone]=!state.wDone[b.dataset.wdone];renderWarmup()});
+}
+function rirSelect(i){
+  const v=(state.exRir[i]==null?"":String(state.exRir[i]));
+  let h='<select data-rir="'+i+'"><option value=""'+(v===""?" selected":"")+'>—</option>';
+  for(let n=1;n<=5;n++){h+='<option value="'+n+'"'+(v===String(n)?" selected":"")+'>'+n+'</option>'}
+  return h+'</select>';
+}
+function protHTML(name,i){
+  const cs=protCampos(name);if(!cs.length)return "";
+  const st=state.exProt[i]||{};
+  let h='<div class="protbox"><div class="t">🛡 Registro numérico del protector</div>'+
+        '<div class="mini">El texto libre de arriba se conserva; esto solo lo complementa.</div><div class="row">';
+  cs.forEach(function(c){
+    const v=(st[c.k]==null?"":String(st[c.k]));
+    h+='<div><label style="margin:6px 0 4px">'+c.lbl+'</label>';
+    if(c.tipo==="sel"){
+      h+='<select data-prot="'+i+'" data-pk="'+c.k+'"><option value=""'+(v===""?" selected":"")+'>—</option>';
+      c.opts.forEach(function(o){h+='<option'+(v===o?" selected":"")+'>'+o+'</option>'});
+      h+='</select>';
+    }else{
+      h+='<input type="number" min="0" inputmode="numeric" data-prot="'+i+'" data-pk="'+c.k+'" placeholder="'+(c.ph||"")+'" value="'+v+'">';
+    }
+    h+='</div>';
+  });
+  return h+'</div></div>';
 }
 function renderSesion(){
   const s=SESIONES[state.sesion];
@@ -408,11 +488,17 @@ function renderSesion(){
         (ex.work>0?'<button class="btnsm work" data-work="'+i+'">⏱ Aguante '+ex.work+'s</button>':'<button class="btnsm work" data-stop="'+i+'">⏲ Crono</button>')+
       '</div>'+
       (ex.note?'<div class="note">⚠ '+ex.note+'</div>':'')+
-      '<input type="text" data-log="'+i+'" placeholder="Carga × reps (ej. 20×8 / 20×8 / 22×7)" value="'+(state.exLog[i]||"")+'" style="margin-top:8px">';
+      '<input type="text" data-log="'+i+'" placeholder="Carga × reps (ej. 20×8 / 20×8 / 22×7)" value="'+(state.exLog[i]||"")+'" style="margin-top:8px">'+
+      '<div class="rirwrap"><label style="margin:6px 0 4px">RIR — reps en reserva (1–5)</label>'+rirSelect(i)+'</div>'+
+      protHTML(ex.name,i);
     cont.appendChild(div);
   });
   cont.querySelectorAll(".exdone").forEach(b=>b.onclick=()=>{state.exDone[b.dataset.i]=!state.exDone[b.dataset.i];renderSesion()});
   cont.querySelectorAll("[data-log]").forEach(inp=>inp.oninput=()=>{state.exLog[inp.dataset.log]=inp.value});
+  cont.querySelectorAll("[data-rir]").forEach(sel=>sel.onchange=()=>{state.exRir[sel.dataset.rir]=sel.value});
+  cont.querySelectorAll("[data-prot]").forEach(function(inp){
+    const h=function(){const i=inp.dataset.prot;state.exProt[i]=state.exProt[i]||{};state.exProt[i][inp.dataset.pk]=inp.value};
+    inp.oninput=h;inp.onchange=h;});
   cont.querySelectorAll("[data-rest]").forEach(b=>b.onclick=()=>{const ex=s.ejercicios[b.dataset.rest];startTimer(ex.rest,"Descanso · "+ex.name)});
   cont.querySelectorAll("[data-work]").forEach(b=>b.onclick=()=>{const ex=s.ejercicios[b.dataset.work];startTimer(ex.work,"Aguante · "+ex.name)});
   cont.querySelectorAll("[data-stop]").forEach(b=>b.onclick=()=>{const ex=s.ejercicios[b.dataset.stop];startTimer(0,"Crono · "+ex.name)});
@@ -439,61 +525,53 @@ function bindWellness(){
     $("pemToggle").querySelectorAll("button").forEach(b=>b.className="");btn.className=state.pem==="si"?"on-si":(state.pem==="nose"?"on-nose":"on-no");updateBanner()});
 }
 
+function ejercicioObj(ex,i){
+  const o={name:ex.name,done:!!state.exDone[i],log:state.exLog[i]||"",rir:(state.exRir[i]==null?"":state.exRir[i])};
+  const st=state.exProt[i]||{};
+  protCampos(ex.name).forEach(function(c){o[c.k]=(st[c.k]==null?"":st[c.k])});
+  return o;
+}
 function guardar(){
   const s=SESIONES[state.sesion];
-  const entry={ts:editTs||Date.now(),fecha:$("fecha").value||todayISO(),mes:$("mes").value,semana:$("semana").value,momento:$("momento").value,
+  const fecha=$("fecha").value||todayISO();
+  const a=load();
+  const cic=calcCiclos(a,{fecha:fecha,sesion:state.sesion})["__nuevo__"]||{};
+  const entry={ts:Date.now(),fecha:fecha,mes:$("mes").value,semana:$("semana").value,momento:$("momento").value,
     sesion:state.sesion,dia:state.dia,dolorCadera:+$("dolorCadera").value,dolorLumbar:+$("dolorLumbar").value,dolorHombro:+$("dolorHombro").value,
     pem:state.pem,energia:+$("energia").value,peso:$("peso").value,cintura:$("cintura").value,
     yogaTipo:s.tipo==="yoga"?state.yogaTipo:"",yogaNotas:s.tipo==="yoga"?$("yogaNotas").value:"",
     cardioMedio:s.tipo==="cardio"?$("cardioMedio").value:"",cardioMin:s.tipo==="cardio"?$("cardioMin").value:"",
     notas:$("notas").value,
-    ejercicios:s.tipo==="gym"?s.ejercicios.map((ex,i)=>({name:ex.name,done:!!state.exDone[i],log:state.exLog[i]||""})):[]};
-  const a=load();
-  if(editTs){const i=a.findIndex(x=>x.ts===editTs);if(i>=0)a[i]=entry;else a.push(entry);}
-  else a.push(entry);
-  save(a);flash(editTs?"Actualizado ✓":"Guardado ✓");
-  editTs=null;$("guardar").textContent="Guardar sesión ✓";
-  state.exDone={};state.exLog={};state.wDone={};$("notas").value="";$("yogaNotas").value="";$("cardioMin").value="";
-  renderSesion();renderHist();
-}
-
-function editEntry(ts){
-  const e=load().find(x=>x.ts===ts);if(!e)return;
-  editTs=ts;
-  state.sesion=e.sesion||state.sesion;
-  state.dia=e.dia||"v";
-  state.pem=e.pem||"no";
-  state.yogaTipo=e.yogaTipo||"Hatha";
-  state.exDone={};state.exLog={};state.wDone={};
-  (e.ejercicios||[]).forEach((x,i)=>{if(x.done)state.exDone[i]=true;if(x.log)state.exLog[i]=x.log;});
-  $("fecha").value=e.fecha||todayISO();
-  if(e.mes)$("mes").value=e.mes;
-  if(e.semana)$("semana").value=e.semana;
-  if(e.momento)$("momento").value=e.momento;
-  updateJulyNote();
-  const setSlider=(id,v)=>{$(id).value=v;$(id+"V").textContent=v;colorVal($(id+"V"),+v,3,5);};
-  setSlider("dolorCadera",e.dolorCadera||0);
-  setSlider("dolorLumbar",e.dolorLumbar||0);
-  setSlider("dolorHombro",e.dolorHombro||0);
-  $("energia").value=e.energia||3;$("energiaV").textContent=e.energia||3;
-  $("peso").value=e.peso||"";$("cintura").value=e.cintura||"";
-  $("yogaNotas").value=e.yogaNotas||"";
-  if(e.cardioMedio)$("cardioMedio").value=e.cardioMedio;
-  $("cardioMin").value=e.cardioMin||"";
-  $("notas").value=e.notas||"";
-  $("diaChips").querySelectorAll(".chip").forEach(c=>c.className="chip");
-  const dch=$("diaChips").querySelector('[data-d="'+state.dia+'"]');
-  if(dch)dch.className="chip "+(state.dia==="v"?"on-v":state.dia==="a"?"on-a":"on-r");
-  $("pemToggle").querySelectorAll("button").forEach(b=>b.className="");
-  const pb=$("pemToggle").querySelector('[data-v="'+state.pem+'"]');
-  if(pb)pb.className=state.pem==="si"?"on-si":(state.pem==="nose"?"on-nose":"on-no");
-  buildChips();renderSesion();updateBanner();
-  $("guardar").textContent="Actualizar sesión ✓";
-  window.scrollTo(0,0);
-  flash("Editando "+(e.fecha||""));
+    ciclo:(cic.ciclo==null?"":cic.ciclo),diaCiclo:(cic.diaCiclo==null?"":cic.diaCiclo),fase:faseDe(fecha),appVersion:APP_VERSION,
+    ejercicios:s.tipo==="gym"?s.ejercicios.map(ejercicioObj):[]};
+  /* Deduplicación: misma fecha + mismo tipo de sesión => se EDITA la existente, no se crea otra. */
+  let idx=-1;
+  for(let j=0;j<a.length;j++){if(a[j]&&a[j].fecha===entry.fecha&&a[j].sesion===entry.sesion){idx=j;break}}
+  if(idx>=0){
+    if(!confirm("Ya existe una sesión guardada el "+entry.fecha+" ("+entry.sesion+").\n\nSe EDITARÁ esa entrada en lugar de crear una nueva.\n¿Continuar?"))return;
+    a[idx]=Object.assign({},a[idx],entry,{ts:(a[idx].ts||entry.ts),tsEdit:Date.now()});
+    save(a);flash("Sesión actualizada ✓");
+  }else{
+    a.push(entry);save(a);flash("Guardado ✓");
+  }
+  state.exDone={};state.exLog={};state.exRir={};state.exProt={};state.wDone={};$("notas").value="";$("yogaNotas").value="";$("cardioMin").value="";
+  renderSesion();renderHist();refreshCicloView();
 }
 
 function diaTag(d){return d==="r"?'🔴':d==="a"?'🟡':'🟢'}
+/* RIR y protectores en el historial: si el registro viejo no los tiene, se muestra «—», nunca 0. */
+function hayRir(x){return !vacio(x&&x.rir)}
+function rirTxt(x){return " (RIR "+(hayRir(x)?x.rir:"—")+")"}
+function hayProt(x){const cs=protCampos(x&&x.name);for(let i=0;i<cs.length;i++){if(!vacio(x[cs[i].k]))return true}return false}
+function protTxt(x){
+  const cs=protCampos(x&&x.name);if(!cs.length)return "";
+  return " ["+cs.map(function(c){return c.lbl+" "+(vacio(x[c.k])?"—":x[c.k])}).join(", ")+"]";
+}
+function cicloTag(e){
+  if(!vacio(e&&e.ciclo))return '<span class="tag">Ciclo '+e.ciclo+(vacio(e.diaCiclo)?"":" · día "+e.diaCiclo)+'</span>';
+  if(e&&e.fecha&&!esFase2(e.fecha))return '<span class="tag">Fase 1</span>';
+  return "";
+}
 function pill(v){if(v>=5)return'<span class="pill r">cadera '+v+'</span>';if(v>=3)return'<span class="pill y">cadera '+v+'</span>';return'<span class="pill g">cadera '+v+'</span>'}
 function renderHist(){
   let a=load().slice().reverse();$("histCount").textContent=a.length;
@@ -502,35 +580,29 @@ function renderHist(){
   if(fs&&fs!=="Todas")a=a.filter(e=>e.semana===fs);
   const c=$("histLista");c.innerHTML="";
   if(!a.length){c.innerHTML='<div class="mini">Sin sesiones para ese filtro.</div>';return}
-  a.slice(0,60).forEach(e=>{const logs=(e.ejercicios||[]).filter(x=>x.log).map(x=>x.name.split(" ")[0]+": "+x.log).join(" · ");
+  a.slice(0,60).forEach(e=>{const logs=(e.ejercicios||[]).filter(x=>x.log||x.done||hayRir(x)||hayProt(x)).map(x=>x.name.split(" ")[0]+": "+(x.log||"—")+rirTxt(x)+protTxt(x)).join(" · ");
     const d=document.createElement("div");d.className="hist-item";
-    d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'+
-      '<div style="flex:1;min-width:0">'+
-      diaTag(e.dia)+' <b>'+e.fecha+'</b>'+(e.mes?'<span class="tag">'+e.mes+' · '+(e.semana||"")+'</span>':'')+' · '+e.sesion+' '+pill(e.dolorCadera||0)+(e.pem==="si"?'<span class="pill r">PEM</span>':'')+
-      (logs?'<div class="mini" style="margin-top:4px">'+logs+'</div>':'')+(e.notas?'<div class="mini" style="margin-top:4px">📝 '+e.notas+'</div>':'')+
-      '</div>'+
-      (e.ts?'<button class="btnsm" data-edit="'+e.ts+'" style="flex:0 0 auto">✏️ Editar</button>':'')+
-      '</div>';
+    d.innerHTML=diaTag(e.dia)+' <b>'+e.fecha+'</b>'+cicloTag(e)+(e.mes?'<span class="tag">'+e.mes+' · '+(e.semana||"")+'</span>':'')+' · '+e.sesion+' '+pill(e.dolorCadera||0)+(e.pem==="si"?'<span class="pill r">PEM</span>':'')+
+      (logs?'<div class="mini" style="margin-top:4px">'+logs+'</div>':'')+(e.notas?'<div class="mini" style="margin-top:4px">📝 '+e.notas+'</div>':'');
     c.appendChild(d)});
-  c.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editEntry(+b.dataset.edit));
 }
 
 function exportClaude(){
   const a=load();if(!a.length){flash("Nada que copiar");return}
   let t="DIARIO DE FUERZA — ÁLEX (para ajustar el plan)\n";
-  a.forEach(e=>{t+="\n["+e.fecha+" · "+(e.mes||"")+" "+(e.semana||"")+"] "+diaTag(e.dia)+" "+e.sesion+
+  a.forEach(e=>{t+="\n["+e.fecha+" · "+(e.fase||faseDe(e.fecha))+(vacio(e.ciclo)?"":" · ciclo "+e.ciclo+" día "+(e.diaCiclo||"?"))+" · "+(e.mes||"")+" "+(e.semana||"")+"] "+diaTag(e.dia)+" "+e.sesion+
     " | cadera "+e.dolorCadera+"/10, lumbar "+(e.dolorLumbar||0)+"/10, hombro "+e.dolorHombro+"/10, PEM "+e.pem+", energía "+e.energia+"/5"+
     (e.peso?", peso "+e.peso+"kg":"")+(e.cintura?", cintura "+e.cintura+"cm":"");
-    (e.ejercicios||[]).filter(x=>x.log||x.done).forEach(x=>{t+="\n   - "+x.name+": "+(x.log||"(hecho)")});
+    (e.ejercicios||[]).filter(x=>x.log||x.done||hayRir(x)||hayProt(x)).forEach(x=>{t+="\n   - "+x.name+": "+(x.log||"(hecho)")+rirTxt(x)+protTxt(x)});
     if(e.cardioMin)t+="\n   - "+e.cardioMedio+" "+e.cardioMin+" min";
     if(e.yogaTipo)t+="\n   - Yoga "+e.yogaTipo;
     if(e.notas)t+="\n   Notas: "+e.notas;});
   copy(t,"Resumen copiado ✓ — pégamelo en el chat");
 }
 function exportCsv(){
-  const a=load(),cols=["fecha","mes","semana","momento","sesion","dia","dolorCadera","dolorLumbar","dolorHombro","pem","energia","peso","cintura","cardioMedio","cardioMin","yogaTipo","ejercicios","notas"];
+  const a=load(),cols=["fecha","fase","ciclo","diaCiclo","mes","semana","momento","sesion","dia","dolorCadera","dolorLumbar","dolorHombro","pem","energia","peso","cintura","cardioMedio","cardioMin","yogaTipo","ejercicios","notas"];
   const rows=[cols.join(",")];
-  a.forEach(e=>{const ej=(e.ejercicios||[]).map(x=>x.name+" ["+(x.log||(x.done?"hecho":""))+"]").join(" | ");
+  a.forEach(e=>{const ej=(e.ejercicios||[]).map(x=>x.name+" ["+(x.log||(x.done?"hecho":""))+"]"+rirTxt(x)+protTxt(x)).join(" | ");
     rows.push(cols.map(cc=>{let v=cc==="ejercicios"?ej:(e[cc]==null?"":e[cc]);v=String(v).replace(/"/g,'""');return /[",\n]/.test(v)?'"'+v+'"':v}).join(","))});
   const blob=new Blob([rows.join("\n")],{type:"text/csv"}),u=document.createElement("a");u.href=URL.createObjectURL(blob);u.download="diario_fuerza_"+todayISO()+".csv";u.click();
 }
@@ -539,20 +611,171 @@ function importJson(){const t=prompt("Pega tu copia de seguridad (JSON):");if(!t
   try{const p=JSON.parse(t);if(Array.isArray(p)){save(p);renderHist();flash("Importado ✓")}else alert("Formato no válido.")}catch(e){alert("No se pudo leer.")}}
 function copy(txt,msg){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>flash(msg),()=>prompt("Copia:",txt));else prompt("Copia:",txt)}
 
-function syncMesSem(){const iso=$("fecha").value||todayISO();$("mes").value=mesFromISO(iso);$("semana").value=semFromISO(iso);updateJulyNote()}
+/* ===================== MIGRACIÓN ADITIVA A v3 =====================
+   Reglas: (1) copia de seguridad ANTES de escribir; (2) solo se AÑADEN campos que falten,
+   nunca se borra ni se reescribe ninguno existente; (3) si algo falla no se escribe nada;
+   (4) se muestra en pantalla el recuento ANTES/DESPUÉS. */
+function leerMeta(){try{return JSON.parse(localStorage.getItem(META_KEY)||"{}")||{}}catch(e){return{}}}
+function escribirMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m))}catch(e){}}
+function addIfMissing(o,k,v){if(!Object.prototype.hasOwnProperty.call(o,k))o[k]=v}
 
-/* ===== Una mirada (guía viva) ===== */
-function esc(s){return (s||'').replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];});}
-function speak(txt){try{if(!('speechSynthesis' in window)){alert('Este dispositivo no permite leer en voz; puedes leerlo en pantalla.');return;}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.95;var vs=window.speechSynthesis.getVoices()||[];var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];if(es)u.voice=es;window.speechSynthesis.speak(u);}catch(e){alert('No se pudo reproducir la voz.');}}
-function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}}
-const MIRADA_KEY='mirada_entreno';
-const MIRADA_SEED="UNA MIRADA — ENTRENAMIENTO\n\nTu objetivo no es estético: es fuerza funcional para envejecer bien cuidando cadera (displasia/labrum), lumbar y fibromialgia. Los referentes de longevidad (p. ej. Peter Attia) insisten en que fuerza y estabilidad son tu mejor seguro para las próximas décadas: entrena para poder levantarte del suelo, cargar peso y mantener el equilibrio, más que para un número.\n\nTus datos ya muestran lo importante: subes cargas en todo SIN despertar dolor de cadera/lumbar/hombro, y autorregulas bien (yoga suave cuando llegas con agujetas o PEM). Ese es el camino.\n\nClaves a recordar:\n— Fuerza primero, sin llegar al fallo (RIR ~5 en esta fase): el estímulo está en la técnica y la constancia, no en la intensidad máxima.\n— Dolor no es igual a daño: una molestia leve (≤3/10) que no se resiente al día siguiente suele ser tejido adaptándose; dolor que crece o se arrastra, frena.\n— Con fibromialgia manda la regla PEM: si el malestar aparece 24–48 h después, baja carga esa semana. Mejor constante que heroico.\n— Core y tren inferior estables protegen cadera y lumbar: farmer carry, hip thrust y planchas antirrotación son oro para ti.\n— Hueso y tendón tardan más que el músculo: paciencia al subir peso.\n— Fuerza + yoga + monte se potencian entre sí.\n\nSiguiente foco: consolidar técnica y cargas sin dolor; más adelante, algo de potencia y equilibrio.";
-function getMirada(){try{var v=localStorage.getItem(MIRADA_KEY);return (v&&v.trim())?v:MIRADA_SEED;}catch(e){return MIRADA_SEED;}}
-function renderMirada(){var el=document.getElementById('miradaTexto');if(el)el.innerHTML=esc(getMirada()).replace(/\n/g,'<br>');}
-function editMirada(){var t=document.getElementById('miradaEdit');t.value=getMirada();t.style.display='block';document.getElementById('miradaEditBtn').style.display='none';document.getElementById('miradaSaveBtn').style.display='inline-block';t.focus();}
-function guardarMirada(){var t=document.getElementById('miradaEdit');try{localStorage.setItem(MIRADA_KEY,t.value);}catch(e){}t.style.display='none';document.getElementById('miradaSaveBtn').style.display='none';document.getElementById('miradaEditBtn').style.display='inline-block';renderMirada();}
-function speakMirada(){speak(getMirada());}
+function migrarAV3(){
+  const r={ok:true,ejecutada:false,antes:0,despues:0,error:"",backup:false};
+  try{
+    const raw=localStorage.getItem(STORE);
+    const meta=leerMeta();
+    if(raw===null||raw===""){
+      if(!meta.appVersion)escribirMeta({appVersion:APP_VERSION,migradoTs:Date.now(),antes:0,despues:0});
+      return r;
+    }
+    const arr=JSON.parse(raw);
+    if(!Array.isArray(arr))throw new Error("El almacén no contiene una lista de sesiones.");
+    r.antes=arr.length;r.despues=arr.length;
+    if(meta.appVersion>=APP_VERSION){r.backup=!!localStorage.getItem(BACKUP_KEY);return r}
+    /* 1) copia de seguridad antes de tocar nada */
+    if(!localStorage.getItem(BACKUP_KEY))localStorage.setItem(BACKUP_KEY,raw);
+    r.backup=!!localStorage.getItem(BACKUP_KEY);
+    if(!r.backup)throw new Error("No se pudo crear la copia de seguridad: no se ha modificado nada.");
+    /* 2) nueva versión en memoria, SOLO añadiendo campos */
+    const nuevos=arr.map(function(e){
+      if(!e||typeof e!=="object")return e;
+      const n=Object.assign({},e);
+      addIfMissing(n,"ciclo","");
+      addIfMissing(n,"diaCiclo","");
+      addIfMissing(n,"fase",faseDe(n.fecha));
+      n.appVersion=APP_VERSION;
+      if(Array.isArray(n.ejercicios)){
+        n.ejercicios=n.ejercicios.map(function(x){
+          if(!x||typeof x!=="object")return x;
+          const y=Object.assign({},x);
+          addIfMissing(y,"rir","");
+          protCampos(y.name).forEach(function(c){addIfMissing(y,c.k,"")});
+          return y;
+        });
+      }
+      return n;
+    });
+    if(nuevos.length!==arr.length)throw new Error("Recuento distinto tras migrar: no se escribe.");
+    /* 3) numerar ciclos de las sesiones de Fase 2 que ya existieran */
+    const cic=calcCiclos(nuevos,null);
+    nuevos.forEach(function(n,i){const c=cic["e"+i];if(c&&n&&typeof n==="object"){n.ciclo=c.ciclo;n.diaCiclo=c.diaCiclo;n.fase="Fase 2"}});
+    /* 4) verificación antes de escribir */
+    const payload=JSON.stringify(nuevos);
+    const check=JSON.parse(payload);
+    if(!Array.isArray(check)||check.length!==arr.length)throw new Error("Verificación fallida: no se escribe.");
+    localStorage.setItem(STORE,payload);
+    r.despues=check.length;r.ejecutada=true;
+    escribirMeta({appVersion:APP_VERSION,migradoTs:Date.now(),antes:r.antes,despues:r.despues});
+    return r;
+  }catch(err){
+    r.ok=false;r.error=(err&&err.message)?err.message:String(err);r.despues=r.antes;
+    return r; /* no se ha escrito nada en STORE */
+  }
+}
+function pintarMigBanner(r){
+  const b=$("migBanner");if(!b)return;
+  if(!r.ok){b.className="banner red show";
+    b.innerHTML="⚠ <b>Migración NO aplicada.</b> El almacén se ha dejado exactamente como estaba ("+r.antes+" entradas). Motivo: "+r.error+"<br><span class=\"mini\">Tus datos siguen intactos. Haz «💾 Backup» antes de tocar nada.</span>";
+    return}
+  if(r.ejecutada){b.className="banner green show";
+    b.innerHTML="✅ <b>Migración a v"+APP_VERSION+" completada.</b> Entradas ANTES: <b>"+r.antes+"</b> · DESPUÉS: <b>"+r.despues+"</b> "+(r.antes===r.despues?"— coinciden ✓":"— ⚠ NO COINCIDEN, revísalo")+"<br><span class=\"mini\">Copia de seguridad guardada en <code>"+BACKUP_KEY+"</code>.</span>";
+    return}
+  b.className="banner amber show";
+  b.innerHTML="ℹ️ Almacén ya en v"+APP_VERSION+" · <b>"+r.despues+"</b> entradas."+(r.backup?" <span class=\"mini\">Copia previa en <code>"+BACKUP_KEY+"</code>.</span>":"");
+}
+function pintarSubtitulo(){
+  const el=$("subTitulo");if(!el)return;
+  const hoy=todayISO();
+  el.textContent=faseDe(hoy)+" · "+(esFase2(hoy)?"ciclos A-B-C (3 sesiones en ≤ 8 días)":"Reentrada")+" · displasia+CAM+labrum+artrosis · L3–S1 · sin impacto · sin dolor · sin llegar al fallo";
+}
+function restaurarBackup(){
+  const bk=localStorage.getItem(BACKUP_KEY);
+  if(!bk){alert("No hay copia de seguridad previa a v3 en este navegador.");return}
+  let n=0;
+  try{const p=JSON.parse(bk);if(!Array.isArray(p))throw new Error("x");n=p.length}
+  catch(e){alert("La copia guardada no se puede leer. No se toca nada.");return}
+  if(!confirm("Vas a RESTAURAR el estado anterior a la migración v3 ("+n+" entradas).\nSe perderá lo guardado después de migrar.\n¿Continuar?"))return;
+  localStorage.setItem(STORE,bk);escribirMeta({});
+  renderHist();alert("Restaurado: "+n+" entradas. Recarga la página.");
+}
 
+/* ===== Duplicados vacíos: detectar y PREGUNTAR siempre antes de borrar ===== */
+function entradaVacia(e){
+  if(!e||typeof e!=="object")return true;
+  if(!vacio(e.notas)||!vacio(e.yogaNotas)||!vacio(e.cardioMin))return false;
+  if(!vacio(e.peso)||!vacio(e.cintura))return false;
+  if(+e.dolorCadera>0||+e.dolorLumbar>0||+e.dolorHombro>0)return false;
+  const ej=e.ejercicios||[];
+  for(let i=0;i<ej.length;i++){const x=ej[i]||{};if(x.done||!vacio(x.log)||hayRir(x)||hayProt(x))return false}
+  return true;
+}
+/* Devuelve las entradas vacías, clasificadas:
+   tipo "dup"   = hay otra entrada con la misma fecha+sesión  -> marcada por defecto
+   tipo "ultima"= todas las del grupo están vacías y ésta es la que se conservaría -> SIN marcar
+   tipo "sola"  = entrada vacía única en su fecha+sesión      -> SIN marcar
+   Nada se borra por defecto salvo lo que el usuario deje marcado, y siempre con confirmación. */
+function candidatosDuplicados(){
+  const a=load(),grupos={},out=[];
+  a.forEach(function(e,i){const k=((e&&e.fecha)||"")+"||"+((e&&e.sesion)||"");(grupos[k]=grupos[k]||[]).push(i)});
+  Object.keys(grupos).forEach(function(k){
+    const idxs=grupos[k];
+    const conDatos=idxs.filter(function(i){return !entradaVacia(a[i])});
+    const vacias=idxs.filter(function(i){return entradaVacia(a[i])});
+    if(!vacias.length)return;
+    if(idxs.length<2){out.push({i:vacias[0],e:a[vacias[0]],n:1,tipo:"sola",def:false});return}
+    vacias.forEach(function(i,pos){
+      const conservar=(!conDatos.length&&pos===0);
+      out.push({i:i,e:a[i],n:idxs.length,tipo:conservar?"ultima":"dup",def:!conservar});
+    });
+  });
+  out.sort(function(x,y){return x.i-y.i});
+  return out;
+}
+function dedupEtiqueta(x){
+  if(x.tipo==="dup")return "DUPLICADA vacía · "+x.n+" entradas con esa fecha+sesión";
+  if(x.tipo==="ultima")return "vacía, pero es la única que quedaría de ese día — se conserva salvo que la marques";
+  return "vacía y única de ese día (no es un duplicado) — revísala antes de marcarla";
+}
+function abrirDedup(){
+  const p=$("dedupPanel");if(!p)return;
+  const a=load(),c=candidatosDuplicados();
+  const nDup=c.filter(function(x){return x.tipo==="dup"}).length;
+  if(!c.length){p.innerHTML='<div class="mini" style="margin-top:8px">✅ No se ha encontrado ninguna entrada vacía. Total de entradas: '+a.length+'.</div>';return}
+  let h='<div class="banner amber show" style="margin-top:10px">Total de entradas: <b>'+a.length+'</b>. Vacías encontradas: <b>'+c.length+'</b> (de ellas <b>'+nDup+'</b> son duplicados exactos de fecha+sesión y vienen marcadas). <b>No se borra nada sin que lo confirmes.</b></div>';
+  c.forEach(function(x){h+='<div class="dupitem"><input type="checkbox" data-dup="'+x.i+'"'+(x.def?" checked":"")+'><div><b>'+((x.e&&x.e.fecha)||"?")+'</b> · '+((x.e&&x.e.sesion)||"?")+'<div class="mini">'+dedupEtiqueta(x)+'</div></div></div>'});
+  h+='<button class="btn sec" id="dedupDo" style="margin-top:6px">🗑 Borrar las marcadas</button>';
+  h+='<button class="btn sec" id="dedupCancel" style="margin-top:6px">Cancelar</button>';
+  p.innerHTML=h;
+  $("dedupCancel").onclick=function(){p.innerHTML=""};
+  $("dedupDo").onclick=function(){
+    const marcadas=[];
+    p.querySelectorAll("[data-dup]").forEach(function(cb){if(cb.checked)marcadas.push(+cb.dataset.dup)});
+    if(!marcadas.length){alert("No has marcado ninguna.");return}
+    if(!confirm("Se van a borrar "+marcadas.length+" entrada(s) vacías.\nAntes se guarda una copia en "+BACKUP_DEDUP_KEY+".\n¿Confirmas?"))return;
+    const arr=load(),antes=arr.length;
+    try{localStorage.setItem(BACKUP_DEDUP_KEY,JSON.stringify(arr))}
+    catch(e){alert("No se pudo guardar la copia de seguridad. No se borra nada.");return}
+    const nuevo=arr.filter(function(e,i){return marcadas.indexOf(i)<0});
+    if(nuevo.length!==antes-marcadas.length){alert("Recuento inesperado. No se borra nada.");return}
+    save(nuevo);renderHist();
+    p.innerHTML='<div class="banner green show" style="margin-top:10px">🧹 Borradas '+marcadas.length+'. Entradas ANTES: <b>'+antes+'</b> · DESPUÉS: <b>'+nuevo.length+'</b>.<br><span class="mini">Copia previa en <code>'+BACKUP_DEDUP_KEY+'</code>.</span></div>';
+  };
+}
+
+function refreshCicloView(){
+  const el=$("cicloView"),nota=$("cicloNota");if(!el)return;
+  const iso=$("fecha").value||todayISO();
+  if(!esFase2(iso)){el.value="Fase 1 (anterior al 24/08/2026)";
+    if(nota)nota.textContent="Fecha anterior al inicio de Fase 2 (24/08/2026): se guarda como Fase 1, sin número de ciclo.";return}
+  const L=letraSesion(state.sesion);
+  if(!L){el.value="Fase 2 · sin ciclo";
+    if(nota)nota.textContent="Yoga, cardio y descanso no cuentan como sesión del ciclo A-B-C.";return}
+  const c=calcCiclos(load(),{fecha:iso,sesion:state.sesion})["__nuevo__"]||{};
+  el.value="Ciclo "+(c.ciclo||1)+" · día "+(c.diaCiclo||1)+" ("+L+")";
+  const dias=(c.cicloDias==null?0:c.cicloDias);
+  if(nota)nota.textContent="Ciclo abierto el "+(c.cicloIni||iso)+" · "+dias+" día(s) transcurridos. Un ciclo = A·B·C en 8 días o menos"+(dias>CICLO_MAX_DIAS?" ⚠ excedido: se abre ciclo nuevo.":".");
+}
+function syncMesSem(){const iso=$("fecha").value||todayISO();$("mes").value=mesFromISO(iso);$("semana").value=semFromISO(iso);refreshCicloView()}
 function init(){
   fillMonthSelects();
   $("fecha").value=todayISO();syncMesSem();
@@ -563,13 +786,17 @@ function init(){
   $("pemToggle").querySelector('[data-v="no"]').className="on-no";
   $("guardar").onclick=guardar;
   $("exportClaude").onclick=exportClaude;$("exportCsv").onclick=exportCsv;$("exportJson").onclick=exportJson;$("importBtn").onclick=importJson;
-  $("mes").onchange=()=>{$("semana").value=($("mes").value==="Julio")?"S1":$("semana").value;updateJulyNote()};
   $("filtMes").onchange=renderHist;$("filtSem").onchange=renderHist;
   $("cardioTimer").onclick=()=>startTimer(0,"Monte / cardio");
-  try{if(!localStorage.getItem(MIRADA_KEY))localStorage.setItem(MIRADA_KEY,MIRADA_SEED);}catch(e){}
-  renderMirada();
+  $("dedupBtn").onclick=abrirDedup;
+  $("restoreBtn").onclick=restaurarBackup;
+  pintarSubtitulo();
+  refreshCicloView();
 }
+/* La migración se ejecuta ANTES de pintar el historial, y su resultado se muestra en pantalla. */
+const MIG=migrarAV3();
 init();
+pintarMigBanner(MIG);
 </script>
 </body>
 </html>
