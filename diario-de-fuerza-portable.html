@@ -113,23 +113,24 @@
   .protbox .t{font-size:11.5px;color:var(--accent2);margin-bottom:2px;font-weight:700}
   .rirwrap{margin-top:8px}
   code{font-size:11px;background:#0e1729;padding:1px 4px;border-radius:4px}
+  /* --- v4: desplegable de técnica y progresión --- */
+  .exdet{border:1px solid var(--line);border-radius:10px;padding:7px 10px;margin-top:8px;background:var(--card)}
+  .exdet summary{color:var(--accent2);font-size:12.5px;font-weight:700;padding:2px 0}
+  .exdet .body{font-size:12px;color:var(--txt);line-height:1.55;margin-top:7px}
+  .exdet .body b{color:var(--accent2)}
 </style>
 </head>
 <body>
-
 <div class="tmbar" id="tmbar">
   <span class="lbl" id="tmLabel">Descanso</span>
   <span class="time down" id="tmTime">02:00</span>
   <button id="tmToggle" class="prim">⏸</button>
   <button id="tmClose">✕</button>
 </div>
-
 <h1>Diario de Fuerza — Álex</h1>
 <div class="sub" id="subTitulo">Fase 1 · Reentrada · displasia+CAM+labrum+artrosis · L3–S1 · sin impacto · sin dolor · sin llegar al fallo</div>
-
 <div id="migBanner" class="banner"></div>
 <div id="banner" class="banner"></div>
-
 <div class="card">
   <h2>Día · mes · ciclo</h2>
   <div class="row">
@@ -148,7 +149,6 @@
   </details>
   <label>Tipo de sesión</label><div class="chips" id="sesionChips"></div>
 </div>
-
 <div class="card">
   <h2>Semáforo del día</h2>
   <div class="diachips" id="diaChips">
@@ -173,7 +173,6 @@
     <div><label>Cintura (cm) <span class="mini">opc.</span></label><input type="number" id="cintura" inputmode="decimal" placeholder="—"></div>
   </div>
 </div>
-
 <div class="card" id="ejerciciosCard" style="display:none">
   <h2 id="ejTitulo">Plan del día</h2>
   <div class="muted" id="ejIntro" style="margin-bottom:6px"></div>
@@ -183,14 +182,12 @@
   <div class="subhead main">💪 Trabajo principal</div>
   <div id="ejLista"></div>
 </div>
-
 <div class="card" id="yogaCard" style="display:none">
   <h2>Yoga</h2>
   <div class="muted" style="margin-bottom:8px">Estabilidad &gt; flexibilidad. Entra activo, no busques apertura máxima de cadera. Modera paloma agresiva / FABER forzado.</div>
   <label>Tipo</label><div class="chips" id="yogaChips"></div>
   <label>Sensación / notas</label><textarea id="yogaNotas" placeholder="Cómo te has sentido, posturas que molestaron..."></textarea>
 </div>
-
 <div class="card" id="cardioCard" style="display:none">
   <h2>Monte / caminar / bici (bajo impacto)</h2>
   <div class="muted" style="margin-bottom:8px">Base aeróbica. Ritmo conversacional. En bajadas de monte: bastones, pasos cortos.</div>
@@ -200,9 +197,7 @@
   </div>
   <button class="btnsm work" id="cardioTimer" style="margin-top:10px">⏲ Cronómetro</button>
 </div>
-
 <div class="card"><h2>Notas de la sesión</h2><textarea id="notas" placeholder="Sensaciones, cambios de carga, gestos que molestaron..."></textarea></div>
-
 <div class="card">
   <details id="histDetails">
     <summary>Historial (<span id="histCount">0</span>)</summary>
@@ -229,10 +224,8 @@
     <div class="mini" style="margin-top:8px">Los datos se guardan solo en este móvil. «Copiar para Claude» copia un resumen para pegar en el chat y ajustar el plan.</div>
   </details>
 </div>
-
 <div class="footwrap"><button class="btn" id="guardar">Guardar sesión ✓</button></div>
 <div class="flash" id="flash">Guardado ✓</div>
-
 <script>
 "use strict";
 const STORE="diarioFuerzaAlex_v2";
@@ -243,7 +236,6 @@ const BACKUP_DEDUP_KEY="diarioFuerzaAlex_v2_backup_pre_dedup";
 const FASE2_INICIO="2026-08-24";
 const CICLO_MAX_DIAS=8;
 const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-
 /* ===== Ilustraciones SVG (reconocer el ejercicio) ===== */
 const B='stroke="#dbe4ee" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
 const A='stroke="#38bdf8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
@@ -271,7 +263,6 @@ const ART={
  farmer:sv(FL+HD(60,22)+'<line x1="60" y1="28" x2="60" y2="52" '+B+'/><line x1="60" y1="52" x2="53" y2="72" '+B+'/><line x1="60" y1="52" x2="69" y2="70" '+B+'/><line x1="60" y1="38" x2="46" y2="48" '+B+'/><line x1="60" y1="38" x2="74" y2="48" '+B+'/>'+DB(45,54)+DB(75,54)),
  plank:sv(FL+'<line x1="20" y1="74" x2="40" y2="74" '+B+'/><line x1="28" y1="74" x2="32" y2="58" '+B+'/><line x1="32" y1="58" x2="96" y2="74" '+B+'/>'+HD(28,54))
 };
-
 /* ===== Calentamiento (vídeos reales de la guía) ===== */
 const WARMUP=[
  {name:"Rotaciones de hombro con banda",detail:"12–14/brazo · vacuna del hombro",video:"https://www.youtube.com/results?search_query=rotaciones+internas+externas+hombro+banda+elastica+tecnica"},
@@ -280,38 +271,39 @@ const WARMUP=[
  {name:"Gato-camello",detail:"8–10 lentas",video:"https://www.youtube.com/results?search_query=gato+camello+ejercicio+movilidad"},
  {name:"Puente de glúteo",detail:"10–12 apretando 2 s arriba",video:"https://www.youtube.com/results?search_query=puente+de+gluteo+tecnica"}
 ];
-
-/* ===== Sesiones A/B/C (Fase 1) con vídeos reales ===== */
+/* ===== Sesiones A/B/C — FASE 2 (desde 24/08/2026) ===== */
 const YT=n=>"https://www.youtube.com/results?search_query="+encodeURIComponent(n+" técnica ejercicio");
 const SESIONES={
- "A · Inferior":{tipo:"gym",intro:"Tren inferior + core + cadera. Descanso ~2 min principales.",ejercicios:[
-   {name:"Sentadilla Goblet (o Prensa)",art:"boxsquat",target:"4 × 8",reserva:"4-5",rest:120,work:0,note:"Baja solo hasta antes del pinchazo (cajón de tope). Rodillas NUNCA hacia dentro.",video:"https://www.youtube.com/watch?v=SpMrPG3RiCQ"},
-   {name:"Peso muerto rumano (RDL) mancuernas",art:"hinge",target:"4 × 8",reserva:"4-5",rest:120,work:0,note:"Columna neutra; tope donde la pelvis empieza a rotar (protege L3–S1).",video:"https://www.youtube.com/watch?v=UgqrPwoTick"},
-   {name:"Sentadilla búlgara / zancada estática",art:"lunge",target:"3 × 8 / lado",reserva:"3-4",rest:90,work:0,note:"Empieza por la pierna IZQUIERDA. Hasta donde la ingle no proteste.",video:"https://www.youtube.com/watch?v=IdilLr9nyuQ"},
-   {name:"Aductores con banda / máquina",art:"clamshell",target:"3 × 10 / lado",reserva:"3",rest:60,work:0,note:"Molestia inguinal ≤3/10 es aceptable aquí.",video:"https://www.youtube.com/results?search_query=aductores+banda+elastica+ejercicio+cadera"},
-   {name:"Plancha Copenhague (Nivel 1, rodilla)",art:"copen",target:"3 × 15–20 s / lado",reserva:"",rest:60,work:20,note:"Sube de nivel solo cuando 3×20 s sea cómodo.",video:"https://www.youtube.com/watch?v=QzV0IWVnOVc"},
-   {name:"Press Pallof estático",art:"pallof",target:"3 × 15–20 s / lado",reserva:"",rest:60,work:18,note:"No dejar que te gire. Pelvis neutra.",video:"https://www.youtube.com/results?search_query=press+pallof+estatico+tecnica"}
+ "A · Inferior":{tipo:"gym",intro:"Fase 2 · Tren inferior, cadera y core. Descanso ~2 min en principales. Mañana y en ayunas.",ejercicios:[
+   {name:"Sentadilla Goblet (o Prensa)",art:"boxsquat",target:"1 reconocimiento + 3 × 8",reserva:"2-3",rest:120,work:0,note:"1ª SERIE DE RECONOCIMIENTO al 60-70% (≈140). Si notas algo en cadera o rodilla, NO subes.",detalle:"<b>Cargas:</b> 140 (reconocimiento) → 170 → 210 × 3 series.<br><br><b>La primera serie no es entrenamiento, es diagnóstico.</b> Con CAM y labrum, es donde averiguas qué día tiene tu cadera. Si aparece molestia, el día se queda en esa carga o pasa a amarillo.<br><br><b>Técnica:</b> baja solo hasta antes del pinchazo. Rodillas nunca hacia dentro. Sacro pegado al respaldo.<br><br><b>Progresión:</b> +5-10 kg cuando completes 3×8 a RIR 2-3 en dos sesiones seguidas.",video:"https://www.youtube.com/watch?v=SpMrPG3RiCQ"},
+   {name:"Peso muerto rumano (RDL) mancuernas",art:"hinge",target:"3 × 8",reserva:"3",rest:120,work:0,note:"CONGELADO en 60 kg. No subir hasta 2 ciclos sin señal en isquios/aductores.",detalle:"<b>Carga: 60 kg. Congelada a propósito.</b><br><br>Subiste de 50 a 60 en una sesión (+20%) sobre la zona que lleva semanas sintomática. El RIR dice que puedes; el tejido no habla ese idioma.<br><br><b>El RIR mide fatiga muscular, no tolerancia del tejido.</b> Los isquios-aductores no avisan durante la serie: avisan 24-48 h después.<br><br><b>Progresión:</b> +2,5 kg solo tras DOS ciclos completos sin ninguna señal. Si hay señal, el contador vuelve a cero.<br><br><b>Técnica:</b> columna neutra, tope donde la pelvis empieza a rotar.",video:"https://www.youtube.com/watch?v=UgqrPwoTick"},
+   {name:"Sentadilla búlgara / zancada estática",art:"lunge",target:"3 × 8 / lado",reserva:"3-4",rest:90,work:0,note:"CONGELADO en 10 kg. Acorta la distancia entre pies: la cadera de atrás NO debe llegar al final del rango.",detalle:"<b>Carga: 10 kg. Congelada.</b><br><br><b>Paso corto.</b> La pierna de atrás está en extensión de cadera — es literalmente el gesto que te da rigidez al caminar. Acorta la distancia y no dejes que la pelvis bascule hacia delante.<br><br>Empieza por la pierna izquierda. Hasta donde la ingle no proteste.<br><br><b>Progresión:</b> +2 kg tras dos ciclos limpios. Objetivo a medio plazo 12-15 kg.<br><br>Si vas justo de tiempo, este es el ejercicio que se recorta. Nunca el Copenhague ni el Pallof.",video:"https://www.youtube.com/watch?v=IdilLr9nyuQ"},
+   {name:"Aductores con banda / máquina",art:"clamshell",target:"3 × 12",reserva:"3",rest:60,work:0,note:"TUMBADO DE LADO o DE PIE con polea. Evita la máquina sentado.",detalle:"<b>Por qué no sentado:</b> la máquina sentado pone la cadera a 90° de flexión. Si además aduces, tienes flexión + aducción, que es media receta del FADIR positivo.<br><br>Tumbado de lado o de pie con polea baja, la cadera queda en neutro. Mismo estímulo, sin la posición conflictiva.<br><br>Si solo tienes la máquina sentado, recuesta el respaldo todo lo que dé.<br><br><b>Progresión:</b> primero reps (10 → 12), después carga.",video:"https://www.youtube.com/results?search_query=aductores+banda+elastica+ejercicio+cadera"},
+   {name:"Abducción de cadera (glúteo medio)",art:"clamshell",target:"3 × 12 / lado",reserva:"3",rest:60,work:0,note:"EJERCICIO NUEVO. Es el que más protege tus dos caderas.",detalle:"<b>Por qué entra:</b> en una displasia, el glúteo medio es el estabilizador que compensa la falta de cobertura ósea. Es el músculo que suple lo que tu acetábulo no hace.<br><br>Durante la Fase 1 no había ni un ejercicio de abducción, y en agosto apareció una sobrecarga de glúteo medio. Un músculo que se sobrecarga es un músculo al que le pides más de lo que puede: la respuesta es entrenarlo.<br><br><b>Protege las DOS caderas</b>, incluida la derecha, que está peor cubierta (LCEA 12°) aunque no duela.<br><br>Máquina, banda o polea. Control por encima de carga.",video:"https://www.youtube.com/results?search_query=abduccion+de+cadera+maquina+tecnica+correcta+gluteo+medio"},
+   {name:"Plancha Copenhague (Nivel 1, rodilla)",art:"copen",target:"3 × 25 s / lado",reserva:"",rest:60,work:25,note:"Ya estás en PIERNA EXTENDIDA con apoyo en tobillo. Cadera en NEUTRO, no flexionada.",detalle:"<b>Nivel actual: pierna extendida, apoyo en tobillo.</b> Subiste de nivel tú solo — el nombre del ejercicio se ha quedado antiguo, pero se mantiene para no romper el histórico.<br><br><b>Condición técnica:</b> el Copenhague también es aducción, pero en EXTENSIÓN, y eso es lo que lo hace seguro. Cuerpo alineado, cadera neutra. Si dejas que la cadera se flexione durante el aguante, reproduces la posición que quieres evitar.<br><br><b>Progresión: +2 s por ciclo hasta 40 s.</b> Después, subir de nivel.<br><br>Esto y el Pallof son intocables. Si falta tiempo, se recorta otra cosa.",video:"https://www.youtube.com/watch?v=QzV0IWVnOVc"},
+   {name:"Press Pallof estático",art:"pallof",target:"3 × 25 s / lado",reserva:"",rest:60,work:25,note:"23 kg. No dejar que te gire. Pelvis neutra.",detalle:"<b>Carga: 23 kg, 25 s por lado.</b><br><br><b>Progresión:</b> +2,5 kg cuando llegues cómodo a 30 s.<br><br>Es trabajo antirrotación: protege la lumbar (discopatía L3-S1) y la cadera. Junto con el Copenhague, es el seguro permanente del plan.<br><br>Fue el único protector que sí progresó en Fase 1. Que siga así.",video:"https://www.youtube.com/results?search_query=press+pallof+estatico+tecnica"},
+   {name:"Muñecas + escápulas en apoyo",art:"plank",target:"3 min muñecas + 3 × 8 escapular",reserva:"",rest:45,work:0,note:"EJERCICIO NUEVO. Entrada al pino y control escapular para el hombro.",detalle:"<b>MUÑECAS (2-3 min, de rodillas):</b><br>1. Manos apoyadas, dedos hacia delante. Balanceo suave adelante-atrás. 30 s<br>2. Dedos apuntando hacia tus rodillas. Mismo balanceo, más suave. 30 s<br>3. Dorso de las manos en el suelo, dedos hacia rodillas. Presión ligera. 20 s<br>4. Dedos entrelazados, círculos de muñeca. 30 s<br><br><b>ESCAPULAR EN APOYO (3 × 8):</b><br>Plancha alta sobre las manos. Codos rectos sin bloquear. Sin mover codos ni cadera, empuja el suelo alejando el pecho: las escápulas se separan. Después deja que el pecho baje juntando escápulas. Recorrido 10-15 cm. Solo se mueve la cintura escapular.<br><br>Es el control escapular de chaturanga aislado y sin carga.<br><br><b>NO le metas peso.</b> No es movilidad: es fuerza y control del serrato. Con un hombro laxo, si añades carga antes de grabar el patrón, recluta el trapecio superior en vez del serrato.<br><br><b>Progresión por palanca, no por peso:</b><br>1. Pared · 2. Manos en banco · <b>3. Plancha alta ← aquí</b> · 4. Pies elevados · 5. Un solo brazo · 6. Pared/pino<br><br>Antes de subir del 3: verifica que la escápula izquierda recorre lo mismo que la derecha. Grábate de lado si no lo tienes claro. El escalón 5 es el que destapa y corrige la asimetría.<br><br>El escalón 6 (pica) lleva la cadera a mucha flexión: se deja para cuando revisemos el tema de la compresión.<br><br>Variable gratis antes de subir de escalón: 3 s de pausa arriba.",video:"https://www.youtube.com/results?search_query=escapular+push+up+serrato+plancha+tecnica"}
  ]},
- "B · Superior":{tipo:"gym",intro:"Tren superior + hombro. Más tracción que empuje (postura).",ejercicios:[
-   {name:"Press banca con mancuernas",art:"bench",target:"4 × 8",reserva:"4-5",rest:120,work:0,note:"Codos a ~45°. Agarre neutro si el hombro protesta.",video:"https://www.youtube.com/results?search_query=press+banca+mancuernas+tecnica+correcta"},
-   {name:"Jalón al pecho / dominadas asistidas",art:"pullup",target:"4 × 8",reserva:"4-5",rest:120,work:0,note:"Agarre neutro (más amable con tu hombro). Nunca al fallo colgado.",video:"https://www.youtube.com/results?search_query=jalon+al+pecho+tecnica+correcta"},
-   {name:"Press militar sentado con mancuernas",art:"ohp",target:"3 × 8",reserva:"3-4",rest:90,work:0,note:"Costillas abajo, sin arquear la lumbar. Agarre neutro si molesta.",video:"https://www.youtube.com/results?search_query=press+militar+sentado+mancuernas+tecnica"},
-   {name:"Remo sentado en polea (neutro)",art:"row",target:"3 × 8–10",reserva:"3",rest:90,work:0,note:"Junta escápulas, sin redondear la espalda.",video:"https://www.youtube.com/results?search_query=remo+sentado+polea+agarre+neutro+tecnica"},
-   {name:"Estabilidad de hombro con balón",art:"shoulderball",target:"2–3 × 8–12",reserva:"",rest:60,work:0,note:"El trabajo 'aburrido' que mantiene sano tu hombro. No lo quites.",video:"https://www.youtube.com/results?search_query=estabilidad+hombro+balon+medicinal+pared+ejercicio"},
-   {name:"Dead bug (bicho muerto)",art:"deadbug",target:"3 × 8–12 / lado",reserva:"",rest:60,work:0,note:"Lumbar pegada al suelo; si se despega, extiende menos.",video:"https://www.youtube.com/watch?v=OUVY99ez0k0"}
+ "B · Superior":{tipo:"gym",intro:"Fase 2 · Tirón primero. Todo el trabajo de hombro es de estabilidad, no de rango.",ejercicios:[
+   {name:"Remo sentado en polea (neutro)",art:"row",target:"4 × 8-10",reserva:"2-3",rest:120,work:0,note:"AHORA VA PRIMERO. 60 kg ESTRICTO. Si a 64 falseas el movimiento, no vale.",detalle:"<b>Carga: 60 kg estricto.</b> Tú mismo anotaste que a 64 ya falseas el movimiento — 60 limpio vale más que 64 sucio.<br><br><b>Por qué ahora va primero:</b> observaste que el remo rinde cuando abre la sesión y se queda corto detrás del jalón. No estaba estancado: estaba mal colocado. Ahora es el patrón principal de tirón.<br><br><b>Técnica:</b> junta escápulas, sin redondear la espalda. Codo pegado al costado.<br><br><b>Progresión:</b> +2,5-5 kg al cumplir 4×10 a RIR 2-3 en dos sesiones seguidas.",video:"https://www.youtube.com/results?search_query=remo+sentado+polea+agarre+neutro+tecnica"},
+   {name:"Press banca con mancuernas",art:"bench",target:"4 × 8",reserva:"2-3",rest:120,work:0,note:"65 kg (peso de trabajo). 70 te salió a RIR 2 — 65 es lo correcto para 4 series.",detalle:"<b>Carga: 65 kg total.</b><br><br>Hiciste 70 a RIR 2 y bajaste a 65 por tu cuenta: decisión correcta. El peso de trabajo es el que sostienes en todas las series al RIR objetivo, no el máximo de una serie.<br><br><b>Tu hombro tolera bien el empuje</b> — carga compresiva, mete la cabeza humeral en la cavidad. Por eso ha subido de 50 a 70 sin una sola queja mientras el tirón vertical se atascaba.<br><br><b>Técnica:</b> codos a ~45°. Agarre neutro si el hombro protesta.<br><br><b>Progresión:</b> +2,5 kg al criterio.",video:"https://www.youtube.com/results?search_query=press+banca+mancuernas+tecnica+correcta"},
+   {name:"Jalón al pecho / dominadas asistidas",art:"pullup",target:"3 × 8",reserva:"3",rest:90,work:0,note:"AGARRE NEUTRO OBLIGATORIO. Nunca colgado en peso muerto. 59 kg.",detalle:"<b>Carga: 59 kg, agarre neutro.</b><br><br><b>Tu propio experimento cambió el plan.</b> Con agarre pronado llevabas 6 semanas atascado en 41-50 con sobrecarga en axila. Con agarre neutro: 59 kg, RIR 3, y sin sobrecarga apreciable.<br><br>El problema no era el tirón vertical: era el agarre. El neutro reduce abducción y rotación interna del húmero, que es el vector que tu hombro laxo no tolera.<br><br><b>El colgado muerto es lo que hay que evitar</b>, no el tirón. Colgarte en peso muerto es tracción sobre una articulación con holgura de más, en el rango donde menos sujeción pasiva le queda.<br><br><b>Vigilancia:</b> las estructuras del hombro responden con retraso. Comprueba cómo amaneces al día siguiente y al otro. Si hay reacción, se retira y entra remo unilateral.<br><br><b>Camino a la dominada:</b> jalón neutro parcial → jalón neutro completo → dominada con pies apoyados en colgado ACTIVO → dominada neutra completa.",video:"https://www.youtube.com/results?search_query=jalon+al+pecho+agarre+neutro+tecnica"},
+   {name:"Press militar sentado con mancuernas",art:"ohp",target:"3 × 8",reserva:"3",rest:90,work:0,note:"40 kg (peso de trabajo). 45 te salió a RIR 2.",detalle:"<b>Carga: 40 kg total (20 por brazo).</b><br><br>En Fase 1 este ejercicio fue 35 / 35 / 20 / 40 — eso es ruido, no progresión. Se acabó elegir peso por sensación del día.<br><br><b>Técnica:</b> costillas abajo, sin arquear la lumbar. Agarre neutro si molesta.<br><br><b>Progresión pautada:</b> +2,5 kg cuando completes 3×8 a RIR 3 en dos sesiones seguidas. Ni antes ni por impulso.",video:"https://www.youtube.com/results?search_query=press+militar+sentado+mancuernas+tecnica"},
+   {name:"Rotación externa de hombro (polea o banda)",art:"shoulderball",target:"3 × 12 / lado",reserva:"",rest:60,work:0,note:"EJERCICIO NUEVO. Sustituye a la estabilidad con balón, que estaba en RIR 5.",detalle:"<b>Por qué sustituye al balón:</b> el ejercicio anterior lo registraste a RIR 5. Eso significa que no estaba haciendo nada.<br><br><b>Por qué este:</b> tu hombro izquierdo tiene laxitud postraumática — 13 años de boxeo con el izquierdo delante más el accidente. Tiene más rango que el derecho, y probablemente de más.<br><br><b>Un hombro laxo no necesita movilidad: necesita freno activo.</b> La rotación externa construye exactamente eso — el manguito rotador es la sujeción que le falta por vía pasiva.<br><br><b>Técnica:</b> codo pegado al costado, 90° de flexión. Movimiento lento y controlado. Carga baja pero que se note en las últimas repeticiones.<br><br><b>Nunca buscar más rango en ese hombro.</b> Ni aquí ni en yoga.<br><br><b>Progresión:</b> reps antes que carga.",video:"https://www.youtube.com/results?search_query=rotacion+externa+hombro+polea+banda+manguito+rotador+tecnica"},
+   {name:"Dead bug (bicho muerto)",art:"deadbug",target:"3 × 10 / lado",reserva:"",rest:60,work:0,note:"NO es un ejercicio de fuerza abdominal. Es control antiextensión. No lo sustituyas.",detalle:"<b>Esto no mide fuerza abdominal.</b> Tener el abdomen fuerte no lo hace innecesario — de hecho lo hace más fácil de hacer mal, porque compensas con fuerza bruta y pierdes el objetivo.<br><br><b>Qué es:</b> control motor antiextensión. Mantener la lumbar pegada al suelo mientras las extremidades se mueven. Con tu discopatía L3-S1, ese control es protector.<br><br><b>Ejecución:</b> boca arriba, caderas y rodillas a 90°, brazos verticales. Lumbar pegada al suelo — no debe caber una mano por debajo. Bajas un brazo por detrás de la cabeza y la pierna contraria, despacio, exhalando.<br><br><b>El ejercicio no es llegar abajo.</b> Es el punto exacto en que la lumbar empieza a despegarse — ahí paras. Ese es tu rango hoy. Si extiendes más, ya no entrenas control: cargas la lumbar.",video:"https://www.youtube.com/watch?v=OUVY99ez0k0"},
+   {name:"Muñecas + escápulas en apoyo",art:"plank",target:"3 min muñecas + 3 × 8 escapular",reserva:"",rest:45,work:0,note:"Mismo bloque que en la sesión A. Dos veces por ciclo.",detalle:"<b>Resumen</b> (detalle completo en la sesión A):<br><br><b>Muñecas 2-3 min:</b> dedos delante · dedos hacia rodillas · dorso de las manos · círculos.<br><br><b>Escapular 3 × 8:</b> plancha alta, empuja el suelo separando escápulas y vuelve. Recorrido 10-15 cm. Solo cintura escapular.<br><br>Sin peso. Progresión por palanca: 1 pared · 2 banco · <b>3 plancha alta ← aquí</b> · 4 pies elevados · 5 un brazo · 6 pino.<br><br>Anota abajo en qué escalón estás.",video:"https://www.youtube.com/results?search_query=escapular+push+up+serrato+plancha+tecnica"}
  ]},
- "C · Full body":{tipo:"gym",intro:"Full body ligero (RIR 4-5 siempre). La sesión 'amable' de la semana.",ejercicios:[
-   {name:"Prensa de piernas",art:"prensa",target:"3 × 10",reserva:"4-5",rest:90,work:0,note:"Sacro pegado al respaldo; para cuando empiece a despegarse.",video:"https://www.youtube.com/results?search_query=prensa+de+piernas+tecnica+correcta+profundidad"},
-   {name:"Remo sentado en polea (neutro)",art:"row",target:"3 × 10",reserva:"4",rest:90,work:0,note:"Postura: más tracción que empuje.",video:"https://www.youtube.com/results?search_query=remo+sentado+polea+agarre+neutro+tecnica"},
-   {name:"Hip thrust en banco",art:"hipthrust",target:"3 × 10",reserva:"4",rest:90,work:0,note:"No hiperextiendas la lumbar arriba.",video:"https://www.youtube.com/watch?v=3aTb9Megbuo"},
-   {name:"Press (mancuernas)",art:"bench",target:"3 × 10",reserva:"4",rest:90,work:0,note:"Rango cómodo para el hombro.",video:"https://www.youtube.com/results?search_query=press+banca+mancuernas+tecnica+correcta"},
-   {name:"Marcha del granjero (farmer carry)",art:"farmer",target:"3 × 14–16 pasos",reserva:"",rest:60,work:0,note:"Pasos cortos, tronco erguido; que la pelvis NO caiga de lado.",video:"https://www.youtube.com/watch?v=fG6rLchLpuU"},
-   {name:"Plancha dinámica (mano-codo / fitball)",art:"plank",target:"3 × 8–12",reserva:"",rest:60,work:0,note:"Sin que la cadera rote.",video:"https://www.youtube.com/results?search_query=plancha+alternando+mano+codo+tecnica"}
+ "C · Full body":{tipo:"gym",intro:"Fase 2 · La sesión amable del ciclo. RIR 3, sin heroicidades.",ejercicios:[
+   {name:"Prensa de piernas",art:"prensa",target:"3 × 10 (1ª de reconocimiento)",reserva:"3",rest:90,work:0,note:"140 (reconocimiento) → 160 → 180. NUNCA arrancar directo en 180.",detalle:"<b>Cargas: 140 → 160 → 180.</b><br><br><b>La primera serie es de reconocimiento.</b> Con CAM y labrum roto, la primera serie cargada del día es donde averiguas qué tal está tu cadera hoy. Esa información no la da el calentamiento sin carga.<br><br>Arrancar directo en 180 era un error de diseño del plan. Corregido.<br><br><b>Si en la serie de reconocimiento notas algo en cadera o rodilla, no subes.</b> El día se queda ahí o pasa a amarillo.<br><br><b>Técnica:</b> sacro pegado al respaldo; para cuando empiece a despegarse.",video:"https://www.youtube.com/results?search_query=prensa+de+piernas+tecnica+correcta+profundidad"},
+   {name:"Remo sentado en polea (neutro)",art:"row",target:"3 × 10",reserva:"3",rest:90,work:0,note:"60 kg estricto.",detalle:"<b>Carga: 60 kg.</b> Mismo criterio que en la sesión B: estricto por encima de pesado.<br><br>Más tracción que empuje: es lo que sostiene tu postura y compensa las horas sentado.",video:"https://www.youtube.com/results?search_query=remo+sentado+polea+agarre+neutro+tecnica"},
+   {name:"Hip thrust en banco",art:"hipthrust",target:"3 × 10",reserva:"3",rest:90,work:0,note:"TOPE EN NEUTRO. No subas más allá de la alineación pelvis-tronco.",detalle:"<b>Carga: 50 kg (máquina).</b><br><br><b>Cambio importante de técnica.</b> Lo que se enseña habitualmente es apretar arriba y subir todo lo posible. <b>Tú no.</b><br><br>Subes hasta que la pelvis quede alineada con el tronco y ahí paras. Ni un grado más.<br><br><b>Por qué:</b> es el ejercicio que más directamente carga la extensión terminal de cadera, que es justo donde te aparece la rigidez inguinal al caminar. La zona anterior de una cadera displásica trabaja de más en esa posición.<br><br>Tampoco hiperextiendas la lumbar arriba.",video:"https://www.youtube.com/watch?v=3aTb9Megbuo"},
+   {name:"Press (mancuernas)",art:"bench",target:"3 × 10",reserva:"3",rest:90,work:0,note:"60 kg. Rango cómodo para el hombro.",detalle:"<b>Carga: 60 kg total.</b><br><br>Versión ligera del press de la sesión B. Aquí no se busca máximo: se busca volumen de calidad con el hombro cómodo.",video:"https://www.youtube.com/results?search_query=press+banca+mancuernas+tecnica+correcta"},
+   {name:"Marcha del granjero (farmer carry)",art:"farmer",target:"3 × 30-40 pasos",reserva:"",rest:60,work:0,note:"60 kg. MENOS PASOS que antes: más carga y menos distancia.",detalle:"<b>Carga: 60 kg. Series de 30-40 pasos.</b><br><br><b>Por qué se acortan las series:</b> caminar cargado son ciclos repetidos de extensión de cadera, justo el gesto que te produce la rigidez. Mejor más carga y menos distancia que al revés.<br><br><b>Técnica:</b> pasos cortos, tronco erguido, y que la pelvis NO caiga de lado — eso último es control de glúteo medio, el mismo que estás entrenando en la sesión A.",video:"https://www.youtube.com/watch?v=fG6rLchLpuU"},
+   {name:"Plancha dinámica (mano-codo / fitball)",art:"plank",target:"3 × 30-40 s",reserva:"",rest:60,work:35,note:"BAJA de 1 minuto a 30-40 s y sube la exigencia.",detalle:"<b>Cambio:</b> de 3×1 minuto a 3×30-40 s.<br><br>Tú mismo lo dijiste y tienes razón: a un minuto estás midiendo aguante, no calidad. Menos tiempo y más exigencia — fitball, apoyo inestable o carga.<br><br><b>Criterio:</b> sin que la cadera rote. En cuanto rota, se acabó la serie, den los segundos que den.",video:"https://www.youtube.com/results?search_query=plancha+alternando+mano+codo+tecnica"}
  ]},
  "Yoga":{tipo:"yoga"},"Monte / cardio":{tipo:"cardio"},"Descanso":{tipo:"rest"}
 };
 const YOGA_TIPOS=["Hatha","Vinyasa","Restaurativo","Movilidad"];
-
 /* IDs de vídeo (se incrustan dentro de la tarjeta, no abren pestañas) */
 const YT_IDS={
  "Rotaciones de hombro con banda":"AzG_rFigUFs","Rotaciones de cadera 90-90":"cIRT0DbbpjE",
@@ -323,11 +315,11 @@ const YT_IDS={
  "Press militar sentado con mancuernas":"oI3kX7cclb4","Remo sentado en polea (neutro)":"-tFBrnhdoOk",
  "Estabilidad de hombro con balón":"U7w_sJ0yN6I","Dead bug (bicho muerto)":"OUVY99ez0k0",
  "Prensa de piernas":"hl-EJUQ2yuc","Hip thrust en banco":"3aTb9Megbuo","Press (mancuernas)":"MeyuOEimrC0",
- "Marcha del granjero (farmer carry)":"fG6rLchLpuU","Plancha dinámica (mano-codo / fitball)":"gLqbrQwH1dU"
+ "Marcha del granjero (farmer carry)":"fG6rLchLpuU","Plancha dinámica (mano-codo / fitball)":"gLqbrQwH1dU",
+ "Abducción de cadera (glúteo medio)":"","Rotación externa de hombro (polea o banda)":"","Muñecas + escápulas en apoyo":""
 };
 function ytId(name){return YT_IDS[name]||""}
 function ytWatch(name){const id=ytId(name);return id?"https://www.youtube.com/watch?v="+id:"https://www.youtube.com/results?search_query="+encodeURIComponent(name);}
-
 /* ===== Campos numéricos de los ejercicios protectores (SE AÑADEN al texto libre, no lo sustituyen) ===== */
 const PROTECTORES={
  "Plancha Copenhague (Nivel 1, rodilla)":{campos:[
@@ -340,13 +332,15 @@ const PROTECTORES={
  ]},
  "Dead bug (bicho muerto)":{campos:[
    {k:"deadbugReps",lbl:"Repeticiones",tipo:"num",ph:"reps"}
+ ]},
+ "Muñecas + escápulas en apoyo":{campos:[
+   {k:"escapEscalon",lbl:"Escalón",tipo:"sel",opts:["1 Pared","2 Banco","3 Plancha alta","4 Pies elevados","5 Un brazo","6 Pino"]},
+   {k:"escapReps",lbl:"Reps/serie",tipo:"num",ph:"reps"}
  ]}
 };
 function protCampos(name){const p=PROTECTORES[name];return (p&&p.campos)||[]}
 function vacio(v){return v==null||v===""||(typeof v==="string"&&!v.trim())}
-
 let state={sesion:"A · Inferior",dia:"v",pem:"no",yogaTipo:"Hatha",exDone:{},exLog:{},exRir:{},exProt:{},wDone:{}};
-
 const $=id=>document.getElementById(id);
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"[]")}catch(e){return[]}}
 function save(a){localStorage.setItem(STORE,JSON.stringify(a))}
@@ -358,7 +352,6 @@ function mesFromISO(iso){const d=new Date(iso+"T00:00");return MESES[d.getMonth(
    y SIN etiquetar automáticamente la semana 4 como «descarga». */
 function semFromISO(iso){const d=new Date(iso+"T00:00"),day=d.getDate();
   return "S"+Math.min(5,Math.ceil(day/7))}
-
 /* ===== Ciclos A-B-C (Fase 2 desde el 24/08/2026) ===== */
 function letraSesion(s){const m=/^([ABC])\s*·/.exec(String(s||""));return m?m[1]:""}
 function esFase2(fecha){return String(fecha||"")>=FASE2_INICIO}
@@ -384,7 +377,6 @@ function calcCiclos(arr,extra){
   });
   return out;
 }
-
 let AC=null;
 function alertOnce(){
   try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
@@ -394,7 +386,6 @@ function alertOnce(){
   }catch(e){}
   try{if(navigator.vibrate)navigator.vibrate(500);}catch(e){}
 }
-
 let TM={id:null,mode:"down",value:0,reset:0,running:false};
 function tmShow(on){$("tmbar").classList.toggle("show",on);document.body.classList.toggle("bar-on",on)}
 function tmPaint(cls){const t=$("tmTime");t.textContent=fmt(TM.value);t.className="time "+(cls||TM.mode)}
@@ -419,7 +410,6 @@ function tmToggle(){
 }
 function tmClose(){TM.running=false;if(TM.id)clearInterval(TM.id);TM.id=null;tmShow(false)}
 function bindTimer(){$("tmToggle").onclick=tmToggle;$("tmClose").onclick=tmClose;}
-
 function buildChips(){
   const c=$("sesionChips");c.innerHTML="";
   Object.keys(SESIONES).forEach(k=>{const el=document.createElement("div");el.className="chip"+(k===state.sesion?" active":"");el.textContent=k;
@@ -431,7 +421,6 @@ function fillMonthSelects(){
   const m=$("mes");m.innerHTML="";MESES.forEach(x=>{const o=document.createElement("option");o.textContent=x;m.appendChild(o)});
   const fm=$("filtMes");fm.innerHTML="";["Todos"].concat(MESES).forEach(x=>{const o=document.createElement("option");o.textContent=x;fm.appendChild(o)});
 }
-
 function renderWarmup(){
   const c=$("warmupList");c.innerHTML="";
   WARMUP.forEach((w,i)=>{const done=!!state.wDone[i];const wrap=document.createElement("div");
@@ -493,6 +482,7 @@ function renderSesion(){
         (ex.work>0?'<button class="btnsm work" data-work="'+i+'">⏱ Aguante '+ex.work+'s</button>':'<button class="btnsm work" data-stop="'+i+'">⏲ Crono</button>')+
       '</div>'+
       (ex.note?'<div class="note">⚠ '+ex.note+'</div>':'')+
+      (ex.detalle?'<details class="exdet"><summary>📖 Técnica y progresión</summary><div class="body">'+ex.detalle+'</div></details>':'')+
       '<input type="text" data-log="'+i+'" placeholder="Carga × reps (ej. 20×8 / 20×8 / 22×7)" value="'+(state.exLog[i]||"")+'" style="margin-top:8px">'+
       '<div class="rirwrap"><label style="margin:6px 0 4px">RIR — reps en reserva (1–5)</label>'+rirSelect(i)+'</div>'+
       protHTML(ex.name,i);
@@ -508,7 +498,6 @@ function renderSesion(){
   cont.querySelectorAll("[data-work]").forEach(b=>b.onclick=()=>{const ex=s.ejercicios[b.dataset.work];startTimer(ex.work,"Aguante · "+ex.name)});
   cont.querySelectorAll("[data-stop]").forEach(b=>b.onclick=()=>{const ex=s.ejercicios[b.dataset.stop];startTimer(0,"Crono · "+ex.name)});
 }
-
 function updateBanner(){
   const dc=+$("dolorCadera").value,dl=+$("dolorLumbar").value,dh=+$("dolorHombro").value,b=$("banner");
   if(state.dia==="r"||state.pem==="si"||dc>=4||dl>=4){b.className="banner red show";
@@ -529,7 +518,6 @@ function bindWellness(){
   $("pemToggle").querySelectorAll("button").forEach(btn=>btn.onclick=()=>{state.pem=btn.dataset.v;
     $("pemToggle").querySelectorAll("button").forEach(b=>b.className="");btn.className=state.pem==="si"?"on-si":(state.pem==="nose"?"on-nose":"on-no");updateBanner()});
 }
-
 function ejercicioObj(ex,i){
   const o={name:ex.name,done:!!state.exDone[i],log:state.exLog[i]||"",rir:(state.exRir[i]==null?"":state.exRir[i])};
   const st=state.exProt[i]||{};
@@ -562,7 +550,6 @@ function guardar(){
   state.exDone={};state.exLog={};state.exRir={};state.exProt={};state.wDone={};$("notas").value="";$("yogaNotas").value="";$("cardioMin").value="";
   renderSesion();renderHist();refreshCicloView();
 }
-
 function diaTag(d){return d==="r"?'🔴':d==="a"?'🟡':'🟢'}
 /* RIR y protectores en el historial: si el registro viejo no los tiene, se muestra «—», nunca 0. */
 function hayRir(x){return !vacio(x&&x.rir)}
@@ -591,7 +578,6 @@ function renderHist(){
       (logs?'<div class="mini" style="margin-top:4px">'+logs+'</div>':'')+(e.notas?'<div class="mini" style="margin-top:4px">📝 '+e.notas+'</div>':'');
     c.appendChild(d)});
 }
-
 function exportClaude(){
   const a=load();if(!a.length){flash("Nada que copiar");return}
   let t="DIARIO DE FUERZA — ÁLEX (para ajustar el plan)\n";
@@ -615,7 +601,6 @@ function exportJson(){copy(JSON.stringify(load()),"Backup copiado ✓")}
 function importJson(){const t=prompt("Pega tu copia de seguridad (JSON):");if(!t)return;
   try{const p=JSON.parse(t);if(Array.isArray(p)){save(p);renderHist();flash("Importado ✓")}else alert("Formato no válido.")}catch(e){alert("No se pudo leer.")}}
 function copy(txt,msg){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>flash(msg),()=>prompt("Copia:",txt));else prompt("Copia:",txt)}
-
 /* ===================== MIGRACIÓN ADITIVA A v3 =====================
    Reglas: (1) copia de seguridad ANTES de escribir; (2) solo se AÑADEN campos que falten,
    nunca se borra ni se reescribe ninguno existente; (3) si algo falla no se escribe nada;
@@ -623,7 +608,6 @@ function copy(txt,msg){if(navigator.clipboard&&navigator.clipboard.writeText)nav
 function leerMeta(){try{return JSON.parse(localStorage.getItem(META_KEY)||"{}")||{}}catch(e){return{}}}
 function escribirMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m))}catch(e){}}
 function addIfMissing(o,k,v){if(!Object.prototype.hasOwnProperty.call(o,k))o[k]=v}
-
 function migrarAV3(){
   const r={ok:true,ejecutada:false,antes:0,despues:0,error:"",backup:false};
   try{
@@ -703,7 +687,6 @@ function restaurarBackup(){
   localStorage.setItem(STORE,bk);escribirMeta({});
   renderHist();alert("Restaurado: "+n+" entradas. Recarga la página.");
 }
-
 /* ===== Duplicados vacíos: detectar y PREGUNTAR siempre antes de borrar ===== */
 function entradaVacia(e){
   if(!e||typeof e!=="object")return true;
@@ -766,7 +749,6 @@ function abrirDedup(){
     p.innerHTML='<div class="banner green show" style="margin-top:10px">🧹 Borradas '+marcadas.length+'. Entradas ANTES: <b>'+antes+'</b> · DESPUÉS: <b>'+nuevo.length+'</b>.<br><span class="mini">Copia previa en <code>'+BACKUP_DEDUP_KEY+'</code>.</span></div>';
   };
 }
-
 function refreshCicloView(){
   const el=$("cicloView"),nota=$("cicloNota");if(!el)return;
   const iso=$("fecha").value||todayISO();
