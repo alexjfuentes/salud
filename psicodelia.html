@@ -439,8 +439,8 @@ function save(){localStorage.setItem(LS,JSON.stringify(DB))}
 
 /* ---- text-to-speech ---- */
 function speak(txt){try{if(!('speechSynthesis'in window)){alert('Tu móvil no permite leer en voz aquí; puedes leerlo en pantalla.');return;}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.95;u.pitch=1;var vs=window.speechSynthesis.getVoices()||[];var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];if(es)u.voice=es;window.speechSynthesis.speak(u);}catch(e){alert('No se pudo reproducir la voz; léelo en pantalla.');}}
-function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}}
-function speakTema(id){var t=DB.temas.find(function(x){return x.id===id;});if(!t)return;speakLargo((t.nota||'')+'. '+(t.interpretacion||''));}
+function stopSpeak(){try{window.speechSynthesis.cancel();}catch(e){}LEC.activo=false;LEC.hablando=false;LEC.trozos=[];LEC.i=0;if(LEC.watchdog){clearInterval(LEC.watchdog);LEC.watchdog=null;}if(LEC.keep){clearInterval(LEC.keep);LEC.keep=null;}try{lecUI();}catch(e){}}
+function speakTema(id){var t=DB.temas.find(function(x){return x.id===id;});if(!t)return;speakLargo((t.frase?t.frase+'. ':'')+t.titulo+'. '+(t.nota||'')+' '+(t.interpretacion||''));}
 function speakMiTrabajo(id){var el=document.getElementById('mt-'+id);var v=el?el.value:'';if(!v||!v.trim()){alert('Aún no has escrito nada en «Mi trabajo» de este tema.');return;}speak(v);}
 /* precarga de voces */
 try{if('speechSynthesis'in window){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices();};}}catch(e){}
@@ -882,26 +882,89 @@ function restore(){
 
 
 
-/* ---- lectura de textos largos, troceada por frases (iOS corta los largos) ---- */
-function speakLargo(txt){
+/* ---- lectura de textos largos: secuencial, un trozo tras otro ----
+   iOS descarta la cola si se encolan muchas utterances de golpe; hay que
+   encadenarlas con onend y mantener viva la síntesis con resume(). ---- */
+var LEC = {trozos:[], i:0, activo:false, watchdog:null, keep:null, hablando:false, t0:0};
+function lecUI(){
+  var b=document.getElementById('lecBar');
+  if(!b){
+    b=document.createElement('div'); b.id='lecBar';
+    b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--card);'+
+      'border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));'+
+      'display:flex;gap:10px;align-items:center;font-size:.8rem';
+    document.body.appendChild(b);
+  }
+  if(!LEC.activo){b.style.display='none';return;}
+  b.style.display='flex';
+  var pct=Math.round((LEC.i/Math.max(1,LEC.trozos.length))*100);
+  b.innerHTML='<span style="flex:1">🔊 '+pct+'% <span class="muted">('+LEC.i+'/'+LEC.trozos.length+')</span></span>'+
+              '<button class="icobtn" onclick="stopSpeak()">⏹ Parar</button>';
+}
+function lecHablar(){
+  if(!LEC.activo)return;
+  if(LEC.i>=LEC.trozos.length){ lecFin(); return; }
+  var txt=LEC.trozos[LEC.i];
+  var u=new SpeechSynthesisUtterance(txt);
+  u.lang='es-ES'; u.rate=0.95; u.pitch=1;
   try{
-    if(!('speechSynthesis'in window)){alert('Tu móvil no permite leer en voz aquí; puedes leerlo en pantalla.');return;}
-    window.speechSynthesis.cancel();
-    var limpio=String(txt).replace(/@@(.+?)@@/g,'$1.').replace(/\s+/g,' ').trim();
-    var frases=limpio.match(/[^.!?]+[.!?]*/g)||[limpio];
-    var trozos=[],buf='';
-    frases.forEach(function(f){
-      if((buf+f).length>220){if(buf)trozos.push(buf);buf=f;}else{buf+=f;}
-    });
-    if(buf)trozos.push(buf);
     var vs=window.speechSynthesis.getVoices()||[];
     var es=vs.filter(function(v){return /^es/i.test(v.lang);})[0];
-    trozos.forEach(function(tr){
-      var u=new SpeechSynthesisUtterance(tr.trim());
-      u.lang='es-ES';u.rate=0.95;u.pitch=1;if(es)u.voice=es;
-      window.speechSynthesis.speak(u);
-    });
-  }catch(e){alert('No se pudo reproducir la voz; léelo en pantalla.');}
+    if(es)u.voice=es;
+  }catch(e){}
+  LEC.hablando=true; LEC.t0=Date.now();
+  u.onend=function(){ LEC.hablando=false; };
+  u.onerror=function(){ LEC.hablando=false; };
+  try{ window.speechSynthesis.speak(u); }catch(e){ LEC.hablando=false; }
+  lecUI();
+}
+function lecFin(){
+  LEC.activo=false; LEC.hablando=false;
+  if(LEC.watchdog){clearInterval(LEC.watchdog);LEC.watchdog=null;}
+  if(LEC.keep){clearInterval(LEC.keep);LEC.keep=null;}
+  lecUI();
+}
+function trocear(txt){
+  var limpio=String(txt).replace(/@@(.+?)@@/g,'$1.').replace(/\s+/g,' ').trim();
+  var frases=limpio.match(/[^.!?…]+[.!?…]*/g)||[limpio];
+  var out=[],buf='',MAX=120;
+  frases.forEach(function(f){
+    f=f.trim(); if(!f)return;
+    while(f.length>MAX){
+      var corte=f.lastIndexOf(' ',MAX); if(corte<40)corte=MAX;
+      if(buf){out.push(buf);buf='';}
+      out.push(f.slice(0,corte)); f=f.slice(corte).trim();
+    }
+    if((buf+' '+f).length>MAX){ if(buf)out.push(buf); buf=f; }
+    else { buf = buf ? buf+' '+f : f; }
+  });
+  if(buf)out.push(buf);
+  return out;
+}
+function speakLargo(txt){
+  if(!('speechSynthesis'in window)){alert('Este navegador no permite leer en voz aquí; usa el botón Leer.');return;}
+  stopSpeak();
+  LEC.trozos=trocear(txt); LEC.i=0; LEC.activo=true; LEC.hablando=false;
+  if(!LEC.trozos.length){LEC.activo=false;return;}
+  lecHablar();
+  /* vigilante: no dependemos de onend, que en iPhone y en Chrome a veces no llega */
+  LEC.watchdog=setInterval(function(){
+    if(!LEC.activo){clearInterval(LEC.watchdog);LEC.watchdog=null;return;}
+    var ss=window.speechSynthesis;
+    var ocupado=false;
+    try{ ocupado = ss.speaking || ss.pending; }catch(e){}
+    /* solo miramos el estado real del motor; onend no es fiable en iPhone.
+       El margen de 400 ms evita avanzar antes de que el motor se registre. */
+    if(!ocupado && (Date.now()-LEC.t0)>400){ LEC.i++; lecUI(); lecHablar(); return; }
+    /* si dice estar hablando pero lleva demasiado en el mismo trozo, forzamos */
+    if(Date.now()-LEC.t0 > 25000){ try{ss.cancel();}catch(e){} LEC.hablando=false; LEC.i++; lecUI(); lecHablar(); }
+  },350);
+  /* Chrome y iOS suspenden la síntesis sola: hay que darle un toque */
+  LEC.keep=setInterval(function(){
+    if(!LEC.activo){clearInterval(LEC.keep);LEC.keep=null;return;}
+    try{ window.speechSynthesis.pause(); window.speechSynthesis.resume(); }catch(e){}
+  },5000);
+  lecUI();
 }
 function expsDe(titulo){var a=TEMA_EXPS[titulo];return Array.isArray(a)?a:[];}
 function playRelato(n){var r=RELATOS[String(n)];if(!r){alert('Relato no disponible.');return;}speakLargo(r.r);}
@@ -1031,8 +1094,11 @@ function guardarNotaDia(){
 function speakPractica(){
   var P=ensurePractica(), t=DB.temas.find(function(x){return x.id===P.temaId;});
   if(!t)return;
-  var partes=[t.frase||t.titulo, t.interpretacion||t.nota||''];
-  if(t.tipo==='practica'&&t.dias&&t.dias.length)partes.push('Hoy: '+t.dias[diaIdx()]);
+  var partes=[t.frase||'', t.titulo, t.nota||'', t.interpretacion||''];
+  if(t.tipo==='practica'&&t.dias&&t.dias.length){
+    partes.push('La aplicación de hoy.');partes.push(t.dias[diaIdx()]);
+    if(t.meditacion){partes.push('Y la variante de meditación.');partes.push(t.meditacion);}
+  }
   speak(partes.join('. '));
 }
 function aTerapiaDesdePractica(){
