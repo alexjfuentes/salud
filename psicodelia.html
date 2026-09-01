@@ -1076,14 +1076,22 @@ function playerBox(){
   if(!b){
     b=document.createElement('div'); b.id='audioBar';
     b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:120;background:var(--card);'+
-      'border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));'+
-      'box-shadow:0 -2px 14px rgba(0,0,0,.35)';
+      'border-top:1px solid var(--line);border-radius:14px 14px 0 0;'+
+      'padding:10px 12px calc(14px + env(safe-area-inset-bottom));'+
+      'box-shadow:0 -2px 18px rgba(0,0,0,.45)';
     document.body.appendChild(b);
   }
   return b;
 }
+function ajustaHueco(){
+  try{
+    var m=document.querySelector('main');
+    if(m)m.style.paddingBottom = AUD_INFO.titulo ? '150px' : '';
+  }catch(e){}
+}
 function pintaPlayer(){
   var b=playerBox(), a=audioEl();
+  ajustaHueco();
   if(!AUD_INFO.titulo){b.style.display='none';return;}
   b.style.display='block';
   var d=a.duration||0, t=a.currentTime||0;
@@ -1098,10 +1106,7 @@ function pintaPlayer(){
       '<button class="icobtn" onclick="saltaAudio(-15)">−15s</button>'+
       '<button class="icobtn" onclick="toggleAudio()">'+(a.paused?'▶':'⏸')+'</button>'+
       '<button class="icobtn" onclick="saltaAudio(15)">+15s</button>'+
-      '<select onchange="velAudio(this.value)" style="padding:3px 6px;font-size:.75rem;width:auto">'+
-        [0.75,0.9,1,1.15,1.3].map(function(v){
-          return '<option value="'+v+'"'+(Math.abs(a.playbackRate-v)<0.01?' selected':'')+'>'+v+'×</option>';}).join('')+
-      '</select>'+
+      '<button class="icobtn" onclick="ciclaVel()" style="min-width:44px">'+(a.playbackRate||1)+'×</button>'+
       '<button class="icobtn" style="margin-left:auto" onclick="cerrarAudio()">✕</button>'+
     '</div>';
 }
@@ -1109,6 +1114,11 @@ function buscarAudio(v){var a=audioEl();if(a.duration)a.currentTime=a.duration*(
 function saltaAudio(s){var a=audioEl();a.currentTime=Math.max(0,Math.min(a.duration||0,a.currentTime+s));}
 function toggleAudio(){var a=audioEl();if(a.paused)a.play();else a.pause();pintaPlayer();}
 function velAudio(v){audioEl().playbackRate=parseFloat(v)||1;pintaPlayer();}
+var VELS=[0.75,0.9,1,1.15,1.3];
+function ciclaVel(){
+  var a=audioEl(), i=VELS.findIndex(function(v){return Math.abs(a.playbackRate-v)<0.01;});
+  a.playbackRate=VELS[(i+1)%VELS.length]; pintaPlayer();
+}
 function cerrarAudio(){var a=audioEl();a.pause();AUD_INFO={titulo:'',sub:''};pintaPlayer();}
 function ponAudio(ruta,titulo,sub,textoAlterno){
   stopSpeak();
